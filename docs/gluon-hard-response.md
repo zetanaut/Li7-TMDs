@@ -57,7 +57,7 @@ The supplied point is √s=5 GeV, Q²=4 GeV², mQ=1.5 GeV, θ=0.8, φ=0.4, incom
 python src/gluon_born_response.py --output results/gluon_born_report.json
 ```
 
-The regenerated [JSON report](https://github.com/zetanaut/spin32-Li7-TMD/blob/main/results/gluon_born_report.json) includes all input four-vectors, B real/imaginary parts, both eigenvalues, four Stokes values, both Ward residuals, Hermiticity and kinematic residuals, and five passing Boolean checks. See the [generated result summary](generated-results.md) for values read directly from the JSON. These are coupling-stripped hard responses, not lithium-7 cross sections.
+The regenerated [JSON report](https://github.com/zetanaut/Li7-TMDs/blob/main/results/gluon_born_report.json) includes all input four-vectors, B real/imaginary parts, both eigenvalues, four Stokes values, both Ward residuals, Hermiticity and kinematic residuals, and five passing Boolean checks. See the [generated result summary](generated-results.md) for values read directly from the JSON. These are coupling-stripped hard responses, not lithium-7 cross sections.
 
 ## Grid and diagnostic figures
 

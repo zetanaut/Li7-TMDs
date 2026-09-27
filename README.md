@@ -1,7 +1,7 @@
 # Spin-3/2 TMD computational companion
 
-[![Validation](https://github.com/zetanaut/spin32-Li7-TMD/actions/workflows/validation.yml/badge.svg)](https://github.com/zetanaut/spin32-Li7-TMD/actions/workflows/validation.yml)
-[![Pages](https://github.com/zetanaut/spin32-Li7-TMD/actions/workflows/pages.yml/badge.svg)](https://github.com/zetanaut/spin32-Li7-TMD/actions/workflows/pages.yml)
+[![Validation](https://github.com/zetanaut/Li7-TMDs/actions/workflows/validation.yml/badge.svg)](https://github.com/zetanaut/Li7-TMDs/actions/workflows/validation.yml)
+[![Pages](https://github.com/zetanaut/Li7-TMDs/actions/workflows/pages.yml/badge.svg)](https://github.com/zetanaut/Li7-TMDs/actions/workflows/pages.yml)
 
 ## What this repository is
 
@@ -30,8 +30,8 @@ It does not calculate nonperturbative lithium-7 TMDs, fit data, contain a nuclea
 ## Install and run
 
 ```bash
-git clone https://github.com/zetanaut/spin32-Li7-TMD.git
-cd spin32-Li7-TMD
+git clone https://github.com/zetanaut/Li7-TMDs.git
+cd Li7-TMDs
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -50,6 +50,6 @@ python scripts/update_report_summary.py
 python -m unittest discover -s tests -v
 ```
 
-See the [documentation site](https://zetanaut.github.io/spin32-Li7-TMD/) for conventions, derivations, checks, and a recommended learning path.
+See the [documentation site](https://zetanaut.github.io/Li7-TMDs/) for conventions, derivations, checks, and a recommended learning path.
 
 Dustin Keller · University of Virginia · MIT license.
