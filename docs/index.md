@@ -1,4 +1,4 @@
-# Computational companion
+# Li7-TMDs
 
 This site explains the executable checks of spin-3/2 target-polarization algebra, leading-twist quark and gluon tensor bases, a selected electromagnetic SIDIS trace, and a Born-level gluon hard response. The motivating target is polarized lithium-7. The algebraic target-spin basis is general to spin 3/2.
 
