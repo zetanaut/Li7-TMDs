@@ -1,0 +1,439 @@
+{
+  "three-dimensional quadrupole trace": "PASS",
+  "three-dimensional octupole traces": "PASS",
+  "spin-density inverse map on all 16 Hermitian basis matrices": "PASS",
+  "octupole longitudinal eigenvalues": "PASS",
+  "octupole helicity-one matrix": "PASS",
+  "quadrupole helicity-two matrix": "PASS",
+  "STF momentum tensors through rank five": "PASS",
+  "STF of rank-two product vanishes": "PASS",
+  "dual STF of rank-two product vanishes": "PASS",
+  "dual STF of rank-three double contraction vanishes": "PASS",
+  "quark complex low branch m=1": "PASS",
+  "quark complex high branch m=1": "PASS",
+  "gluon complex low branch m=1": "PASS",
+  "gluon complex high branch m=1": "PASS",
+  "sine invariant m=1": "PASS",
+  "quark complex low branch m=2": "PASS",
+  "quark complex high branch m=2": "PASS",
+  "gluon complex low branch m=2": "PASS",
+  "gluon complex high branch m=2": "PASS",
+  "sine invariant m=2": "PASS",
+  "quark complex low branch m=3": "PASS",
+  "quark complex high branch m=3": "PASS",
+  "gluon complex low branch m=3": "PASS",
+  "gluon complex high branch m=3": "PASS",
+  "sine invariant m=3": "PASS",
+  "quark catalogue has 32 entries": "PASS",
+  "quark 64-by-32 tensor map has rank 32": "PASS",
+  "quark multipole counts 2,6,10,14": "PASS",
+  "quark_catalogue": [
+    {
+      "channel": "f",
+      "K": 0,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 0,
+      "m": 0,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "g",
+      "K": 1,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 1,
+      "m": 0,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "f",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "g",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "f",
+      "K": 2,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 0,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "f",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "g",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "f",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "g",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 0,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "f",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "f",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "f",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 4
+    }
+  ],
+  "gluon catalogue has 32 entries": "PASS",
+  "gluon 64-by-32 tensor map has rank 32": "PASS",
+  "gluon multipole counts 2,6,10,14": "PASS",
+  "gluon_catalogue": [
+    {
+      "channel": "f",
+      "K": 0,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 0,
+      "m": 0,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "g",
+      "K": 1,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 1,
+      "m": 0,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "f",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "g",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 1,
+      "m": 1,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "f",
+      "K": 2,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 0,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "f",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "g",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 1,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "f",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "g",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 2,
+      "m": 2,
+      "orbital_rank": 4
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 0,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 0,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "f",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 1,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "f",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 2
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 0
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 2,
+      "orbital_rank": 4
+    },
+    {
+      "channel": "f",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "g",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 3
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 1
+    },
+    {
+      "channel": "h",
+      "K": 3,
+      "m": 3,
+      "orbital_rank": 5
+    }
+  ],
+  "quark projection Gram matrix": "PASS",
+  "fragmentation projection Gram matrix": "PASS",
+  "electromagnetic trace channel 0,0": "PASS",
+  "electromagnetic trace channel 0,2": "PASS",
+  "electromagnetic trace channel 0,3": "PASS",
+  "electromagnetic trace channel 1,0": "PASS",
+  "electromagnetic trace channel 1,2": "PASS",
+  "electromagnetic trace channel 1,3": "PASS",
+  "electromagnetic trace channel 2,0": "PASS",
+  "electromagnetic trace channel 2,2": "PASS",
+  "electromagnetic trace channel 2,3": "PASS",
+  "electromagnetic trace channel 3,0": "PASS",
+  "electromagnetic trace channel 3,2": "PASS",
+  "electromagnetic trace channel 3,3": "PASS",
+  "SIDIS scalar-helicity-Collins master contraction": "PASS",
+  "ideal transition vector moment": "PASS",
+  "ideal transition quadrupole moment": "PASS",
+  "ideal transition octupole moment": "PASS"
+}

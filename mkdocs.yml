@@ -1,0 +1,26 @@
+site_name: Spin-3/2 TMD computational companion
+site_url: https://zetanaut.github.io/spin32-Li7-TMD/
+repo_url: https://github.com/zetanaut/spin32-Li7-TMD
+repo_name: zetanaut/spin32-Li7-TMD
+theme: readthedocs
+markdown_extensions:
+  - tables
+  - fenced_code
+  - attr_list
+  - pymdownx.arithmatex:
+      generic: true
+nav:
+  - Home: index.md
+  - Physics overview: physics-overview.md
+  - Spin-3/2 polarization: spin32-polarization.md
+  - 2D transverse STF tensors: transverse-stf.md
+  - Quark basis: quark-basis.md
+  - Gluon basis: gluon-basis.md
+  - Symbolic validation: symbolic-validation.md
+  - SIDIS trace validation: sidis-validation.md
+  - Gluon Born response: gluon-hard-response.md
+  - Conventions: conventions.md
+  - Reproducing results: reproducing-results.md
+  - Generated result summary: generated-results.md
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js

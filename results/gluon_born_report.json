@@ -1,0 +1,105 @@
+{
+  "description": "Coupling-stripped Born hard matrix; multiply by e^4 e_Q^2 g_s^2 T_F / Q^4.",
+  "inputs": {
+    "sqrt_s": 5.0,
+    "Q2": 4.0,
+    "mass": 1.5,
+    "theta": 0.8,
+    "phi": 0.4,
+    "lepton_energy": 10.0,
+    "helicity": 1.0
+  },
+  "momenta_GeV": {
+    "l": [
+      10.0,
+      6.090869562984722,
+      0.0,
+      -7.931034482758621
+    ],
+    "lp": [
+      7.9,
+      6.090869562984722,
+      0.0,
+      -5.031034482758621
+    ],
+    "q": [
+      2.1,
+      0.0,
+      0.0,
+      -2.9
+    ],
+    "k": [
+      2.9,
+      0.0,
+      0.0,
+      2.9
+    ],
+    "p1": [
+      2.5,
+      1.3214574282758769,
+      0.5587032395262116,
+      1.3934134186943308
+    ],
+    "p2": [
+      2.5,
+      -1.3214574282758769,
+      -0.5587032395262116,
+      -1.3934134186943308
+    ]
+  },
+  "propagators_GeV2": [
+    -22.58179782842712,
+    -6.418202171572881
+  ],
+  "B_real": [
+    [
+      1794.177364831287,
+      5.976925668584769
+    ],
+    [
+      5.976925668584599,
+      1573.8450116794088
+    ]
+  ],
+  "B_imag": [
+    [
+      9.669897331009836e-15,
+      -123.64461697840883
+    ],
+    [
+      123.64461697840845,
+      -4.973799150320701e-14
+    ]
+  ],
+  "Stokes": {
+    "b_U": 1684.0111882553479,
+    "b_G": -123.64461697840883,
+    "b_C": 110.16617657593906,
+    "b_S": 5.976925668584769
+  },
+  "B_eigenvalues": [
+    1518.2996877203936,
+    1849.722688790302
+  ],
+  "relative_Ward_residuals": {
+    "photon": 1.0995968861416103e-16,
+    "gluon": 9.844944684313323e-17
+  },
+  "relative_Hermiticity_residual": 2.517235490355539e-16,
+  "kinematic_residuals": {
+    "l_squared": 0.0,
+    "lp_squared": 7.105427357601002e-15,
+    "k_squared": 0.0,
+    "q_squared_plus_Q2": 0.0,
+    "p1_squared_minus_m2": 0.0,
+    "p2_squared_minus_m2": 0.0,
+    "momentum_conservation": 0.0
+  },
+  "checks": {
+    "on_shell_and_conservation": true,
+    "photon_Ward": true,
+    "gluon_Ward": true,
+    "Hermitian_hard_matrix": true,
+    "positive_semidefinite_hard_matrix": true
+  }
+}

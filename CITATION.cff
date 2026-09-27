@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: If you use this software, please cite this repository.
+title: Spin-3/2 TMD symbolic validation and gluon hard-response toolkit
+type: software
+authors:
+  - family-names: Keller
+    given-names: Dustin
+    affiliation: University of Virginia
+repository-code: https://github.com/zetanaut/spin32-Li7-TMD
+url: https://github.com/zetanaut/spin32-Li7-TMD
+year: 2026
+license: MIT
