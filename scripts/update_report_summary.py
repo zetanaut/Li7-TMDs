@@ -153,22 +153,27 @@ def render_summary(run_dir: Path) -> str:
         cases=[by_id[x]['result_payload'] for x in FOURIER_NUMERIC_IDS]
         worst=max(cases,key=lambda x:x['absolute_error']/x['relative_scale'])
         gram=by_id['limits.positivity.joint_gram']['result_payload']
+        source_gram=by_id['limits.positivity.finite_k_gram.quark']['result_payload']
+        inverse=by_id['limits.fourier.inverse_normalization']['result_payload']['inverse_cases']
         blocks=by_id['limits.positivity.block_certificate']['result_payload']
         witnesses=by_id['limits.positivity.collinear_witnesses']['result_payload']
-        lines += ['## Collinear, Fourier, local moments, and conditional positivity', '',
+        lines += ['', '## Collinear, Fourier, local moments, and conditional positivity', '',
                   f"The full Cartesian angular projection evaluated {len(COLLINEAR_ROW_IDS)} covariants. "
                   f"Quarks: {len(q['candidates'])} angular candidates and {len(q['survivors'])} "
                   f"straight-link survivors. Gluons: {len(g['candidates'])} and {len(g['survivors'])}.", '',
                   f"The cutoff-tail fixture integrates to `{by_id['limits.collinear.operations_uv']['result_payload']['cutoff_integral']}`; "
                   'its radial limit diverges logarithmically. Angular selection is not a renormalized PDF integral.', '',
                   f"Exact Fourier differentiation covered {len(FOURIER_EXACT_IDS)} ranks and "
-                  f"{len(cases)} independently integrated Gaussian/quartic rank-branch cases. "
+                  f"{len(cases)} independently integrated Gaussian/quartic rank-branch cases, "
+                  f"plus {len(inverse)} Gaussian inverse Hankel cases. "
                   f"The worst scaled Cartesian/Bessel error was {worst['absolute_error']/worst['relative_scale']:.3g} "
                   f"for {worst['kind']} rank {worst['rank']} branch {worst['branch']:+d}.", '',
                   f"Rotational coupling checked {len(LOCAL_RANK_IDS)} finite N/bilinear cases; "
                   f"{len(LOCAL_PARITY_IDS)} charge-conjugation rows retain independent antiquark terms. "
                   'No numerical nuclear moment or QCD sum-rule value is inferred.', '',
-                  f"The source-index spectral Gram has rank {gram['Gram_rank']} in its exact example. "
+                  f"The independent complex Gram example has rank {gram['Gram_rank']}; "
+                  f"the parity-averaged source-index Gram has rank {source_gram['matrix_rank']} "
+                  f"and recovers {source_gram['recovered_coefficients']} quark coefficients. "
                   f"The collinear block checker verified {blocks['quark_blocks']} quark and "
                   f"{blocks['gluon_blocks']} gluon coupled blocks. "
                   f"{witnesses['case_count']} exact collinear cases include interiors, boundaries, and violations.", '',
