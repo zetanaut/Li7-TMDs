@@ -49,7 +49,8 @@ def main():
                              and r['inputs']['phi'] == phi
                              and r['inputs']['helicity'] == 1.0) for t in thetas]
             ax.plot(thetas, [r['Stokes'][key] for r in selected], marker='o', label=f'φ={phi:g}')
-        ax.set(xlabel='θ (rad)', ylabel=key, title=f'Born-level hard response: {key}')
+        ax.set(xlabel='θ (rad)', ylabel=key,
+               title=f'Historical source λ=+1 Born response: {key}')
         ax.legend(); ax.grid(alpha=.25)
         save(fig, args.output_dir/key)
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -58,7 +59,8 @@ def main():
                          and r['inputs']['phi'] == 0.4
                          and r['inputs']['helicity'] == 1.0) for t in thetas]
         ax.plot(thetas, [r['B_eigenvalues'][j] for r in selected], marker='o', label=f'eigenvalue {j+1}')
-    ax.set(xlabel='θ (rad)', ylabel='eigenvalue', title='Born-level hard-matrix eigenvalues (φ=0.4, λ=1)')
+    ax.set(xlabel='θ (rad)', ylabel='eigenvalue',
+           title='Historical source λ=+1 Born eigenvalues (φ=0.4)')
     ax.legend(); ax.grid(alpha=.25)
     save(fig, args.output_dir/'eigenvalues')
     fig, ax = plt.subplots(figsize=(7, 4))
@@ -66,7 +68,8 @@ def main():
         ax.semilogy(range(len(rows)), [max(r['relative_Ward_residuals'][key], 1e-18) for r in rows],
                     marker='.', linestyle='none', label=key)
     ax.axhline(1e-11, color='black', linestyle='--', label='acceptance tolerance')
-    ax.set(xlabel='grid point index', ylabel='relative residual', title='Born-amplitude Ward validation (36 points)')
+    ax.set(xlabel='grid point index', ylabel='relative residual',
+           title='Historical source-labelled Born Ward checks (36 points)')
     ax.legend(); ax.grid(alpha=.25)
     save(fig, args.output_dir/'ward_residuals')
     if args.run_dir and 'gluon.born.dense_scan' in by_id:
@@ -77,13 +80,13 @@ def main():
         for name in ('b_G','b_C','b_S'):
             ax.plot(angles,[x['stokes'][name]/x['stokes']['b_U'] for x in selected],label=name+'/b_U')
         ax.set(xlabel='θ (rad)',ylabel='dimensionless analyzing ratio',
-               title='Born hard analyzer, 161 calculated angles')
+               title='Historical source λ=+1 Born analyzer, 161 angles')
         ax.grid(alpha=.25);ax.legend();save(fig,args.output_dir/'dense_analyzing')
         fig,ax=plt.subplots(figsize=(7,4))
         for j in (0,1):
             ax.plot(angles,[x['eigenvalues'][j] for x in selected],label=f'eigenvalue {j+1}')
         ax.set(xlabel='θ (rad)',ylabel='reduced B eigenvalue (GeV²)',
-               title='Born hard matrix, 161 calculated angles')
+               title='Historical source λ=+1 Born matrix, 161 angles')
         ax.grid(alpha=.25);ax.legend();save(fig,args.output_dir/'dense_eigenvalues')
         fig,ax=plt.subplots(figsize=(7,4))
         floor=1e-18
@@ -91,7 +94,7 @@ def main():
         for key in ('photon','gluon'):
             ax.semilogy(angles,[max(x['relative_wards'][key],floor) for x in selected],label=key+' Ward')
         ax.set(xlabel='θ (rad)',ylabel=f'relative residual (display floor {floor:g})',
-               title='Born independent and Ward diagnostics')
+               title='Historical source-label adapter and Ward diagnostics')
         ax.grid(alpha=.25);ax.legend();save(fig,args.output_dir/'dense_residuals')
         recon=by_id['gluon.oct.reconstruction']
         fig,ax=plt.subplots(figsize=(5,4))
