@@ -1,33 +1,33 @@
 # Generated result summary
 
-This page describes the **gluon-processes profile only**. The complete manuscript validation profile has required suites that are still missing.
+This page describes the **full profile**. The declared executable program passed; analytical QCD inputs and excluded dynamic calculations remain separate.
 
 The summary was generated from a complete run whose required IDs, source and input digests, computed ranks, and result identities were checked together.
 
-Source revision: `d1b70f5dc88c0d3d9dc997592ca25c8a22bf74fe`; dirty source: `false`; scientific source digest: `8f0471816fe4e2bda1c3b243151e06be80e5c8025928ee2837fcfb492c679e86`.
+Source revision: `3d250407e061fb14a0f36b73f341ae68c4fffa92`; dirty source: `false`; scientific source digest: `633e28117ac78c47c95067bab3a4e17fa92f03c1f4fa6d6045f64769695cfde7`.
 
 | Executed evidence | Count |
 |---|---:|
-| conditional algebra | 66 |
+| conditional algebra | 85 |
 | exact fixture | 92 |
-| exact identity | 180 |
+| exact identity | 274 |
 | exact rank | 6 |
 | numerical diagnostic | 56 |
-| numerical parameter cases | 8 |
-| software test | 29 |
+| numerical parameter cases | 28 |
+| software test | 38 |
 
 | Evidence role | Records |
 |---|---:|
-| component case | 122 |
+| component case | 216 |
 | independent bound | 2 |
-| independent comparison | 112 |
-| legacy identity | 47 |
+| independent comparison | 142 |
+| legacy identity | 49 |
 | legacy rank | 2 |
-| negative control | 26 |
+| negative control | 35 |
 | numerical corroboration | 51 |
 | rank witness | 2 |
 | software regression | 3 |
-| unique claim | 70 |
+| unique claim | 77 |
 
 | Computed symbolic quantity | Value |
 |---|---:|
@@ -84,8 +84,6 @@ The seven-direction target-response determinant is `-1400/35937`. This is target
 32 SIDIS and 14 octupole DY row expressions were compared exactly with separately curated fixtures. 46 row kernels were evaluated using Cartesian quadrature, harmonic quadrature, and exact Gaussian moments.
 
 64 quark/gluon coefficient sign records check finite PT algebra conditional on the stated field/link transformation. They do not establish QCD factorization or an evolution kernel.
-
-The full profile retains later scientific requirements.
 
 ### SIDIS reviewed response rows
 
@@ -205,4 +203,16 @@ The 36-case grid compared 36 direct amplitudes; the dense scan evaluated and ind
 | `gluon.oct.h.33.1` | 32/25 | 1 | 1 |
 | `gluon.oct.h.33.5` | 32/25 | 5 | 1/4 |
 
-The full profile remains incomplete because the separate collinear-selection, Fourier/Bessel, local-moment, and partonic-positivity requirements have not been executed.
+## Collinear, Fourier, local moments, and conditional positivity
+
+The full Cartesian angular projection evaluated 64 covariants. Quarks: 7 angular candidates and 6 straight-link survivors. Gluons: 6 and 5.
+
+The cutoff-tail fixture integrates to `-log(Lambda**2) + log(Lambda**2 + R**2)`; its radial limit diverges logarithmically. Angular selection is not a renormalized PDF integral.
+
+Exact Fourier differentiation covered 6 ranks and 20 independently integrated Gaussian/quartic rank-branch cases, plus 6 Gaussian inverse Hankel cases. The worst scaled Cartesian/Bessel error was 1.1e-12 for gaussian rank 5 branch -1.
+
+Rotational coupling checked 12 finite N/bilinear cases; 12 charge-conjugation rows retain independent antiquark terms. No numerical nuclear moment or QCD sum-rule value is inferred.
+
+The independent complex Gram example has rank 3; the parity-averaged source-index Gram has rank 6 and recovers 32 quark coefficients. The collinear block checker verified 3 quark and 2 gluon coupled blocks. 11 exact collinear cases include interiors, boundaries, and violations.
+
+These positivity statements assume a positive spectral/input prescription. They do not impose pointwise positivity on arbitrary subtracted TMDs.
