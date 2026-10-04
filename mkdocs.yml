@@ -19,6 +19,7 @@ nav:
   - Symbolic validation: symbolic-validation.md
   - Validation coverage: validation-coverage.md
   - Independent foundations: foundations.md
+  - Quark process responses: quark-processes.md
   - SIDIS trace validation: sidis-validation.md
   - Gluon Born response: gluon-hard-response.md
   - Conventions: conventions.md

@@ -36,6 +36,15 @@ python scripts/check_foundation_certificates.py
 
 Pass the printed foundations run directory to `scripts/update_report_summary.py --run-dir RUN --output docs/generated-foundations.md`. The full profile executes the available foundations and exits nonzero with its later scientific suites. Neither a passing baseline nor a passing foundations profile is full manuscript validation.
 
+The cumulative quark-process profile adds 32 SIDIS and 14 octupole DY exact response rows, an independent Gaussian integral for every row, massless QED current checks, and finite link-reversal algebra conditional on the field rule:
+
+```sh
+python scripts/run_validation.py --profile quark-processes --output-root /tmp/li7-runs
+python scripts/update_report_summary.py --run-dir /tmp/li7-runs/PRINTED-RUN-DIRECTORY --output /tmp/li7-summary.md
+```
+
+`full` executes this available evidence and exits with the later gluon response, independent heavy-pair Born, and limit/positivity suites marked missing.
+
 ## Legacy commands
 
 The original entry points and output options remain available:

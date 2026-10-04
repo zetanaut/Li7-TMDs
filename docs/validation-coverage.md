@@ -1,6 +1,6 @@
 # Validation coverage
 
-The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds the independent finite-dimensional claims below. The `full` profile executes all available work and returns `MISSING` for later required suites. A PASS is limited to the named profile.
+The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds the independent finite-dimensional claims below. `quark-processes` adds SIDIS, DY, convolution, and conditional link-reversal evidence. The `full` profile executes available work and returns `MISSING` for later required suites. A PASS is limited to the named profile.
 
 | Claim | Source definition | Current evidence | Scope and remaining work |
 |---|---|---|---|
@@ -12,8 +12,9 @@ The `baseline` profile reruns the 49 historical symbolic outcomes, five Born ref
 | Lower-spin gluon convention dictionary | `eq:gluon_scalar_dictionary`, `eq:gluon_linear_dictionary` | Direct reference tensors versus minimal correlator, 18-coordinate rank and kernel | Tensor-convention comparison, not equality of hadronic functions. |
 | Quark/gluon covariants and coefficient recovery | `eq:Ffull`, `eq:Gfull`, `eq:T0`–`eq:T3`, `eq:H0`–`eq:B3`, Appendix inverse equations | Symbolic Cartesian/helicity agreement, exact 64×32 minors, independent parity bound, all analytic projectors | Generic nonzero transverse momentum, specified operator/link class. |
 | Failure detection and run provenance | Computational companion | Injected scientific mutations, certificate checker, run-scoped manifest and attestation | A certificate proves the checked finite map; it does not certify process factorization. |
-| Full SIDIS and Drell–Yan responses | Process sections | MISSING | Later phase. |
-| Link/color universality and fourteen-response gluon separation | Universality and observable sections | MISSING | Later phase. |
+| SIDIS and octupole DY quark responses | `eq:traceSIDIS`, `tab:SF`, `eq:DYtrace`, `eq:DYnumberSF`, `eq:DYhelicitySF`, `eq:DYchiralSF` | All 32 + 14 curated row identities; all-row Gaussian moments and two independent quadratures; massless QED current | Leading-power one-photon Born and synthetic radial inputs. See [quark processes](quark-processes.md). |
+| Quark/gluon link-reversal algebra | `eq:PTspin`, `eq:PTprojection`, `eq:Tparity` | Complex-density PT, 64 coefficient sign records, typed simple links | Conditional on analytic field/link rule. No general color-loop transformation or factorization proof. |
+| Fourteen-response gluon separation | Gluon observable section | MISSING | Later phase. |
 | Independent Born amplitudes and dense scans | Hard response section | MISSING | Later phase. |
 | Complete collinear/matching/partonic positivity | Matching and positivity sections | MISSING | Later phase. |
 

@@ -17,7 +17,9 @@ from reproduce_gluon_grid import evaluate_grid  # noqa: E402
 from validation_manifest import (BORN_CHECKS, FULL_PENDING_SUITES, LEGACY_IDS,
                                  LEGACY_SYMBOLIC_LABELS, SOFTWARE_TESTS,
                                  FOUNDATION_REQUIRED, BASELINE_REQUIRED,
-                                 FOUNDATION_NEGATIVE_TESTS, PROFILE_REQUIRED)  # noqa: E402
+                                 FOUNDATION_NEGATIVE_TESTS, PROFILE_REQUIRED,
+                                 PROCESS_NEGATIVE_TESTS, PROCESS_ROW_IDS,
+                                 PROCESS_INTEGRAL_IDS, REVERSAL_IDS)  # noqa: E402
 from validation_evidence import (GRID_AXES, REFERENCE_INPUTS, EvidenceError, finish_run,
                                  new_run, result, validate_run, atomic_json, file_digest,
                                  write_results)  # noqa: E402
@@ -198,9 +200,113 @@ def check_foundation_evidence_integrity(run_dir: Path) -> dict:
                               'duplicate grid point','failed grid diagnostic'],
             'method':'tampered copies of the completed run rejected by summary validator'}
 
+
+def execute_processes(run_dir: Path, manifest: dict, results: list[dict]) -> None:
+    from process_dirac import check_algebra
+    from process_normalization import sidis_normalization,dy_normalization,qed_current_checks
+    from process_observables import target_checks,flavor_checks,sidis_flavor_checks,spin_difference_checks
+    from process_convolutions import check_row_integral,momentum_sign_control
+    from process_responses import compare_row
+    from process_reversal import check_reversal,conditional_evolution_check
+    from response_fixtures import SIDIS_ROWS,DY_ROWS,row_id
+    algebra=check_algebra()
+    fixed={
+        'process.dirac.algebra':{key:algebra[key] for key in ('dirac','chiral','basis_conversion')},
+        'process.dirac.sidis_trace':algebra['SIDIS'],
+        'process.dirac.dy_trace':algebra['DY'],
+        'process.sidis.normalization':sidis_normalization(),
+        'process.sidis.flavors':sidis_flavor_checks(),
+        'process.dy.current':qed_current_checks(),
+        'process.dy.normalization':dy_normalization(),
+        'process.dy.flavors':flavor_checks(),
+        'process.target.preparations':target_checks(),
+        'process.spin_differences':spin_difference_checks(),
+        'process.convolution.momentum_sign':momentum_sign_control(),
+    }
+    reversal=check_reversal()
+    fixed['process.reversal.density_links']={key:value for key,value in reversal.items() if key!='tables'}
+    fixed['process.reversal.conditional_evolution']=conditional_evolution_check()
+    for check_id,payload in fixed.items():
+        evidence_type=('conditional_algebra' if check_id.startswith('process.reversal.') else
+                       'numerical_diagnostic' if check_id=='process.dy.current' else 'exact_identity')
+        results.append(result(check_id,'PASS',evidence_type,
+                              ['Four-dimensional leading-power Born conventions',
+                               'Operator reversal conditional on eq:PTprojection where applicable'],
+                              payload,manifest,claim_role='unique_claim'))
+    fixture_sha=file_digest(ROOT/'src'/'response_fixtures.py')
+    for process,rows in (('SIDIS',SIDIS_ROWS),('DY',DY_ROWS)):
+        for row in rows:
+            check_id=row_id(process,row)
+            payload=compare_row(process,row)
+            payload['fixture_sha256']=fixture_sha
+            results.append(result(check_id,'PASS','exact_fixture',
+                                  ['eq:SFrow target amplitude and beam factor outside convolution',
+                                   'Reflection of radial TMDs about recoil axis'],payload,manifest,
+                                  claim_role='independent_comparison'))
+            integral=check_row_integral(process,row)
+            integral['source_row_id']=check_id
+            results.append(result('integral.'+check_id,'PASS','numerical_diagnostic',
+                                  ['Synthetic radial Gaussian functions; not nuclear predictions',
+                                   'Fourier angular factors evaluated at generic fixed phases'],
+                                  integral,manifest,claim_role='numerical_corroboration'))
+    for species in ('quark','gluon'):
+        for item in reversal['tables'][species]['rows']:
+            check_id=(f'process.reversal.{species}.{item["channel"]}.'
+                      f'{item["K"]}{item["m"]}.{item["orbital_rank"]}')
+            results.append(result(check_id,'PASS','conditional_algebra',
+                                  ['eq:PTprojection field/link transformation is analytic input',
+                                   'Momentum labels held fixed under combined PT'],
+                                  item,manifest,claim_role='component_case'))
+    expected=set(PROCESS_ROW_IDS)|set(PROCESS_INTEGRAL_IDS)|set(REVERSAL_IDS)
+    present={item['check_id'] for item in results}
+    if not expected<=present:
+        raise EvidenceError('missing process leaf IDs '+str(sorted(expected-present)))
+    proc=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests',
+                         '-p','test_process_failures.py','-v'],cwd=ROOT,text=True,capture_output=True)
+    (run_dir/'process_negative.log').write_text(proc.stdout+proc.stderr,encoding='utf-8')
+    passed=set(re.findall(r'^(test_[a-z_]+) \(test_process_failures\.ProcessFailureTests\.[a-z_]+\) \.\.\. ok$',
+                          proc.stdout+proc.stderr,flags=re.MULTILINE))
+    for name in PROCESS_NEGATIVE_TESTS:
+        results.append(result('software.process_negative.'+name,
+                              'PASS' if proc.returncode==0 and name in passed else 'FAIL',
+                              'software_test',['Test-local convention mutation'],
+                              {'test_id':name,'exit_code':proc.returncode},manifest,
+                              claim_role='negative_control'))
+    if proc.returncode or passed!=set(PROCESS_NEGATIVE_TESTS):
+        raise EvidenceError('process negative controls failed, missing or changed')
+
+
+def check_process_evidence_integrity(run_dir: Path) -> dict:
+    import copy,json,shutil,tempfile
+    validate_run(run_dir)
+    cases=[]
+    with tempfile.TemporaryDirectory(prefix='li7-process-integrity-') as temp:
+        for mutation in ('missing-row','duplicate-row','replaced-row','fixture-digest','mixed-run','analytic-promotion'):
+            folder=Path(temp)/mutation;shutil.copytree(run_dir,folder)
+            m=json.loads((folder/'manifest.json').read_text())
+            d=json.loads((folder/'results.json').read_text())
+            row=next(item for item in d['results'] if item['check_id']==PROCESS_ROW_IDS[0])
+            if mutation=='missing-row':d['results'].remove(row)
+            elif mutation=='duplicate-row':d['results'].append(copy.deepcopy(row))
+            elif mutation=='replaced-row':
+                other=next(item for item in d['results'] if item['check_id']==PROCESS_ROW_IDS[1])
+                row['result_payload']=copy.deepcopy(other['result_payload'])
+            elif mutation=='fixture-digest':row['result_payload']['fixture_sha256']='0'*64
+            elif mutation=='mixed-run':row['run_id']='another-run'
+            else:row['evidence_type']='analytic_only'
+            m['executed_check_ids']=[item['check_id'] for item in d['results']]
+            atomic_json(folder/'results.json',d)
+            m['results_digest']=file_digest(folder/'results.json')
+            atomic_json(folder/'manifest.json',m)
+            try:validate_run(folder)
+            except EvidenceError as exc:
+                cases.append({'mutation':mutation,'rejected_by':str(exc)})
+            else:raise EvidenceError(mutation+' was accepted')
+    return {'negative_cases':cases,'method':'tampered complete run copies rejected'}
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--profile', choices=('baseline', 'foundations', 'full'), default='baseline')
+    parser.add_argument('--profile', choices=('baseline', 'foundations', 'quark-processes', 'full'), default='baseline')
     parser.add_argument('--output-root', type=Path, default=ROOT / 'validation_runs')
     parser.add_argument('--born-sqrt-s', type=float, default=REFERENCE_INPUTS['sqrt_s'],
                         help='Reference-point diagnostic override; a different point cannot certify baseline.')
@@ -212,22 +318,41 @@ def main() -> int:
     ranks: dict[str, int] = {}
     try:
         execute(run_dir, manifest, inputs, results, ranks)
-        if args.profile in ('foundations','full'):
+        if args.profile in ('foundations','quark-processes','full'):
             execute_foundations(run_dir,manifest,results)
             results.append(result('software.foundation_evidence_integrity','PASS','software_test',
                                   ['Run-specific complete evidence'],{'stage':'pending independent mutation'},manifest,
                                   claim_role='negative_control'))
-            if args.profile == 'full':
+            if args.profile != 'foundations':
                 manifest['profile']='foundations'
                 manifest['required_check_ids']=list(PROFILE_REQUIRED['foundations'])
             finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
             try:
                 payload=check_foundation_evidence_integrity(run_dir)
             finally:
-                if args.profile == 'full':
+                if args.profile != 'foundations':
+                    manifest['profile']=args.profile
+                    manifest['required_check_ids']=list(PROFILE_REQUIRED[args.profile])
+            results[-1]=result('software.foundation_evidence_integrity','PASS','software_test',
+                               ['Tampered copies of this completed run'],payload,manifest,
+                               claim_role='negative_control')
+        if args.profile in ('quark-processes','full'):
+            execute_processes(run_dir,manifest,results)
+            results.append(result('software.process_evidence_integrity','PASS','software_test',
+                                  ['Run-specific complete process evidence'],
+                                  {'stage':'pending independent mutation'},manifest,
+                                  claim_role='negative_control'))
+            if args.profile=='full':
+                manifest['profile']='quark-processes'
+                manifest['required_check_ids']=list(PROFILE_REQUIRED['quark-processes'])
+            finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
+            try:
+                payload=check_process_evidence_integrity(run_dir)
+            finally:
+                if args.profile=='full':
                     manifest['profile']='full'
                     manifest['required_check_ids']=list(PROFILE_REQUIRED['full'])
-            results[-1]=result('software.foundation_evidence_integrity','PASS','software_test',
+            results[-1]=result('software.process_evidence_integrity','PASS','software_test',
                                ['Tampered copies of this completed run'],payload,manifest,
                                claim_role='negative_control')
         if args.profile == 'full':

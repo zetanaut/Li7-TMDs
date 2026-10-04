@@ -136,3 +136,43 @@ LATER_PENDING_SUITES = (
 PROFILE_REQUIRED['foundations'] = FOUNDATION_REQUIRED
 PROFILE_REQUIRED['full'] = FOUNDATION_REQUIRED + LATER_PENDING_SUITES
 FULL_PENDING_SUITES = LATER_PENDING_SUITES
+
+# Checkpoint-3 rows are independently curated data, not emitted by the
+# Cartesian production generator. Every row also requires an integral result.
+from response_fixtures import SIDIS_ROWS,DY_ROWS,row_id
+PROCESS_FIXED_IDS=(
+    'process.dirac.algebra','process.dirac.sidis_trace','process.dirac.dy_trace',
+    'process.sidis.normalization','process.sidis.flavors','process.dy.current','process.dy.normalization',
+    'process.dy.flavors','process.target.preparations','process.spin_differences',
+    'process.convolution.momentum_sign',
+    'process.reversal.density_links','process.reversal.conditional_evolution',
+)
+PROCESS_ROW_IDS=tuple(row_id(p,row) for p,rows in (('SIDIS',SIDIS_ROWS),('DY',DY_ROWS)) for row in rows)
+PROCESS_INTEGRAL_IDS=tuple('integral.'+check_id for check_id in PROCESS_ROW_IDS)
+REVERSAL_IDS=tuple(f'process.reversal.{species}.{channel}.{K}{m}.{n}'
+    for species in ('quark','gluon') for K in range(4) for m in range(K+1)
+    for channel,n in (
+      *((('f',m),) if m or K%2==0 else ()),
+      *((('g',m),) if m or K%2==1 else ()),
+      *((('h',n) for n in ((1,) if species=='quark' and m==0 else
+                             (2,) if species=='gluon' and m==0 else
+                             (abs(m-(1 if species=='quark' else 2)),m+(1 if species=='quark' else 2))))),
+    ))
+PROCESS_NEGATIVE_TESTS=(
+    'test_collins_sign_and_high_branch',
+    'test_target_factor_and_azimuth_conversion',
+    'test_momentum_sign_and_jacobian',
+    'test_antiquark_beam_and_exchange',
+    'test_antiunitary_and_links',
+    'test_transverse_prep_and_denominator',
+    'test_whole_asymmetry_sign',
+)
+PROCESS_SOFTWARE_IDS=tuple('software.process_negative.'+name for name in PROCESS_NEGATIVE_TESTS)+(
+    'software.process_evidence_integrity',)
+PROCESS_REQUIRED=(FOUNDATION_REQUIRED+PROCESS_FIXED_IDS+PROCESS_ROW_IDS+
+                  PROCESS_INTEGRAL_IDS+REVERSAL_IDS+PROCESS_SOFTWARE_IDS)
+PROFILE_REQUIRED['quark-processes']=PROCESS_REQUIRED
+LATER_PENDING_SUITES=('suite.gluon_response','suite.born_independent_scan',
+                      'suite.positivity_collinear_fourier')
+PROFILE_REQUIRED['full']=PROCESS_REQUIRED+LATER_PENDING_SUITES
+FULL_PENDING_SUITES=LATER_PENDING_SUITES

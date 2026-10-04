@@ -14,8 +14,8 @@ from validation_manifest import BORN_CHECKS, LEGACY_IDS  # noqa: E402
 
 def render_summary(run_dir: Path) -> str:
     manifest, document = validate_run(run_dir)
-    if manifest['profile'] not in ('baseline', 'foundations'):
-        raise EvidenceError('only complete baseline or foundations runs can be summarized')
+    if manifest['profile'] not in ('baseline', 'foundations', 'quark-processes'):
+        raise EvidenceError('only complete implemented profiles can be summarized')
     by_id = {item['check_id']: item for item in document['results']}
     counts = {}
     roles = {}
@@ -67,7 +67,7 @@ def render_summary(run_dir: Path) -> str:
               'The grid is a set of numerical cases, not additional independent scientific '
               'claims. These coupling-stripped hard responses are not lithium-7 cross-section '
               'predictions.', '']
-    if manifest['profile'] == 'foundations':
+    if manifest['profile'] in ('foundations','quark-processes'):
         lines += ['## Independent foundations', '',
                   'These exact checks cover spin and target-state algebra, transverse STF tensors, '
                   'the lower-spin gluon dictionary, quark/gluon covariants, and coefficient recovery. '
@@ -83,6 +83,34 @@ def render_summary(run_dir: Path) -> str:
         lines += ['', 'The seven-direction target-response determinant is '
                   f"`{by_id['spin.seven_direction_tomography']['result_payload']['determinant']}`. "
                   'This is target-response tomography, not fourteen-TMD separation.', '']
+    if manifest['profile']=='quark-processes':
+        from validation_manifest import PROCESS_ROW_IDS,PROCESS_INTEGRAL_IDS,REVERSAL_IDS
+        sidis=[name for name in PROCESS_ROW_IDS if name.startswith('sidis.')]
+        dy=[name for name in PROCESS_ROW_IDS if name.startswith('dy.')]
+        lines += ['## Quark process evidence', '',
+                  f'{len(sidis)} SIDIS and {len(dy)} octupole DY row expressions were '
+                  'compared exactly with separately curated fixtures. '
+                  f'{len(PROCESS_INTEGRAL_IDS)} row kernels were evaluated using '
+                  'Cartesian quadrature, harmonic quadrature, and exact Gaussian moments.', '',
+                  f'{len(REVERSAL_IDS)} quark/gluon coefficient sign records check finite '
+                  'PT algebra conditional on the stated field/link transformation. '
+                  'They do not establish QCD factorization or an evolution kernel.', '',
+                  'The full profile still requires gluon response separation, an independent '
+                  'heavy-pair Born program, and positivity/collinear/Fourier suites.', '']
+        for process,ids in (('SIDIS',sidis),('DY',dy)):
+            lines += [f'### {process} reviewed response rows', '',
+                      '| Row ID | Target `(K,m)` | Projection | Orbital rank | Weight | Phase `(recoil,target,lepton)` | Sign | Max integral residual |',
+                      '|---|---|---|---:|---|---|---:|---:|']
+            for check_id in ids:
+                row=by_id[check_id]['result_payload']
+                label=row['label']
+                integral=by_id['integral.'+check_id]['result_payload']
+                residual=max(values[-1] for values in integral['absolute_residuals'].values())
+                lines.append(f'| `{check_id}` | `({label["K"]},{label["m"]})` | '
+                             f'`{label["channel"]}` | {label["orbital_rank"]} | '
+                             f'`{row["weight"]}` | `{tuple(row["phase_coefficients"])}` | '
+                             f'{row["signed_prefactor"]:+d} | {residual:.3g} |')
+            lines.append('')
     return '\n'.join(lines)
 
 

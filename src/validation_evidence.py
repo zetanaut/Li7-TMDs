@@ -14,7 +14,8 @@ import tempfile
 import uuid
 
 from validation_manifest import (BORN_CHECKS, LEGACY_IDS, PROFILE_REQUIRED,
-                                 SOFTWARE_TESTS)
+                                 SOFTWARE_TESTS, PROCESS_ROW_IDS,
+                                 PROCESS_INTEGRAL_IDS, REVERSAL_IDS)
 
 SCHEMA_VERSION = 2
 REFERENCE_SOURCE_SHA256 = '3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d'
@@ -30,7 +31,8 @@ GRID_AXES = {
     'helicity': [-1.0, 0.0, 1.0],
 }
 EVIDENCE_TYPES = {'exact_identity', 'exact_rank', 'numerical_diagnostic',
-                  'numerical_parameter_cases', 'software_test'}
+                  'numerical_parameter_cases', 'software_test',
+                  'exact_fixture', 'conditional_algebra', 'analytic_only'}
 CLAIM_ROLES = {'legacy_identity','legacy_rank','unique_claim','component_case',
                'independent_comparison','rank_witness','independent_bound',
                'numerical_corroboration','negative_control','software_regression'}
@@ -130,7 +132,10 @@ def result(check_id: str, status: str, evidence_type: str, assumptions: list[str
         claim_role = {'exact_identity':'legacy_identity','exact_rank':'legacy_rank',
                       'numerical_diagnostic':'numerical_corroboration',
                       'numerical_parameter_cases':'component_case',
-                      'software_test':'software_regression'}[evidence_type]
+                      'software_test':'software_regression',
+                      'exact_fixture':'independent_comparison',
+                      'conditional_algebra':'unique_claim',
+                      'analytic_only':'unique_claim'}[evidence_type]
     if claim_role not in CLAIM_ROLES:
         raise EvidenceError('unknown claim role')
     return {
@@ -259,6 +264,8 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
             raise EvidenceError(f"failed or inconclusive check: {item.get('check_id')}")
         if item.get('evidence_type') not in EVIDENCE_TYPES:
             raise EvidenceError('unknown evidence type')
+        if item.get('evidence_type') == 'analytic_only':
+            raise EvidenceError('analytic-only assertion cannot certify executed check')
         if item.get('claim_role') not in CLAIM_ROLES:
             raise EvidenceError('unknown claim role')
         if (not isinstance(item.get('assumptions'), list) or
@@ -285,7 +292,7 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                 [sum(row['K'] == k for row in rows) for k in range(4)] or
                 catalogue.get('target_rank_counts') != [2, 6, 10, 14]):
             raise EvidenceError(f'{kind} catalogue payload mismatch')
-    if profile in ('foundations', 'full'):
+    if profile in ('foundations', 'quark-processes', 'full'):
         from foundation_certificates import read_certificate, verify_certificate
         attestation = _read_json(run_dir / 'certificate_attestation.json')
         if attestation.get('run_id') != manifest['run_id']:
@@ -305,6 +312,39 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                 raise EvidenceError(f'{species} certificate result mismatch')
         if attestation.get('certificates') != expected_certificates:
             raise EvidenceError('certificate attestation digest mismatch')
+    if profile in ('quark-processes','full'):
+        from response_fixtures import SIDIS_ROWS,DY_ROWS,row_id
+        fixture_digest=file_digest(ROOT/'src'/'response_fixtures.py')
+        fixture_rows={row_id(process,row):row for process,rows in
+                      (('SIDIS',SIDIS_ROWS),('DY',DY_ROWS)) for row in rows}
+        for check_id in PROCESS_ROW_IDS:
+            row=by_id[check_id]
+            K,m,channel,n,weight,phase,sign=fixture_rows[check_id]
+            payload=row['result_payload']
+            if row['evidence_type']!='exact_fixture' or row['claim_role']!='independent_comparison' or \
+                    payload.get('fixture_sha256')!=fixture_digest or \
+                    payload.get('label')!={'K':K,'m':m,'channel':channel,'orbital_rank':n} or \
+                    payload.get('weight')!=weight or payload.get('phase_coefficients')!=list(phase) or \
+                    payload.get('signed_prefactor')!=sign:
+                raise EvidenceError('response fixture digest or evidence type mismatch')
+        for check_id in PROCESS_INTEGRAL_IDS:
+            row=by_id[check_id]
+            payload=row['result_payload']
+            if row['evidence_type']!='numerical_diagnostic' or \
+                    row['claim_role']!='numerical_corroboration' or \
+                    len(payload.get('orders',()))<3 or \
+                    payload.get('source_row_id')!=check_id.removeprefix('integral.') or \
+                    set(payload.get('absolute_residuals',{}))!={'cartesian','harmonic'} or \
+                    not isinstance(payload.get('relative_scale'),(int,float)) or \
+                    payload['relative_scale']<=0 or \
+                    any(not isinstance(values,list) or len(values)!=len(payload['orders']) or
+                        values[-1]>2e-11*payload['relative_scale']
+                        for values in payload['absolute_residuals'].values()):
+                raise EvidenceError('missing independent integral evidence')
+        for check_id in REVERSAL_IDS:
+            row=by_id[check_id]
+            if row['evidence_type']!='conditional_algebra':
+                raise EvidenceError('operator reversal classified incorrectly')
     for label, check_id in LEGACY_IDS.items():
         if by_id[check_id]['result_payload'].get('legacy_label') != label:
             raise EvidenceError('legacy ID-to-check mapping mismatch')
