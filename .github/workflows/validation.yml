@@ -12,7 +12,7 @@ jobs:
           python-version: '3.11'
       - run: pip install -r requirements.txt
       - run: python -m unittest discover -s tests -v
-      - name: Execute baseline and build its evidence-backed documentation
+      - name: Execute baseline and independent foundations
         shell: bash
         run: |
           set -euo pipefail
@@ -21,5 +21,10 @@ jobs:
           test -n "$run_dir"
           python scripts/update_report_summary.py --run-dir "$run_dir"
           python scripts/make_plots.py --run-dir "$run_dir"
+          python scripts/run_validation.py --profile foundations --output-root validation_runs | tee /tmp/li7-foundations.log
+          foundation_dir=$(sed -n 's/^Run directory: //p' /tmp/li7-foundations.log)
+          test -n "$foundation_dir"
+          python scripts/check_foundation_certificates.py
+          python scripts/update_report_summary.py --run-dir "$foundation_dir" --output docs/generated-foundations.md
           mkdocs build --strict
           python scripts/check_public_scope.py --site site

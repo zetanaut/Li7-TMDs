@@ -72,3 +72,67 @@ PROFILE_REQUIRED = {
     'baseline': BASELINE_REQUIRED,
     'full': BASELINE_REQUIRED + FULL_PENDING_SUITES,
 }
+
+# Checkpoint-2 requirements are frozen independently of the functions that
+# execute them. A missing implementation therefore remains a missing ID.
+SPIN_FOUNDATION_IDS = (
+    'spin.ladder_commutator','spin.casimir','spin.derived_subtractions','spin.traces',
+    'spin.spherical_orthonormal','spin.spherical_conjugation','spin.anchor_conversion',
+    'spin.helicity_selection','spin.spherical_generators','spin.spherical_ladder','spin.cartesian_density_inverse',
+    'spin.spherical_density_inverse','spin.positive_complex_states','spin.trace_metrics',
+    'spin.full_octupole_metric','spin.cross_rank_orthogonality','spin.cartesian_permutation',
+    'spin.metric_inverse_weights','spin.octupole_spectrum','spin.preparation_positivity',
+    'spin.pure_octupole','spin.rotation_calibration','spin.rotation_coherence',
+    'spin.rotation_octupole',
+    *(f'spin.direction_unit_{i}' for i in range(7)),
+    'spin.rotated_cartesian_tensor','spin.rotated_components','spin.transverse_llt_ttt','spin.real_octupole_basis',
+    'spin.seven_direction_tomography','spin.response_recovery',
+    'spin.lower_rank_cancellation','spin.population_inverse','spin.nmr_strengths',
+    'spin.nmr_inverse','spin.ls_isometry','spin.ls_projection',
+)
+STF_FOUNDATION_IDS = (
+    'stf.rank_0.independent',
+    *(f'stf.rank_{n}.{kind}' for n in range(1,6)
+      for kind in ('independent', 'trace', 'dual', 'legacy_mass', 'mass_conversion',
+                   'rotation', 'homogeneity', 'norm', 'zero_momentum') if not (n==1 and kind=='trace')),
+    *(f'stf.rank_{n}.scalar_sine' for n in range(1,4)),
+    'stf.rank_two_products','stf.rank_three_product_dual',
+    'stf.dyadic_null','stf.dyadic_residual','stf.dyadic_pure_trace',
+)
+COVARIANT_FOUNDATION_IDS = ('target.moment_coordinates',) + tuple(
+    f'{species}.{kind}' for species in ('quark','gluon') for kind in (
+        'semantic_catalogue','helicity_comparison','channel_counts','symbolic_covariants',
+        'zero_momentum','second_exact_point','parity_bound','rotation_covariance',
+        'joint_expectation','rank_certificate','analytic_projectors',
+        'independent_linear_recovery'))
+DICTIONARY_FOUNDATION_IDS = (
+    'gluon.dictionary_complete','gluon.dictionary_mass_polarization',
+    'gluon.dictionary_derived_conversion','gluon.dictionary_rank_kernel',
+)
+FOUNDATION_NEGATIVE_TESTS = (
+    'test_certificate_entry_label_digest_and_sign',
+    'test_duplicate_omit_and_rank_preserving_sign',
+    'test_imaginary_density_and_multiplicity',
+    'test_lt_shift_and_polarization_mapping',
+    'test_parity_dual_and_epsilon',
+    'test_projector_singular_domain',
+    'test_reversed_rotation_phase',
+    'test_stf_dyadic_and_mass',
+    'test_subtraction_coefficients',
+    'test_transverse_octupole_has_llt',
+)
+FOUNDATION_SOFTWARE_IDS = tuple('software.foundation_negative.'+name for name in FOUNDATION_NEGATIVE_TESTS) + (
+    'software.foundation_evidence_integrity',
+)
+FOUNDATION_REQUIRED = (BASELINE_REQUIRED + SPIN_FOUNDATION_IDS + STF_FOUNDATION_IDS +
+                       COVARIANT_FOUNDATION_IDS + DICTIONARY_FOUNDATION_IDS +
+                       FOUNDATION_SOFTWARE_IDS)
+# Later scientific suites stay required for the full profile.
+LATER_PENDING_SUITES = (
+    'suite.sidis_complete','suite.dy_complete','suite.universality',
+    'suite.gluon_response','suite.born_independent_scan',
+    'suite.positivity_collinear_fourier',
+)
+PROFILE_REQUIRED['foundations'] = FOUNDATION_REQUIRED
+PROFILE_REQUIRED['full'] = FOUNDATION_REQUIRED + LATER_PENDING_SUITES
+FULL_PENDING_SUITES = LATER_PENDING_SUITES

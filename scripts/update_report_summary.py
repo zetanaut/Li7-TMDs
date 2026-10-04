@@ -1,4 +1,4 @@
-"""Write a baseline summary only from one complete, current validation run."""
+"""Write a summary only from one complete, current validation run."""
 from __future__ import annotations
 import argparse
 import os
@@ -9,23 +9,26 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from validation_evidence import EvidenceError, validate_run  # noqa: E402
-from validation_manifest import LEGACY_IDS  # noqa: E402
+from validation_manifest import BORN_CHECKS, LEGACY_IDS  # noqa: E402
 
 
 def render_summary(run_dir: Path) -> str:
     manifest, document = validate_run(run_dir)
-    if manifest['profile'] != 'baseline':
-        raise EvidenceError('only an implemented baseline run can be summarized here')
+    if manifest['profile'] not in ('baseline', 'foundations'):
+        raise EvidenceError('only complete baseline or foundations runs can be summarized')
     by_id = {item['check_id']: item for item in document['results']}
     counts = {}
+    roles = {}
     for item in document['results']:
         kind = item['evidence_type']
         counts[kind] = counts.get(kind, 0) + 1
+        role = item['claim_role']
+        roles[role] = roles.get(role, 0) + 1
     grid = by_id['grid.complete']['result_payload']
     point = by_id['born.on_shell_and_conservation']['result_payload']['report']
     lines = [
         '# Generated result summary', '',
-        'This page describes the **implemented baseline only**. The complete manuscript '
+        f"This page describes the **{manifest['profile']} profile only**. The complete manuscript "
         'validation profile has required suites that are still missing.', '',
         'The summary was generated from a complete run whose required IDs, source and input '
         'digests, computed ranks, and result identities were checked together.', '',
@@ -36,6 +39,9 @@ def render_summary(run_dir: Path) -> str:
     ]
     for kind, count in sorted(counts.items()):
         lines.append(f'| {kind.replace("_", " ")} | {count} |')
+    lines += ['', '| Evidence role | Records |', '|---|---:|']
+    for role, count in sorted(roles.items()):
+        lines.append(f'| {role.replace("_", " ")} | {count} |')
     lines += ['', '| Computed symbolic quantity | Value |', '|---|---:|']
     for kind in ('quark', 'gluon'):
         catalogue_id = LEGACY_IDS[f'{kind} catalogue has 32 entries']
@@ -55,11 +61,28 @@ def render_summary(run_dir: Path) -> str:
     for name, value in point['relative_Ward_residuals'].items():
         lines.append(f'| {name} Ward residual | {value:.4g} |')
     lines.append(f"| Hermiticity residual | {point['relative_Hermiticity_residual']:.4g} |")
-    lines += ['', f"All five hard-response diagnostics passed at the reference point and "
+    born_count = sum('born.' + name in by_id for name in BORN_CHECKS)
+    lines += ['', f"All {born_count} hard-response diagnostics passed at the reference point and "
               f"all {grid['number_of_cases']} specified grid cases.", '',
               'The grid is a set of numerical cases, not additional independent scientific '
               'claims. These coupling-stripped hard responses are not lithium-7 cross-section '
               'predictions.', '']
+    if manifest['profile'] == 'foundations':
+        lines += ['## Independent foundations', '',
+                  'These exact checks cover spin and target-state algebra, transverse STF tensors, '
+                  'the lower-spin gluon dictionary, quark/gluon covariants, and coefficient recovery. '
+                  'They do not cover the remaining process-response suites.', '',
+                  '| Certificate | Verified value |', '|---|---:|']
+        for species in ('quark', 'gluon'):
+            payload = by_id[f'{species}.rank_certificate']['result_payload']
+            lines.append(f"| {species.title()} exact minor rank bound | {payload['rank_lower_bound']} |")
+            lines.append(f"| {species.title()} invariant Hermitian dimension | "
+                         f"{by_id[f'{species}.parity_bound']['result_payload']['real_invariant_dimension']} |")
+            lines.append(f"| {species.title()} recovered coefficients | "
+                         f"{by_id[f'{species}.independent_linear_recovery']['result_payload']['coefficients']} |")
+        lines += ['', 'The seven-direction target-response determinant is '
+                  f"`{by_id['spin.seven_direction_tomography']['result_payload']['determinant']}`. "
+                  'This is target-response tomography, not fourteen-TMD separation.', '']
     return '\n'.join(lines)
 
 
@@ -82,7 +105,7 @@ def main() -> int:
     except (EvidenceError, OSError, KeyError, TypeError, ValueError) as exc:
         print(f'Summary rejected: {exc}', file=sys.stderr)
         return 1
-    print(f'Updated {args.output} from validated baseline evidence')
+    print(f"Updated {args.output} from validated {args.run_dir.name} evidence")
     return 0
 
 

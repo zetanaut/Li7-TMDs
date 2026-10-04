@@ -15,9 +15,11 @@ from spin32_symbolic import run_checks  # noqa: E402
 from gluon_born_response import evaluate  # noqa: E402
 from reproduce_gluon_grid import evaluate_grid  # noqa: E402
 from validation_manifest import (BORN_CHECKS, FULL_PENDING_SUITES, LEGACY_IDS,
-                                 LEGACY_SYMBOLIC_LABELS, SOFTWARE_TESTS)  # noqa: E402
+                                 LEGACY_SYMBOLIC_LABELS, SOFTWARE_TESTS,
+                                 FOUNDATION_REQUIRED, BASELINE_REQUIRED,
+                                 FOUNDATION_NEGATIVE_TESTS, PROFILE_REQUIRED)  # noqa: E402
 from validation_evidence import (GRID_AXES, REFERENCE_INPUTS, EvidenceError, finish_run,
-                                 new_run, result, validate_run,
+                                 new_run, result, validate_run, atomic_json, file_digest,
                                  write_results)  # noqa: E402
 
 
@@ -84,9 +86,121 @@ def execute(run_dir: Path, manifest: dict, reference_inputs: dict,
         raise EvidenceError('software tests failed, omitted, or changed')
 
 
+def execute_foundations(run_dir: Path, manifest: dict, results: list[dict]) -> None:
+    from spin_foundations import run_checks as spin_checks
+    from spin_state_foundations import run_checks as state_checks
+    from transverse_foundations import run_checks as stf_checks
+    from correlator_foundations import (run_checks as covariant_checks, parity_bound,
+                                        rotation_covariance, joint_expectation_check)
+    from gluon_dictionary_foundations import run_checks as dictionary_checks
+    from projector_foundations import run_checks as projector_checks
+    from foundation_certificates import read_certificate, verify_certificate
+    found = {}
+    for compute in (spin_checks, state_checks, stf_checks, covariant_checks,
+                    dictionary_checks, projector_checks):
+        suite = compute()
+        if set(found) & set(suite):
+            raise EvidenceError('duplicate foundation check ID')
+        found.update(suite)
+    for species in ('quark','gluon'):
+        found[f'{species}.parity_bound'] = parity_bound(species)
+        found[f'{species}.rotation_covariance'] = rotation_covariance(species)
+        found[f'{species}.joint_expectation'] = joint_expectation_check(species)
+        certificate = read_certificate(ROOT / 'certificates' / f'{species}_rank.json')
+        found[f'{species}.rank_certificate'] = verify_certificate(certificate)
+    expected = set(FOUNDATION_REQUIRED) - set(BASELINE_REQUIRED) - {
+        'software.foundation_negative.'+name for name in FOUNDATION_NEGATIVE_TESTS} - {
+        'software.foundation_evidence_integrity'}
+    if set(found) != expected:
+        raise EvidenceError('foundation scientific ID mismatch: missing '+str(sorted(expected-set(found)))+
+                            '; unexpected '+str(sorted(set(found)-expected)))
+    for check_id in (item for item in FOUNDATION_REQUIRED if item in found):
+        payload=found[check_id]
+        role = ('rank_witness' if check_id.endswith('rank_certificate') else
+                'independent_bound' if check_id.endswith('parity_bound') else
+                'component_case' if check_id.startswith(('spin.direction_unit_', 'stf.rank_')) else
+                'independent_comparison' if check_id.endswith(('comparison','symbolic_covariants',
+                                      'independent_linear_recovery','dictionary_complete')) else
+                'unique_claim')
+        results.append(result(check_id,'PASS',
+                              'exact_rank' if check_id.endswith(('rank_certificate','parity_bound')) else 'exact_identity',
+                              ['Exact finite-dimensional algebra; M_A>0 where divided',
+                               'Approved manuscript equations encoded in source; no runtime manuscript'],
+                              payload,manifest,claim_role=role))
+    write_results(run_dir,manifest,results)
+    proc=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests',
+                         '-p','test_foundation_failures.py','-v'],cwd=ROOT,text=True,capture_output=True)
+    (run_dir/'foundation_negative.log').write_text(proc.stdout+proc.stderr,encoding='utf-8')
+    passed=set(re.findall(r'^(test_[a-z_]+) \(test_foundation_failures\.FoundationFailureTests\.[a-z_]+\) \.\.\. ok$',
+                          proc.stdout+proc.stderr,flags=re.MULTILINE))
+    for name in FOUNDATION_NEGATIVE_TESTS:
+        results.append(result('software.foundation_negative.'+name,
+                              'PASS' if proc.returncode==0 and name in passed else 'FAIL',
+                              'software_test',['Injected local mutation reaches named scientific diagnostic'],
+                              {'test_id':name,'exit_code':proc.returncode},manifest,
+                              claim_role='negative_control'))
+    if proc.returncode or passed!=set(FOUNDATION_NEGATIVE_TESTS):
+        raise EvidenceError('foundation negative controls failed, missing or changed')
+    atomic_json(run_dir/'certificate_attestation.json',{
+        'run_id':manifest['run_id'],
+        'scientific_source_digest':manifest['scientific_source_digest'],
+        'certificates':{species:found[f'{species}.rank_certificate']['certificate_sha256']
+                        for species in ('quark','gluon')},
+    })
+
+
+def check_foundation_evidence_integrity(run_dir: Path) -> dict:
+    import copy
+    import json
+    import shutil
+    import tempfile
+    from validation_evidence import atomic_json
+    validate_run(run_dir)
+    with tempfile.TemporaryDirectory(prefix='li7-foundation-integrity-') as temp:
+        root=Path(temp)
+        missing=root/'missing';shutil.copytree(run_dir,missing)
+        manifest=json.loads((missing/'manifest.json').read_text())
+        document=json.loads((missing/'results.json').read_text())
+        document['results']=[row for row in document['results'] if row['check_id']!='spin.seven_direction_tomography']
+        manifest['executed_check_ids']=[row['check_id'] for row in document['results']]
+        atomic_json(missing/'results.json',document)
+        manifest['results_digest']=file_digest(missing/'results.json')
+        atomic_json(missing/'manifest.json',manifest)
+        try:validate_run(missing)
+        except EvidenceError as exc:
+            if 'missing or unexpected required check ID' not in str(exc):raise
+        else:raise EvidenceError('missing foundation check was accepted')
+        for mutation in ('missing-grid-point','duplicate-grid-point','failed-grid-diagnostic'):
+            folder=root/mutation;shutil.copytree(run_dir,folder)
+            changed_manifest=json.loads((folder/'manifest.json').read_text())
+            changed_document=json.loads((folder/'results.json').read_text())
+            grid=next(row for row in changed_document['results'] if row['check_id']=='grid.complete')['result_payload']
+            cases=grid['cases']
+            if mutation=='missing-grid-point':cases.pop()
+            elif mutation=='duplicate-grid-point':cases[-1]=copy.deepcopy(cases[0])
+            else:cases[-1]['checks']['photon_Ward']=False
+            atomic_json(folder/'results.json',changed_document)
+            changed_manifest['results_digest']=file_digest(folder/'results.json')
+            atomic_json(folder/'manifest.json',changed_manifest)
+            try:validate_run(folder)
+            except EvidenceError as exc:
+                if 'incomplete or failed grid cases' not in str(exc):raise
+            else:raise EvidenceError(mutation+' was accepted')
+        mixed=root/'mixed';shutil.copytree(run_dir,mixed)
+        attestation=json.loads((mixed/'certificate_attestation.json').read_text())
+        attestation['run_id']='another-run'
+        atomic_json(mixed/'certificate_attestation.json',attestation)
+        try:validate_run(mixed)
+        except EvidenceError as exc:
+            if 'certificate attestation run identity mismatch' not in str(exc):raise
+        else:raise EvidenceError('mixed-run certificates were accepted')
+    return {'negative_cases':['omitted tomography ID','different certificate run ID','missing grid point',
+                              'duplicate grid point','failed grid diagnostic'],
+            'method':'tampered copies of the completed run rejected by summary validator'}
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--profile', choices=('baseline', 'full'), default='baseline')
+    parser.add_argument('--profile', choices=('baseline', 'foundations', 'full'), default='baseline')
     parser.add_argument('--output-root', type=Path, default=ROOT / 'validation_runs')
     parser.add_argument('--born-sqrt-s', type=float, default=REFERENCE_INPUTS['sqrt_s'],
                         help='Reference-point diagnostic override; a different point cannot certify baseline.')
@@ -98,6 +212,24 @@ def main() -> int:
     ranks: dict[str, int] = {}
     try:
         execute(run_dir, manifest, inputs, results, ranks)
+        if args.profile in ('foundations','full'):
+            execute_foundations(run_dir,manifest,results)
+            results.append(result('software.foundation_evidence_integrity','PASS','software_test',
+                                  ['Run-specific complete evidence'],{'stage':'pending independent mutation'},manifest,
+                                  claim_role='negative_control'))
+            if args.profile == 'full':
+                manifest['profile']='foundations'
+                manifest['required_check_ids']=list(PROFILE_REQUIRED['foundations'])
+            finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
+            try:
+                payload=check_foundation_evidence_integrity(run_dir)
+            finally:
+                if args.profile == 'full':
+                    manifest['profile']='full'
+                    manifest['required_check_ids']=list(PROFILE_REQUIRED['full'])
+            results[-1]=result('software.foundation_evidence_integrity','PASS','software_test',
+                               ['Tampered copies of this completed run'],payload,manifest,
+                               claim_role='negative_control')
         if args.profile == 'full':
             finish_run(run_dir, manifest, results, 'INCOMPLETE', 'MISSING', ranks)
             print('Full validation MISSING required suites: ' + ', '.join(FULL_PENDING_SUITES),
@@ -112,7 +244,7 @@ def main() -> int:
             print(f'Failure report could not be written: {report_exc}', file=sys.stderr)
         print(f'Validation FAILED: {type(exc).__name__}: {exc}', file=sys.stderr)
         return 1
-    print(f'Baseline PASS: {len(results)} required results; '
+    print(f'{args.profile.capitalize()} PASS: {len(results)} required results; '
           f'{len(LEGACY_SYMBOLIC_LABELS)} legacy symbolic outcomes; '
           f"{next(item['result_payload']['number_of_cases'] for item in results if item['check_id'] == 'grid.complete')} "
           'Born grid cases. Full manuscript coverage remains incomplete.')

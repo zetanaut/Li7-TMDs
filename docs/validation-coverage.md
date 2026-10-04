@@ -1,20 +1,20 @@
 # Validation coverage
 
-The `baseline` profile executes the original finite-algebra and Born calculations with run-scoped evidence. It is **not** the full validation of *Octupole parton structure of spin-3/2 targets*. The `full` profile returns `MISSING` until its required scientific suites are implemented. Source labels below refer to the current submission-review definitions. A `PASS` applies only to the stated test scope.
+The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds the independent finite-dimensional claims below. The `full` profile executes all available work and returns `MISSING` for later required suites. A PASS is limited to the named profile.
 
-| Claim ID | Source label | Baseline status | Scope and next evidence |
+| Claim | Source definition | Current evidence | Scope and remaining work |
 |---|---|---|---|
-| `spin.inverse` | `eq:Q`, `eq:QO`, `eq:rho` | PASS, partial | The legacy exact density reconstruction runs on 16 Hermitian coordinates. Independent ladder/CG constructions, trace metrics, rotations, positivity, and physical preparation tests are MISSING. |
-| `stf.branches` | `eq:Kn`, `eq:Kcomplex`, `eq:rankrule` | PASS, partial | Complex-component STF and branch identities run. Independent Cartesian construction and symbolic mass normalization are MISSING. |
-| `gluon.dyadic` | `eq:referenceSTF`, `eq:dyadic_not_STF` | MISSING | Existing related null tensors do not test the source's STF-versus-dyadic distinction directly. |
-| `basis.independence` | `eq:Ffull`, `eq:Gfull`, `eq:rankrule` | PASS, partial | The implemented quark/gluon maps each have computed rank 32 at one momentum. Independent covariant review, rank witnesses, spanning, and inverse projectors are MISSING. |
-| `basis.name_mapping` | `eq:Ffull`, `eq:Gfull` | BLOCKED | The legacy `f/g/h` catalogue lacks flavor, antiquark, link/color, and hadron fields. A one-to-one mapping to every named manuscript coefficient requires the complete correlator review. |
-| `sidis.response` | `eq:SIDISmaster` | PASS, partial | Twelve hard-trace pairs and a reduced contraction run. The 32-row catalogue and independent convolution are MISSING. |
-| `dy.response` | `eq:DYconv` | MISSING | No DY projection, antiquark, angular, or convolution suite exists. |
-| `link.reversal` | `eq:PTspin`, `eq:octSIDISDY` | MISSING | No operator-derived sign or Wilson-line descriptor suite exists. |
-| `gluon.born` | `eq:BornB` | PASS, partial | Five diagnostics run at the specified point and 36 grid cases. Independent spinor/high-precision checks and the dense scan are MISSING. |
-| `gluon.separation` | `eq:gkernelrule`, `eq:sevendirections` | MISSING | The target response and preparation reconstruction are not implemented. |
-| `qcd.factorization` | process-dependent factorization definitions | ANALYTIC_ONLY | Finite algebra and Born diagnostics cannot prove factorization, evolution, or universality of measured asymmetries. |
-| `nuclear.magnitudes` | nuclear interpretation | ANALYTIC_ONLY | No lithium-7 wave function, distribution fit, rate, or sensitivity prediction is computed. |
+| Cartesian spin operators, trace metrics, density inverse | `eq:J`, `eq:Q`, `eq:QO`, `eq:trace_metrics`, `eq:rho` | Ladder/trace derivation and all 16 Hermitian basis elements; CG comparison | Exact finite-dimensional spin algebra. |
+| Rotations, positive octupole states, target-response tomography | `eq:spherical`, `eq:rotatedrho`, `eq:Rrotated`, `eq:rotatedcomponents`, `eq:sevendirections` | CG tensors, active rotation, seven-direction determinant and inversion | Target-response tomography only; fourteen-TMD observable separation remains missing. |
+| Ideal population, NMR, and LS example | `eq:popinverse`, `eq:NMRmultipoles`, `eq:LSexample` | Exact forward/inverse maps and CG isometry | Ideal/model scope, no nuclear wave function. |
+| STF tensors and normalization | `eq:Kn`, `eq:Kcomplex`, `eq:K45`, `eq:massconversion` | Harmonic Cartesian versus complex helicity through rank five; symbolic mass | Finite transverse tensor identities. |
+| STF versus dyadic | `eq:referenceSTF`, `eq:dyadic_not_STF` | Zero STF for the reference tensor; explicit nonzero dyadic residual | Correct Lorentz lowering and unnormalized braces. |
+| Lower-spin gluon convention dictionary | `eq:gluon_scalar_dictionary`, `eq:gluon_linear_dictionary` | Direct reference tensors versus minimal correlator, 18-coordinate rank and kernel | Tensor-convention comparison, not equality of hadronic functions. |
+| Quark/gluon covariants and coefficient recovery | `eq:Ffull`, `eq:Gfull`, `eq:T0`–`eq:T3`, `eq:H0`–`eq:B3`, Appendix inverse equations | Symbolic Cartesian/helicity agreement, exact 64×32 minors, independent parity bound, all analytic projectors | Generic nonzero transverse momentum, specified operator/link class. |
+| Failure detection and run provenance | Computational companion | Injected scientific mutations, certificate checker, run-scoped manifest and attestation | A certificate proves the checked finite map; it does not certify process factorization. |
+| Full SIDIS and Drell–Yan responses | Process sections | MISSING | Later phase. |
+| Link/color universality and fourteen-response gluon separation | Universality and observable sections | MISSING | Later phase. |
+| Independent Born amplitudes and dense scans | Hard response section | MISSING | Later phase. |
+| Complete collinear/matching/partonic positivity | Matching and positivity sections | MISSING | Later phase. |
 
-The [convention map](conventions.md) explains which source definitions the existing code uses. The [reproduction instructions](reproducing-results.md) explain how to obtain and validate a fresh baseline run. Expected missing suites are explicit in `validation_manifest.FULL_PENDING_SUITES`; they are not fabricated passing results.
+The [foundations page](foundations.md) gives methods, exact domains, certificates, and reproduction commands. Historical JSON reports and generated figures are useful comparisons, but a new PASS requires a fresh complete run with matching source, input, reference, and certificate provenance.

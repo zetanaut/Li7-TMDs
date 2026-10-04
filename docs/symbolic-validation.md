@@ -22,6 +22,6 @@ The leading-twist quark projections are Φ[γ⁺], Φ[γ⁺γ₅], and Φ[iσⁱ
 
 The [generated result summary](generated-results.md) reads one complete, provenance-checked baseline run and displays measured counts and ranks.
 
-The rank test is essential: 32 formal terms can still be dependent. At the tested nonzero transverse momentum, its exact rank proves independence of the implemented columns. The catalogue construction and matrix-map construction currently share selection rules; a separately reviewed covariant catalogue, exact minor certificate, independent checker, and representation-based spanning argument remain to be implemented. The script uses exact rational and symbolic arithmetic for its finite identities.
+The rank test is essential: 32 formal terms can still be dependent. At the tested nonzero transverse momentum, its exact rank proves independence of the implemented columns. The `foundations` profile adds a separately reviewed covariant catalogue, exact minor certificates, an independent checker, a parity-invariant matrix-space bound, and analytic coefficient recovery. The script uses exact rational and symbolic arithmetic for its finite identities.
 
 `spin32_symbolic.run_checks()` is import-safe and returns the historical check dictionary plus the computed quark and gluon ranks. The legacy CLI preserves its JSON format. For current evidence, use `scripts/run_validation.py --profile baseline` and supply that run directory to the summary generator. A stored 49-PASS report alone does not certify that a later execution succeeded.

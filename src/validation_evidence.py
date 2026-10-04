@@ -16,7 +16,7 @@ import uuid
 from validation_manifest import (BORN_CHECKS, LEGACY_IDS, PROFILE_REQUIRED,
                                  SOFTWARE_TESTS)
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 REFERENCE_SOURCE_SHA256 = '3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d'
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOTS = ('src', 'examples', 'scripts', 'tests')
@@ -31,6 +31,9 @@ GRID_AXES = {
 }
 EVIDENCE_TYPES = {'exact_identity', 'exact_rank', 'numerical_diagnostic',
                   'numerical_parameter_cases', 'software_test'}
+CLAIM_ROLES = {'legacy_identity','legacy_rank','unique_claim','component_case',
+               'independent_comparison','rank_witness','independent_bound',
+               'numerical_corroboration','negative_control','software_regression'}
 
 
 class EvidenceError(ValueError):
@@ -122,9 +125,16 @@ def new_run(output_root: Path, profile: str,
 
 
 def result(check_id: str, status: str, evidence_type: str, assumptions: list[str],
-           payload: object, manifest: dict) -> dict:
+           payload: object, manifest: dict, *, claim_role: str | None = None) -> dict:
+    if claim_role is None:
+        claim_role = {'exact_identity':'legacy_identity','exact_rank':'legacy_rank',
+                      'numerical_diagnostic':'numerical_corroboration',
+                      'numerical_parameter_cases':'component_case',
+                      'software_test':'software_regression'}[evidence_type]
+    if claim_role not in CLAIM_ROLES:
+        raise EvidenceError('unknown claim role')
     return {
-        'check_id': check_id, 'run_id': manifest['run_id'],
+        'claim_role': claim_role, 'check_id': check_id, 'run_id': manifest['run_id'],
         'scientific_source_digest': manifest['scientific_source_digest'],
         'input_digest': manifest['input_digest'], 'status': status,
         'evidence_type': evidence_type, 'assumptions': assumptions,
@@ -249,6 +259,8 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
             raise EvidenceError(f"failed or inconclusive check: {item.get('check_id')}")
         if item.get('evidence_type') not in EVIDENCE_TYPES:
             raise EvidenceError('unknown evidence type')
+        if item.get('claim_role') not in CLAIM_ROLES:
+            raise EvidenceError('unknown claim role')
         if (not isinstance(item.get('assumptions'), list) or
                 not isinstance(item.get('result_payload'), dict) or
                 not _finite(item['result_payload'])):
@@ -273,6 +285,26 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                 [sum(row['K'] == k for row in rows) for k in range(4)] or
                 catalogue.get('target_rank_counts') != [2, 6, 10, 14]):
             raise EvidenceError(f'{kind} catalogue payload mismatch')
+    if profile in ('foundations', 'full'):
+        from foundation_certificates import read_certificate, verify_certificate
+        attestation = _read_json(run_dir / 'certificate_attestation.json')
+        if attestation.get('run_id') != manifest['run_id']:
+            raise EvidenceError('certificate attestation run identity mismatch')
+        if attestation.get('scientific_source_digest') != manifest['scientific_source_digest']:
+            raise EvidenceError('certificate attestation source mismatch')
+        expected_certificates = {}
+        for species in ('quark', 'gluon'):
+            certificate = read_certificate(ROOT / 'certificates' / f'{species}_rank.json')
+            try:
+                verdict = verify_certificate(certificate, require_current=require_current)
+            except (OSError, ValueError) as exc:
+                raise EvidenceError(f'{species} rank certificate invalid: {exc}') from exc
+            expected_certificates[species] = verdict['certificate_sha256']
+            payload = by_id[f'{species}.rank_certificate']['result_payload']
+            if payload.get('certificate_sha256') != verdict['certificate_sha256'] or payload.get('determinant') != verdict['determinant']:
+                raise EvidenceError(f'{species} certificate result mismatch')
+        if attestation.get('certificates') != expected_certificates:
+            raise EvidenceError('certificate attestation digest mismatch')
     for label, check_id in LEGACY_IDS.items():
         if by_id[check_id]['result_payload'].get('legacy_label') != label:
             raise EvidenceError('legacy ID-to-check mapping mismatch')

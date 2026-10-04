@@ -51,7 +51,7 @@ python scripts/run_validation.py --profile baseline
 python -m unittest discover -s tests -v
 ```
 
-The `baseline` profile records fresh results in a unique directory under `validation_runs/`. Pass that printed directory to `scripts/update_report_summary.py --run-dir ...` or `scripts/make_plots.py --run-dir ...`; both reject incomplete or mismatched evidence. `python scripts/run_validation.py --profile full` currently exits nonzero and lists the scientific suites still missing. A passing baseline is **not** complete manuscript validation. See [reproduction instructions](docs/reproducing-results.md) and the [convention map](docs/conventions.md).
+The `baseline` profile records fresh results in a unique directory under `validation_runs/`. Pass that printed directory to `scripts/update_report_summary.py --run-dir ...` or `scripts/make_plots.py --run-dir ...`; both reject incomplete or mismatched evidence. `python scripts/run_validation.py --profile foundations` adds independent spin, STF, convention, covariant, certificate, and projector checks. `python scripts/check_foundation_certificates.py` verifies the exact rank witnesses separately. `python scripts/run_validation.py --profile full` executes both profiles and exits nonzero with the later scientific suites still missing. A passing baseline is **not** complete manuscript validation. See [reproduction instructions](docs/reproducing-results.md) and the [convention map](docs/conventions.md).
 
 See the [documentation site](https://zetanaut.github.io/Li7-TMDs/) for conventions, derivations, checks, and a recommended learning path.
 

@@ -27,7 +27,14 @@ The baseline manifest records 49 legacy exact outcomes, five numerical diagnosti
 python scripts/run_validation.py --profile full
 ```
 
-The full profile currently exits nonzero and lists its unimplemented scientific suites. Do not interpret a passing baseline as a full validation result.
+The cumulative foundations profile and standalone exact certificates can be run with:
+
+```sh
+python scripts/run_validation.py --profile foundations --output-root validation_runs
+python scripts/check_foundation_certificates.py
+```
+
+Pass the printed foundations run directory to `scripts/update_report_summary.py --run-dir RUN --output docs/generated-foundations.md`. The full profile executes the available foundations and exits nonzero with its later scientific suites. Neither a passing baseline nor a passing foundations profile is full manuscript validation.
 
 ## Legacy commands
 
