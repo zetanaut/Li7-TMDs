@@ -9,7 +9,7 @@ import math
 import numpy as np
 import sympy as s
 from numpy.polynomial.hermite import hermgauss
-from process_responses import (a,b,c,d,H,T,E,M_A,M_B,derived_expression,
+from process_responses import (a,b,c,d,H,T,E,derived_expression,
                                expected_expression)
 
 R=s.Rational
