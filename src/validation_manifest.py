@@ -265,3 +265,22 @@ LIMITS_REQUIRED=(GLUON_REQUIRED+COLLINEAR_ROW_IDS+COLLINEAR_FIXED_IDS+
 PROFILE_REQUIRED['limits-positivity']=LIMITS_REQUIRED
 PROFILE_REQUIRED['full']=LIMITS_REQUIRED
 FULL_PENDING_SUITES=()
+
+# Checkpoint 6 keeps all 579 checkpoint-5 leaves intact.  These extra leaves
+# verify the bounded convention diagnosis; a diagnostic PASS is not literal
+# physical-helicity/source agreement or publication eligibility.
+CONVENTION_IDS=('convention.current_order','convention.sidis_order',
+                'convention.source_spectral','convention.auxiliary_map')
+CONVENTION_NEGATIVE_TESTS=(
+    'test_spinor_eigenvalue_not_adapter',
+    'test_current_order_and_epsilon_lowering',
+    'test_literal_mismatch_candidate_is_separate',
+    'test_sidis_order_is_distinct',
+    'test_source_auxiliary_mapping_and_rank',
+    'test_partial_transpose_not_psd',
+    'test_finite_k_partial_transpose_negative',
+    'test_review_status_cannot_be_suppressed',
+)
+CONVENTION_SOFTWARE_IDS=tuple('software.convention_negative.'+name
+                              for name in CONVENTION_NEGATIVE_TESTS)
+PROFILE_REQUIRED['full']=LIMITS_REQUIRED+CONVENTION_IDS+CONVENTION_SOFTWARE_IDS

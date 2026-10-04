@@ -1,6 +1,6 @@
 # Gluon response and heavy-pair Born checks
 
-The cumulative `gluon-processes` profile extends `quark-processes`. It checks the complete 32-term gluon target response, fourteen octupole cone modes, and an independently coded heavy-quark-pair Born amplitude. Its synthetic coefficients and event rates are test inputs, not lithium-7 predictions. Separate collinear, Fourier, local-moment, and conditional partonic-positivity suites remain required by `full`.
+The cumulative `gluon-processes` profile extends `quark-processes`. It checks the complete 32-term gluon target response, fourteen octupole cone modes, and an independently coded heavy-quark-pair Born amplitude. Its synthetic coefficients and event rates are test inputs, not lithium-7 predictions. The later cumulative profiles add collinear, Fourier, local-moment, conditional-positivity, and ordered-current convention checks.
 
 ## Gram convention and response rows
 
@@ -22,7 +22,7 @@ The synthetic hadronic fraction check uses $x_{\rm Bj}=0.05$, $M_{Q\bar Q}^2=25$
 
 `src/born_direct.py` builds massive quark and antiquark spinors, massless lepton helicity spinors, and both diagram chains without importing the production trace. It checks spin sums and photon/gluon Ward cancellation between the diagrams. The comparison includes the full complex 2 by 2 matrix and circular/elliptic rates. `src/born_precision.py` repeats selected direct-amplitude cases using string inputs at 50 and 80 decimal digits with a scoped mpmath precision. These extra digits are a stability comparison, not interval bounds.
 
-The source benchmark gives reduced $(b_U,b_G,b_C,b_S)\approx(1684,-123.6,110.2,5.977)$ GeV². The independently constructed lepton spinors expose a convention question: the physical positive-helicity eigenspinor's antisymmetric lepton tensor matches the source/production formula at $\lambda=-1$, while the manuscript calls its $\lambda=+1$ setting positive helicity. `compare_source_label` applies this explicit label conversion to compare the hard matrices, and `compare` keeps the literal mismatch visible. The physical sign label needs author review; no production sign or reference value has been changed.
+The source benchmark gives reduced $(b_U,b_G,b_C,b_S)\approx(1684,-123.6,110.2,5.977)$ GeV². The independently constructed lepton spinors are physical helicity eigenstates. Their amplitude-first current tensor is the transpose of the source tensor at the same helicity. The source Born trace is amplitude-first, so its literal contraction disagrees with physical helicity; `compare_source_label` is only a historical index-order adapter. `compare` keeps the literal mismatch visible. See the [ordered-current review](convention-closure.md). No production sign or reference value has been changed.
 
 The reduced matrix omits $e^4e_Q^2g_s^2T_F/Q^4$. Explicit SU(3) generator traces yield $T_F=1/2$. The incoming spin average enters once through $D_{\rm in}=I/2$, with no second average of a definite lepton helicity. The partonic flux is $1/(2\hat s_{\ell g})$, and the reduced/full matrices scale as $r^2/r^{-2}$ under a common momentum rescaling. These checks do not supply the hadronic measurement Jacobian or nonperturbative input for a binned cross section.
 

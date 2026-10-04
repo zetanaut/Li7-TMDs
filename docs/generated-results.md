@@ -1,5 +1,7 @@
 # Generated result summary
 
+**Historical checkpoint-5 result.** This page predates the checkpoint-6 ordered-current diagnosis. Its completed computational records and source revision remain historical evidence; its Born helicity labels do not establish literal physical-helicity/source agreement. See the [current convention review](convention-closure.md). Publication is blocked pending author resolution.
+
 This page describes the **full profile**. The declared executable program passed; analytical QCD inputs and excluded dynamic calculations remain separate.
 
 The summary was generated from a complete run whose required IDs, source and input digests, computed ranks, and result identities were checked together.

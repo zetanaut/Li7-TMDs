@@ -53,6 +53,12 @@ def epsilon_lower(mu: int,nu: int,rho: int,sigma: int) -> int:
     return -(-1)**inversions
 
 def leptonic(l: RVector,lp: RVector,helicity: float) -> CMatrix:
+    """Historical source L_mu,nu, with conjugate-current-first ordering.
+
+    ``helicity`` retains the published source label.  For the physical
+    incoming electron helicity h in an amplitude-first Born trace, the
+    required current tensor is this matrix transposed at lambda=h.
+    """
     lo,lpo=METRIC @ l,METRIC @ lp
     result=2*(np.outer(lo,lpo)+np.outer(lpo,lo)-METRIC*dot(l,lp)).astype(complex)
     for mu,nu in itertools.product(range(4),repeat=2):
@@ -60,6 +66,14 @@ def leptonic(l: RVector,lp: RVector,helicity: float) -> CMatrix:
             epsilon_lower(mu,nu,r,s)*l[r]*lp[s]
             for r,s in itertools.product(range(4),repeat=2))
     return result
+
+def physical_amplitude_first_leptonic(l: RVector,lp: RVector,h: float) -> CMatrix:
+    """Candidate J_mu,nu=sum j_mu j_nu*, derived by index interchange.
+
+    This is diagnostic only; ``evaluate`` continues to implement the
+    approved source formula and historical reference values.
+    """
+    return leptonic(l,lp,h).T
 
 def kinematics(sqrt_s: float,Q2: float,mass: float,theta: float,
                phi: float,lepton_energy: float) -> dict[str,RVector]:

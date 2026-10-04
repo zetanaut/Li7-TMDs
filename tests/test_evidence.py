@@ -130,6 +130,11 @@ class EvidenceTests(unittest.TestCase):
         self.assert_rejected(incomplete, 'run is INCOMPLETE/MISSING')
 
     def test_source_input_and_run_identity_mismatch(self):
+        folder = self.clone()
+        manifest = json.loads((folder / 'manifest.json').read_text())
+        manifest['source_revision'] = '07aee1d96de4c4db7a6d021c3eb4a52cc7c2bfe6'
+        self.mutate(folder, manifest=manifest)
+        self.assert_rejected(folder, 'source revision mismatch')
         for field, message in [('scientific_source_digest', 'scientific source digest mismatch'),
                                ('input_digest', 'input digest or baseline input mismatch')]:
             with self.subTest(field=field):

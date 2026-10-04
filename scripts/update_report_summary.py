@@ -30,7 +30,9 @@ def render_summary(run_dir: Path) -> str:
     lines = [
         '# Generated result summary', '',
         (f"This page describes the **{manifest['profile']} profile**. "
-         + ('The declared executable program passed; analytical QCD inputs and excluded dynamic calculations remain separate.'
+         + ('The declared executable program ran; physical Born current-index agreement remains under author review and publication is blocked.'
+            if manifest['profile']=='full' else
+            'The declared executable program passed; analytical QCD inputs and excluded dynamic calculations remain separate.'
             if manifest['profile'] in ('limits-positivity','full') else
             'The full computational profile has additional required checks.')), '',
         'The summary was generated from a complete run whose required IDs, source and input '
@@ -130,9 +132,9 @@ def render_summary(run_dir: Path) -> str:
                   f"the dense scan evaluated and independently compared {scan['case_count']} "
                   f"cases. Worst matrix component residual: {scan['max_direct_residual_abs']:.3g} GeV².", '',
                   f"{precision['case_count']} independently calculated cases used 50 and 80 "
-                  'decimal digits from string inputs. The physical spinor helicity is the '
-                  'negative of the source lambda label in the matrix comparison; this '
-                  'sign-label discrepancy awaits author review.', '',
+                  'decimal digits from string inputs. The historical direct-amplitude comparison '
+                  'used the explicit opposite-label adapter. It does not establish literal physical '
+                  'electron-helicity agreement with the source Born equation.', '',
                   '| Gluon response ID | Target rank | Channel | Orbital rank |',
                   '|---|---:|---|---:|']
         for check_id in GLUON_ROW_IDS:
@@ -179,6 +181,31 @@ def render_summary(run_dir: Path) -> str:
                   f"{witnesses['case_count']} exact collinear cases include interiors, boundaries, and violations.", '',
                   'These positivity statements assume a positive spectral/input prescription. '
                   'They do not impose pointwise positivity on arbitrary subtracted TMDs.', '']
+    if manifest['profile']=='full':
+        review=manifest['convention_review']
+        current=by_id['convention.current_order']['result_payload']
+        born=current['born_cases'][1]
+        lines += ['', '## Convention closure and publication hold', '',
+                  f"Diagnostic execution: `{review['computational_execution_status']}`. "
+                  f"Literal physical/source Born agreement: `{review['source_formula_agreement_status']}`. "
+                  f"Publication eligibility: `{review['publication_eligibility']}`.", '',
+                  'The spinor is an eigenstate of helicity along its own momentum. Its '
+                  'amplitude-first current is the transpose of the source lepton tensor at '
+                  'the same helicity. The source Born trace is amplitude-first, whereas the '
+                  'SIDIS trace has the opposite hard-current order. No global helicity flip is applied.', '',
+                  f"At the exact current test point, J_xy has imaginary part "
+                  f"{current['exact_event']['J_xy_imag']:.9g} and the literal source L_xy has "
+                  f"{current['exact_event']['source_L_xy_imag']:.9g}. "
+                  f"At the first positive-helicity generic Born point, the literal matrix "
+                  f"residual is {born['literal_max_abs']:.9g} GeV² and the separately identified "
+                  f"index-interchanged candidate residual is {born['candidate_max_abs']:.3g} GeV².", '',
+                  'The source-index joint matrix is a positive spectral Gram under its stated '
+                  'input prescription. The older auxiliary coefficient map is related by parton '
+                  'partial transpose and a factor of two; that map preserves coefficient rank '
+                  'but cannot certify physical PSD. Exact Bell and finite-kT controls reject '
+                  'positivity transfer by partial transpose.', '',
+                  'The approved manuscript, Born reference fixtures, and public API interpretation '
+                  'were not changed. Author review is required before publication.', '']
     return '\n'.join(lines)
 
 

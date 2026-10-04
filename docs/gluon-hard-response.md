@@ -1,6 +1,6 @@
 # Gluon Born hard response
 
-For the independent spinor comparison, complete gluon response catalogue, and dense scan, see [gluon process validation](gluon-processes.md). The source's lepton helicity label differs in sign from the physical helicity eigenspinor used in that independent comparison; the mapping and unresolved author-review item are documented there.
+For the independent spinor comparison, complete gluon response catalogue, and dense scan, see [gluon process validation](gluon-processes.md). The source Born trace and physical amplitude-first current require opposite lepton-index ordering. The historical opposite-label comparison and unresolved author-review item are documented in the [convention closure review](convention-closure.md).
 
 The numerical program evaluates a specified Born analyzer for γ* g → Q Q̄, embedded in ℓ + g → ℓ′ + Q + Q̄. An incoming physical gluon has a 2 × 2 transverse polarization density matrix, so the hard process can resolve its trace, circular, and two linear-polarization components. This is a process-specific Born response, not a universal hard factor for every gluon-TMD observable.
 
@@ -21,7 +21,7 @@ The program sums final heavy-quark spin with `(slash(p1)+mQ)` and `(slash(p2)−
 
 \[\mathrm{rate}=\operatorname{Tr}(B D_g).\]
 
-With the stated conjugate-amplitude-first gluon correlator index order, this contraction fixes all index signs. B is an amplitude Gram matrix after physical spin sums and a physical lepton tensor, so it should be Hermitian and positive semidefinite at physical kinematics.
+With the stated conjugate-amplitude-first gluon correlator index order, this contraction fixes the gluon-side signs. The historical B uses the approved source-labelled lepton tensor. Its Hermiticity and PSD checks do not resolve the literal physical-electron-helicity sign; see the [ordered-current review](convention-closure.md).
 
 The code defines the four real analyzer coefficients
 
@@ -53,7 +53,7 @@ The code checks `l²=l′²=k²=0`, `q²=−Q²`, `p1²=p2²=mQ²`, and four-mom
 
 ## Reference point
 
-The supplied point is √s=5 GeV, Q²=4 GeV², mQ=1.5 GeV, θ=0.8, φ=0.4, incoming lepton energy 10 GeV, and helicity +1. Reproduce it with:
+The supplied point is √s=5 GeV, Q²=4 GeV², mQ=1.5 GeV, θ=0.8, φ=0.4, incoming lepton energy 10 GeV, and historical source-labelled λ=+1. Reproduce it with:
 
 ```bash
 python src/gluon_born_response.py --output results/gluon_born_report.json
@@ -63,9 +63,9 @@ The regenerated [JSON report](https://github.com/zetanaut/Li7-TMDs/blob/main/res
 
 ## Grid and diagnostic figures
 
-The [grid runner](reproducing-results.md) evaluates θ = 0.4, 0.8, 1.7, 2.7; φ = 0, 0.4, 1.2; and helicity = −1, 0, +1. **All hard-response validation checks pass at all 36 supplied grid points.**
+The [grid runner](reproducing-results.md) evaluates θ = 0.4, 0.8, 1.7, 2.7; φ = 0, 0.4, 1.2; and source-labelled λ = −1, 0, +1. **All historical hard-response implementation checks pass at all 36 supplied grid points.** Literal physical-helicity/source agreement remains under review.
 
-Each figure below shows **Born-level hard-response coefficients or validation diagnostics, not lithium-7 cross-section predictions**. The lines connect the supplied grid points; they are guides to the eye.
+Each figure below shows **historical source-labelled Born-level hard-response coefficients or validation diagnostics, not lithium-7 cross-section predictions**. The lines connect the supplied grid points; they are guides to the eye. In particular, the `b_G` sign has not been promoted to a physical-helicity claim.
 
 | Coefficient | Figure |
 |---|---|

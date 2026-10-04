@@ -18,10 +18,20 @@ from validation_manifest import (BORN_CHECKS, LEGACY_IDS, PROFILE_REQUIRED,
                                  PROCESS_INTEGRAL_IDS, REVERSAL_IDS,
                                  GLUON_ROW_IDS,GLUON_OCT_IDS,GLUON_NEGATIVE_TESTS,
                                  COLLINEAR_ROW_IDS,FOURIER_EXACT_IDS,FOURIER_NUMERIC_IDS,
-                                 LOCAL_RANK_IDS,LOCAL_PARITY_IDS,LIMITS_NEGATIVE_TESTS)
+                                 LOCAL_RANK_IDS,LOCAL_PARITY_IDS,LIMITS_NEGATIVE_TESTS,
+                                 CONVENTION_IDS,CONVENTION_NEGATIVE_TESTS)
 
 SCHEMA_VERSION = 2
 REFERENCE_SOURCE_SHA256 = '3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d'
+CONVENTION_REVIEW = {
+    'computational_execution_status':'COMPLETE_WITH_CONVENTION_DIAGNOSTICS',
+    'source_formula_agreement_status':'LITERAL_PHYSICAL_HELICITY_MISMATCH',
+    'physical_helicity_anchor_status':'VERIFIED_EIGENVALUE',
+    'current_index_contract_status':'AUTHOR_CORRECTION_REQUIRED',
+    'source_gram_index_status':'VERIFIED_CONDITIONAL_SPECTRAL_ORDER',
+    'unresolved_scientific_issues':['eq:BornB lepton index order versus physical electron helicity'],
+    'publication_eligibility':'BLOCKED_AUTHOR_REVIEW',
+}
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOTS = ('src', 'examples', 'scripts', 'tests')
 REFERENCE_INPUTS = {
@@ -43,6 +53,24 @@ CLAIM_ROLES = {'legacy_identity','legacy_rank','unique_claim','component_case',
 
 class EvidenceError(ValueError):
     """A run cannot support the requested claim of completion."""
+
+
+def assert_convention_review(manifest: dict, current_payload: dict | None = None) -> None:
+    """Require the unresolved physical assertion to remain visible.
+
+    A diagnostic PASS describes successful mismatch detection.  Neither
+    an authorization flag nor a mapped comparison can make a literal
+    physical/source assertion true.
+    """
+    if manifest.get('convention_review') != CONVENTION_REVIEW:
+        raise EvidenceError('unresolved convention review suppressed or altered')
+    if current_payload is not None and current_payload.get('status') != {
+        'diagnostic_execution':'PASS',
+        'literal_physical_source_agreement':'MISMATCH',
+        'candidate_index_interchange':'AGREES',
+        'publication_eligibility':'BLOCKED_AUTHOR_REVIEW',
+    }:
+        raise EvidenceError('mapped comparison promoted to literal agreement')
 
 
 def canonical_bytes(value: object) -> bytes:
@@ -219,6 +247,7 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
         raise EvidenceError('malformed run provenance')
     if manifest.get('reference_sha256') != REFERENCE_SOURCE_SHA256:
         raise EvidenceError('reference version mismatch')
+    if profile == 'full':assert_convention_review(manifest)
     if manifest.get('missing_check_ids'):
         raise EvidenceError('missing required suite or check')
     if manifest.get('input_spec') != input_spec() or manifest.get('input_digest') != digest(manifest['input_spec']):
@@ -486,6 +515,23 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
             row=by_id['software.limits_negative.'+name]
             if row['result_payload']!={'test_id':name,'exit_code':0}:
                 raise EvidenceError('limits negative-control evidence mismatch')
+    if profile == 'full':
+        from current_index_conventions import run as current_run
+        from source_joint_positivity import spectral_index_check,source_mapping_check
+        expected_conventions={
+            'convention.current_order':current_run(),
+            'convention.sidis_order':current_run()['sidis'],
+            'convention.source_spectral':spectral_index_check(),
+            'convention.auxiliary_map':source_mapping_check(),
+        }
+        if any(canonical_bytes(by_id[key]['result_payload'])!=canonical_bytes(value)
+               for key,value in expected_conventions.items()):
+            raise EvidenceError('convention diagnostic payload mismatch')
+        assert_convention_review(manifest,by_id['convention.current_order']['result_payload'])
+        for name in CONVENTION_NEGATIVE_TESTS:
+            row=by_id['software.convention_negative.'+name]
+            if row['result_payload']!={'test_id':name,'exit_code':0}:
+                raise EvidenceError('convention negative-control evidence mismatch')
     for label, check_id in LEGACY_IDS.items():
         if by_id[check_id]['result_payload'].get('legacy_label') != label:
             raise EvidenceError('legacy ID-to-check mapping mismatch')

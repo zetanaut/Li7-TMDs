@@ -25,10 +25,11 @@ from validation_manifest import (BORN_CHECKS, FULL_PENDING_SUITES, LEGACY_IDS,
                                  COLLINEAR_FIXED_IDS,FOURIER_EXACT_IDS,
                                  FOURIER_NUMERIC_IDS,FOURIER_FIXED_IDS,
                                  LOCAL_RANK_IDS,LOCAL_PARITY_IDS,LOCAL_FIXED_IDS,
-                                 POSITIVITY_IDS,LIMITS_NEGATIVE_TESTS)  # noqa: E402
+                                 POSITIVITY_IDS,LIMITS_NEGATIVE_TESTS,
+                                 CONVENTION_IDS,CONVENTION_NEGATIVE_TESTS)  # noqa: E402
 from validation_evidence import (GRID_AXES, REFERENCE_INPUTS, EvidenceError, finish_run,
                                  new_run, result, validate_run, atomic_json, file_digest,
-                                 write_results)  # noqa: E402
+                                 write_results, CONVENTION_REVIEW)  # noqa: E402
 
 
 def execute(run_dir: Path, manifest: dict, reference_inputs: dict,
@@ -349,7 +350,7 @@ def execute_gluon(run_dir: Path, manifest: dict, results: list[dict]) -> None:
         results.append(result(check_id,'PASS',
             'exact_identity' if check_id.startswith(('gluon.stokes.exact','gluon.angular')) else
             'numerical_parameter_cases' if check_id.startswith('gluon.born.') else 'numerical_diagnostic',
-            ['Approved source convention; physical spinor helicity h=-source lambda for matrix comparison',
+            ['Historical source-label adapter in the comparison; literal physical-helicity mismatch remains',
              'Synthetic TMD coefficients are not lithium-7 predictions'],fixed[check_id],manifest,
             claim_role='independent_comparison'))
     rows=verify_rows()
@@ -562,6 +563,37 @@ def check_limits_evidence_integrity(run_dir: Path) -> dict:
             else:raise EvidenceError(f'limits evidence mutation accepted: {mutation}')
     return {'rejected':rejected,'scope':'tampered complete-run copies; source and certificate checks'}
 
+def execute_conventions(run_dir: Path,manifest: dict,results: list[dict]) -> None:
+    from current_index_conventions import run as current_run
+    from source_joint_positivity import spectral_index_check,source_mapping_check
+    current=current_run()
+    entries={
+        CONVENTION_IDS[0]:current,
+        CONVENTION_IDS[1]:current['sidis'],
+        CONVENTION_IDS[2]:spectral_index_check(),
+        CONVENTION_IDS[3]:source_mapping_check(),
+    }
+    for check_id,payload in entries.items():
+        results.append(result(check_id,'PASS','numerical_diagnostic' if check_id==CONVENTION_IDS[0]
+                              else 'exact_identity',
+                              ['Diagnostic execution only; physical/source Born disagreement is review-required'],
+                              payload,manifest,claim_role='independent_comparison'))
+    manifest['convention_review']=dict(CONVENTION_REVIEW)
+    write_results(run_dir,manifest,results)
+    proc=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests',
+                         '-p','test_convention_closure.py','-v'],cwd=ROOT,text=True,capture_output=True)
+    (run_dir/'convention_negative.log').write_text(proc.stdout+proc.stderr,encoding='utf-8')
+    passed=set(re.findall(r'^(test_[a-z_]+) \(test_convention_closure\.ConventionClosureTests\.[a-z_]+\) \.\.\. ok$',
+                          proc.stdout+proc.stderr,flags=re.MULTILINE))
+    for name in CONVENTION_NEGATIVE_TESTS:
+        results.append(result('software.convention_negative.'+name,
+            'PASS' if proc.returncode==0 and name in passed else 'FAIL','software_test',
+            ['Test-local wrong-order, wrong-sign, or suppressed-review mutation'],
+            {'test_id':name,'exit_code':proc.returncode},manifest,
+            claim_role='negative_control'))
+    if proc.returncode or passed!=set(CONVENTION_NEGATIVE_TESTS):
+        raise EvidenceError('convention negative controls failed or omitted')
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--profile', choices=('baseline', 'foundations', 'quark-processes',
@@ -642,11 +674,20 @@ def main() -> int:
             results.append(result('software.limits_evidence_integrity','PASS','software_test',
                 ['Run-specific complete evidence'],{'stage':'pending independent mutation'},
                 manifest,claim_role='negative_control'))
+            if args.profile=='full':
+                manifest['profile']='limits-positivity'
+                manifest['required_check_ids']=list(PROFILE_REQUIRED['limits-positivity'])
             finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
-            payload=check_limits_evidence_integrity(run_dir)
+            try:payload=check_limits_evidence_integrity(run_dir)
+            finally:
+                if args.profile=='full':
+                    manifest['profile']='full'
+                    manifest['required_check_ids']=list(PROFILE_REQUIRED['full'])
             results[-1]=result('software.limits_evidence_integrity','PASS','software_test',
                 ['Tampered copies of this completed run'],payload,manifest,
                 claim_role='negative_control')
+        if args.profile=='full':
+            execute_conventions(run_dir,manifest,results)
         finish_run(run_dir, manifest, results, 'COMPLETE', 'PASS', ranks)
         validate_run(run_dir)
     except BaseException as exc:
@@ -659,7 +700,9 @@ def main() -> int:
     print(f'{args.profile.capitalize()} PASS: {len(results)} required results; '
           f'{len(LEGACY_SYMBOLIC_LABELS)} legacy symbolic outcomes; '
           f"{next(item['result_payload']['number_of_cases'] for item in results if item['check_id'] == 'grid.complete')} "
-          'Born grid cases. Analytical QCD assumptions remain outside computational evidence.')
+          'Born grid cases. Analytical QCD assumptions remain outside computational evidence. '
+          + ('Publication BLOCKED pending author review of the physical current-index mismatch.'
+             if args.profile=='full' else ''))
     return 0
 
 
