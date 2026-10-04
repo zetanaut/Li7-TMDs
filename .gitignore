@@ -4,3 +4,4 @@ __pycache__/
 *.py[cod]
 .DS_Store
 site/
+validation_runs/

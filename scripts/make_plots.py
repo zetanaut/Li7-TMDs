@@ -2,11 +2,14 @@
 import argparse
 import json
 from pathlib import Path
+import sys
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'src'))
+from validation_evidence import validate_run  # noqa: E402
 
 
 def save(fig, path):
@@ -19,9 +22,18 @@ def save(fig, path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input', type=Path, default=ROOT/'results/gluon_born_grid_report.json')
+    parser.add_argument('--run-dir', type=Path,
+                        help='Use a complete current run instead of a historical grid JSON.')
     parser.add_argument('--output-dir', type=Path, default=ROOT/'docs/figures')
     args = parser.parse_args()
-    report = json.loads(args.input.read_text())
+    if args.run_dir:
+        _manifest, document = validate_run(args.run_dir)
+        grid = next(item['result_payload'] for item in document['results']
+                    if item['check_id'] == 'grid.complete')
+        report = {'points': grid['number_of_cases'], 'all_pass': True,
+                  'results': grid['cases']}
+    else:
+        report = json.loads(args.input.read_text())
     if report['points'] != 36 or not report['all_pass']:
         raise ValueError('Expected a validated 36-point grid')
     rows = report['results']

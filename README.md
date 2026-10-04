@@ -17,11 +17,11 @@ A spin-3/2 density matrix has rank-0 unpolarized, rank-1 vector, rank-2 quadrupo
 
 ## What the symbolic script checks
 
-`src/validate_spin32_tmd.py` checks spin multipoles, density-matrix completeness and inversion, STF identities, elimination of spurious gluon structures, 32-column basis independence, quark Dirac projection identities, and selected electromagnetic SIDIS gamma-matrix trace identities. **All 49 exact symbolic checks pass** in the generated [validation report](results/validation_report.json).
+`src/validate_spin32_tmd.py` checks spin multipoles, density-matrix completeness and inversion, STF identities, elimination of spurious gluon structures, 32-column basis independence, quark Dirac projection identities, and selected electromagnetic SIDIS gamma-matrix trace identities. The committed [validation report](results/validation_report.json) preserves the 49 historical outcomes. The run-scoped baseline executes them again and checks their identity and provenance.
 
 ## What the Born script checks
 
-`src/gluon_born_response.py` calculates a specified, coupling-stripped Born response for γ* g → Q Q̄. It checks physical kinematics, photon and gluon Ward identities, hard-matrix Hermiticity, positivity, and its four Stokes coefficients. The [reference point](results/gluon_born_report.json) and [36-point grid](results/gluon_born_grid_report.json) pass their required checks.
+`src/gluon_born_response.py` calculates a specified, coupling-stripped Born response for γ* g → Q Q̄. It checks physical kinematics, photon and gluon Ward identities, hard-matrix Hermiticity, positivity, and its four Stokes coefficients. The [reference point](results/gluon_born_report.json) and [36-point grid](results/gluon_born_grid_report.json) are historical fixtures; a fresh baseline run evaluates them again.
 
 ## What the repository does not do
 
@@ -37,18 +37,21 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python src/validate_spin32_tmd.py
 python src/gluon_born_response.py
+python scripts/run_validation.py --profile baseline
 ```
 
-Full reproduction:
+Legacy commands and the run-scoped baseline:
 
 ```bash
 python examples/reproduce_symbolic_validation.py
 python examples/reproduce_gluon_point.py
 python examples/reproduce_gluon_grid.py
 python scripts/make_plots.py
-python scripts/update_report_summary.py
+python scripts/run_validation.py --profile baseline
 python -m unittest discover -s tests -v
 ```
+
+The `baseline` profile records fresh results in a unique directory under `validation_runs/`. Pass that printed directory to `scripts/update_report_summary.py --run-dir ...` or `scripts/make_plots.py --run-dir ...`; both reject incomplete or mismatched evidence. `python scripts/run_validation.py --profile full` currently exits nonzero and lists the scientific suites still missing. A passing baseline is **not** complete manuscript validation. See [reproduction instructions](docs/reproducing-results.md) and the [convention map](docs/conventions.md).
 
 See the [documentation site](https://zetanaut.github.io/Li7-TMDs/) for conventions, derivations, checks, and a recommended learning path.
 

@@ -17,6 +17,7 @@ nav:
   - Quark basis: quark-basis.md
   - Gluon basis: gluon-basis.md
   - Symbolic validation: symbolic-validation.md
+  - Validation coverage: validation-coverage.md
   - SIDIS trace validation: sidis-validation.md
   - Gluon Born response: gluon-hard-response.md
   - Conventions: conventions.md

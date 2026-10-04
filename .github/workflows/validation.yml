@@ -11,10 +11,15 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt
-      - run: python src/validate_spin32_tmd.py --output results/validation_report.json
-      - run: python src/gluon_born_response.py --output results/gluon_born_report.json
-      - run: python examples/reproduce_gluon_grid.py --output results/gluon_born_grid_report.json
       - run: python -m unittest discover -s tests -v
-      - run: python scripts/make_plots.py
-      - run: python scripts/update_report_summary.py
-      - run: mkdocs build --strict
+      - name: Execute baseline and build its evidence-backed documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/run_validation.py --profile baseline --output-root validation_runs | tee /tmp/li7-validation.log
+          run_dir=$(sed -n 's/^Run directory: //p' /tmp/li7-validation.log)
+          test -n "$run_dir"
+          python scripts/update_report_summary.py --run-dir "$run_dir"
+          python scripts/make_plots.py --run-dir "$run_dir"
+          mkdocs build --strict
+          python scripts/check_public_scope.py --site site
