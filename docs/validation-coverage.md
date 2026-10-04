@@ -1,6 +1,6 @@
 # Validation coverage
 
-The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds independent finite-dimensional claims. `quark-processes` adds SIDIS, DY, convolution, and conditional link-reversal evidence. `gluon-processes` adds the full gluon response and independent Born calculations, with the physical-helicity label discrepancy recorded for author review. The `full` profile executes available work and returns `MISSING` for the later limit/positivity suite. A PASS is limited to the named profile.
+The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds independent finite-dimensional claims. `quark-processes` adds SIDIS, DY, convolution, and conditional link-reversal evidence. `gluon-processes` adds the full gluon response and independent Born calculations, with the physical-helicity label discrepancy recorded for author review. The `full` profile executes available work and returns `MISSING` for the later limit/positivity suites. A PASS is limited to the named profile.
 
 | Claim | Source definition | Current evidence | Scope and remaining work |
 |---|---|---|---|

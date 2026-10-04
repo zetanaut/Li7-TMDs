@@ -50,7 +50,7 @@ python scripts/run_validation.py --profile gluon-processes --output-root /tmp/li
 python scripts/check_gluon_angular_certificate.py
 ```
 
-Use that run directory for `update_report_summary.py` and `make_plots.py`; the latter reads the validated dense-scan payload. `full` executes all available work and exits with the later limit/positivity suite marked missing.
+Use that run directory for `update_report_summary.py` and `make_plots.py`; the latter reads the validated dense-scan payload. `full` executes all available work and exits with the later limit/positivity suites marked missing.
 
 ## Legacy commands
 
