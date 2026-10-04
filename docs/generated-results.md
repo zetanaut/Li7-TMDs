@@ -1,29 +1,29 @@
 # Generated result summary
 
-This page describes the **quark-processes profile only**. The complete manuscript validation profile has required suites that are still missing.
+This page describes the **gluon-processes profile only**. The complete manuscript validation profile has required suites that are still missing.
 
 The summary was generated from a complete run whose required IDs, source and input digests, computed ranks, and result identities were checked together.
 
-Source revision: `fac802c1323562849f4524406b6d90436ce1205f`; dirty source: `false`; scientific source digest: `fa847dd28c6a426fe13badef5f73b9d970986edfa069fe2cd157c50ed236359f`.
+Source revision: `d1b70f5dc88c0d3d9dc997592ca25c8a22bf74fe`; dirty source: `false`; scientific source digest: `8f0471816fe4e2bda1c3b243151e06be80e5c8025928ee2837fcfb492c679e86`.
 
 | Executed evidence | Count |
 |---|---:|
 | conditional algebra | 66 |
-| exact fixture | 46 |
-| exact identity | 178 |
+| exact fixture | 92 |
+| exact identity | 180 |
 | exact rank | 6 |
-| numerical diagnostic | 52 |
-| numerical parameter cases | 1 |
-| software test | 22 |
+| numerical diagnostic | 56 |
+| numerical parameter cases | 8 |
+| software test | 29 |
 
 | Evidence role | Records |
 |---|---:|
 | component case | 122 |
 | independent bound | 2 |
-| independent comparison | 53 |
+| independent comparison | 112 |
 | legacy identity | 47 |
 | legacy rank | 2 |
-| negative control | 19 |
+| negative control | 26 |
 | numerical corroboration | 51 |
 | rank witness | 2 |
 | software regression | 3 |
@@ -66,7 +66,7 @@ The grid is a set of numerical cases, not additional independent scientific clai
 
 ## Independent foundations
 
-These exact checks cover spin and target-state algebra, transverse STF tensors, the lower-spin gluon dictionary, quark/gluon covariants, and coefficient recovery. They do not cover the remaining process-response suites.
+These exact checks cover spin and target-state algebra, transverse STF tensors, the lower-spin gluon dictionary, quark/gluon covariants, and coefficient recovery. Their scope is exact finite-dimensional algebra.
 
 | Certificate | Verified value |
 |---|---:|
@@ -85,7 +85,7 @@ The seven-direction target-response determinant is `-1400/35937`. This is target
 
 64 quark/gluon coefficient sign records check finite PT algebra conditional on the stated field/link transformation. They do not establish QCD factorization or an evolution kernel.
 
-The full profile still requires gluon response separation, an independent heavy-pair Born program, and positivity/collinear/Fourier suites.
+The full profile retains later scientific requirements.
 
 ### SIDIS reviewed response rows
 
@@ -142,3 +142,67 @@ The full profile still requires gluon response separation, an independent heavy-
 | `dy.row.h.32.3` | `(3,2)` | `h` | 3 | `r2` | `(-2, 2, 2)` | +1 | 3.25e-19 |
 | `dy.row.h.33.2` | `(3,3)` | `h` | 2 | `l3` | `(3, -3, 2)` | +1 | 5.55e-17 |
 | `dy.row.h.33.4` | `(3,3)` | `h` | 4 | `r3` | `(-3, 3, 2)` | +1 | 3.25e-19 |
+
+## Gluon responses and independent Born checks
+
+32 gluon rows were compared through Cartesian-trace and complex-helicity routes. 14 octupole rows were obtained from four physical spin rates each.
+
+The exact angular Gram determinant is `1/8192`. The independent-Born synthetic response has rank 14 and maximum coefficient recovery error 4.66e-14.
+
+The 36-case grid compared 36 direct amplitudes; the dense scan evaluated and independently compared 483 cases. Worst matrix component residual: 2.73e-12 GeV².
+
+4 independently calculated cases used 50 and 80 decimal digits from string inputs. The physical spinor helicity is the negative of the source lambda label in the matrix comparison; this sign-label discrepancy awaits author review.
+
+| Gluon response ID | Target rank | Channel | Orbital rank |
+|---|---:|---|---:|
+| `gluon.response.00.f.0` | 0 | `f` | 0 |
+| `gluon.response.00.h.2` | 0 | `h` | 2 |
+| `gluon.response.10.g.0` | 1 | `g` | 0 |
+| `gluon.response.10.h.2` | 1 | `h` | 2 |
+| `gluon.response.11.f.1` | 1 | `f` | 1 |
+| `gluon.response.11.g.1` | 1 | `g` | 1 |
+| `gluon.response.11.h.1` | 1 | `h` | 1 |
+| `gluon.response.11.h.3` | 1 | `h` | 3 |
+| `gluon.response.20.f.0` | 2 | `f` | 0 |
+| `gluon.response.20.h.2` | 2 | `h` | 2 |
+| `gluon.response.21.f.1` | 2 | `f` | 1 |
+| `gluon.response.21.g.1` | 2 | `g` | 1 |
+| `gluon.response.21.h.1` | 2 | `h` | 1 |
+| `gluon.response.21.h.3` | 2 | `h` | 3 |
+| `gluon.response.22.f.2` | 2 | `f` | 2 |
+| `gluon.response.22.g.2` | 2 | `g` | 2 |
+| `gluon.response.22.h.0` | 2 | `h` | 0 |
+| `gluon.response.22.h.4` | 2 | `h` | 4 |
+| `gluon.response.30.g.0` | 3 | `g` | 0 |
+| `gluon.response.30.h.2` | 3 | `h` | 2 |
+| `gluon.response.31.f.1` | 3 | `f` | 1 |
+| `gluon.response.31.g.1` | 3 | `g` | 1 |
+| `gluon.response.31.h.1` | 3 | `h` | 1 |
+| `gluon.response.31.h.3` | 3 | `h` | 3 |
+| `gluon.response.32.f.2` | 3 | `f` | 2 |
+| `gluon.response.32.g.2` | 3 | `g` | 2 |
+| `gluon.response.32.h.0` | 3 | `h` | 0 |
+| `gluon.response.32.h.4` | 3 | `h` | 4 |
+| `gluon.response.33.f.3` | 3 | `f` | 3 |
+| `gluon.response.33.g.3` | 3 | `g` | 3 |
+| `gluon.response.33.h.1` | 3 | `h` | 1 |
+| `gluon.response.33.h.5` | 3 | `h` | 5 |
+
+| Octupole response | Signed cone factor | Orbital rank | Source factor |
+|---|---:|---:|---:|
+| `gluon.oct.g.30` | -9/25 | 0 | 1 |
+| `gluon.oct.h.30.2` | -9/25 | 2 | 1/2 |
+| `gluon.oct.f.31` | 8/25 | 1 | 1 |
+| `gluon.oct.g.31` | 8/25 | 1 | 1 |
+| `gluon.oct.h.31.1` | 8/25 | 1 | 1/2 |
+| `gluon.oct.h.31.3` | 8/25 | 3 | 1/4 |
+| `gluon.oct.f.32` | 48/25 | 2 | 1 |
+| `gluon.oct.g.32` | 48/25 | 2 | 1 |
+| `gluon.oct.h.32.0` | 48/25 | 0 | 1 |
+| `gluon.oct.h.32.4` | 48/25 | 4 | 1/4 |
+| `gluon.oct.f.33` | 32/25 | 3 | 1 |
+| `gluon.oct.g.33` | 32/25 | 3 | 1 |
+| `gluon.oct.h.33.1` | 32/25 | 1 | 1 |
+| `gluon.oct.h.33.5` | 32/25 | 5 | 1/4 |
+
+The full profile remains incomplete because the separate collinear-selection, Fourier/Bessel, local-moment, and partonic-positivity requirements have not been executed.
