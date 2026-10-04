@@ -43,7 +43,14 @@ python scripts/run_validation.py --profile quark-processes --output-root /tmp/li
 python scripts/update_report_summary.py --run-dir /tmp/li7-runs/PRINTED-RUN-DIRECTORY --output /tmp/li7-summary.md
 ```
 
-`full` executes this available evidence and exits with the later gluon response, independent heavy-pair Born, and limit/positivity suites marked missing.
+The cumulative gluon profile adds the 32 gluon response rows, fourteen physical octupole modes, the angular certificate, independent direct Born amplitudes, high-precision cases, and the actual 483-case dense scan:
+
+```sh
+python scripts/run_validation.py --profile gluon-processes --output-root /tmp/li7-runs
+python scripts/check_gluon_angular_certificate.py
+```
+
+Use that run directory for `update_report_summary.py` and `make_plots.py`; the latter reads the validated dense-scan payload. `full` executes all available work and exits with the later limit/positivity suite marked missing.
 
 ## Legacy commands
 

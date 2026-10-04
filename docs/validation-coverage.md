@@ -1,6 +1,6 @@
 # Validation coverage
 
-The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds the independent finite-dimensional claims below. `quark-processes` adds SIDIS, DY, convolution, and conditional link-reversal evidence. The `full` profile executes available work and returns `MISSING` for later required suites. A PASS is limited to the named profile.
+The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds independent finite-dimensional claims. `quark-processes` adds SIDIS, DY, convolution, and conditional link-reversal evidence. `gluon-processes` adds the full gluon response and independent Born calculations, with the physical-helicity label discrepancy recorded for author review. The `full` profile executes available work and returns `MISSING` for the later limit/positivity suite. A PASS is limited to the named profile.
 
 | Claim | Source definition | Current evidence | Scope and remaining work |
 |---|---|---|---|
@@ -14,8 +14,8 @@ The `baseline` profile reruns the 49 historical symbolic outcomes, five Born ref
 | Failure detection and run provenance | Computational companion | Injected scientific mutations, certificate checker, run-scoped manifest and attestation | A certificate proves the checked finite map; it does not certify process factorization. |
 | SIDIS and octupole DY quark responses | `eq:traceSIDIS`, `tab:SF`, `eq:DYtrace`, `eq:DYnumberSF`, `eq:DYhelicitySF`, `eq:DYchiralSF` | All 32 + 14 curated row identities; all-row Gaussian moments and two independent quadratures; massless QED current | Leading-power one-photon Born and synthetic radial inputs. See [quark processes](quark-processes.md). |
 | Quark/gluon link-reversal algebra | `eq:PTspin`, `eq:PTprojection`, `eq:Tparity` | Complex-density PT, 64 coefficient sign records, typed simple links | Conditional on analytic field/link rule. No general color-loop transformation or factorization proof. |
-| Fourteen-response gluon separation | Gluon observable section | MISSING | Later phase. |
-| Independent Born amplitudes and dense scans | Hard response section | MISSING | Later phase. |
+| Fourteen-response gluon separation | `tab:oct_fourier`, `eq:gluon_measured_moment` | Physical spin rates, exact Gram certificate, normalized moments, synthetic reconstruction and rank loss | Born and synthetic scope; see [gluon processes](gluon-processes.md). |
+| Independent Born amplitudes and dense scans | `eq:bornvertex`, `eq:leptonic`, `eq:BornB` | Spinor amplitudes, full complex matrix, 50/80-digit points, 36-case grid and 483-case dense scan | Explicit source λ to spinor-helicity conversion is unresolved as a physical label. |
 | Complete collinear/matching/partonic positivity | Matching and positivity sections | MISSING | Later phase. |
 
 The [foundations page](foundations.md) gives methods, exact domains, certificates, and reproduction commands. Historical JSON reports and generated figures are useful comparisons, but a new PASS requires a fresh complete run with matching source, input, reference, and certificate provenance.

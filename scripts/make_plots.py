@@ -16,6 +16,8 @@ def save(fig, path):
     path.parent.mkdir(parents=True, exist_ok=True)
     for suffix in ('.png', '.svg'):
         fig.savefig(path.with_suffix(suffix), dpi=180, bbox_inches='tight')
+    svg=path.with_suffix('.svg')
+    svg.write_text('\n'.join(line.rstrip() for line in svg.read_text().splitlines())+'\n')
     plt.close(fig)
 
 
@@ -28,6 +30,7 @@ def main():
     args = parser.parse_args()
     if args.run_dir:
         _manifest, document = validate_run(args.run_dir)
+        by_id={item['check_id']:item['result_payload'] for item in document['results']}
         grid = next(item['result_payload'] for item in document['results']
                     if item['check_id'] == 'grid.complete')
         report = {'points': grid['number_of_cases'], 'all_pass': True,
@@ -66,7 +69,40 @@ def main():
     ax.set(xlabel='grid point index', ylabel='relative residual', title='Born-amplitude Ward validation (36 points)')
     ax.legend(); ax.grid(alpha=.25)
     save(fig, args.output_dir/'ward_residuals')
-    print(f'Wrote six figures as PNG and SVG to {args.output_dir}')
+    if args.run_dir and 'gluon.born.dense_scan' in by_id:
+        dense=by_id['gluon.born.dense_scan']
+        selected=[x for x in dense['cases'] if x['inputs']['helicity']==1.]
+        angles=dense['angle_array']
+        fig,ax=plt.subplots(figsize=(7,4))
+        for name in ('b_G','b_C','b_S'):
+            ax.plot(angles,[x['stokes'][name]/x['stokes']['b_U'] for x in selected],label=name+'/b_U')
+        ax.set(xlabel='θ (rad)',ylabel='dimensionless analyzing ratio',
+               title='Born hard analyzer, 161 calculated angles')
+        ax.grid(alpha=.25);ax.legend();save(fig,args.output_dir/'dense_analyzing')
+        fig,ax=plt.subplots(figsize=(7,4))
+        for j in (0,1):
+            ax.plot(angles,[x['eigenvalues'][j] for x in selected],label=f'eigenvalue {j+1}')
+        ax.set(xlabel='θ (rad)',ylabel='reduced B eigenvalue (GeV²)',
+               title='Born hard matrix, 161 calculated angles')
+        ax.grid(alpha=.25);ax.legend();save(fig,args.output_dir/'dense_eigenvalues')
+        fig,ax=plt.subplots(figsize=(7,4))
+        floor=1e-18
+        ax.semilogy(angles,[max(x['direct_residual_relative'],floor) for x in selected],label='direct/trace')
+        for key in ('photon','gluon'):
+            ax.semilogy(angles,[max(x['relative_wards'][key],floor) for x in selected],label=key+' Ward')
+        ax.set(xlabel='θ (rad)',ylabel=f'relative residual (display floor {floor:g})',
+               title='Born independent and Ward diagnostics')
+        ax.grid(alpha=.25);ax.legend();save(fig,args.output_dir/'dense_residuals')
+        recon=by_id['gluon.oct.reconstruction']
+        fig,ax=plt.subplots(figsize=(5,4))
+        keys=('condition_raw','condition_column_normalized')
+        ax.bar(('physical columns','unit columns'),[recon[k] for k in keys])
+        ax.set_yscale('log');ax.set(ylabel='2-norm condition number',
+               title='Synthetic octupole response design')
+        save(fig,args.output_dir/'octupole_condition')
+        print(f'Wrote ten validated figures as PNG and SVG to {args.output_dir}')
+    else:
+        print(f'Wrote six figures as PNG and SVG to {args.output_dir}')
 
 
 if __name__ == '__main__':

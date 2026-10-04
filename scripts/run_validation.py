@@ -19,7 +19,9 @@ from validation_manifest import (BORN_CHECKS, FULL_PENDING_SUITES, LEGACY_IDS,
                                  FOUNDATION_REQUIRED, BASELINE_REQUIRED,
                                  FOUNDATION_NEGATIVE_TESTS, PROFILE_REQUIRED,
                                  PROCESS_NEGATIVE_TESTS, PROCESS_ROW_IDS,
-                                 PROCESS_INTEGRAL_IDS, REVERSAL_IDS)  # noqa: E402
+                                 PROCESS_INTEGRAL_IDS, REVERSAL_IDS,
+                                 GLUON_ROW_IDS,GLUON_OCT_IDS,GLUON_FIXED_IDS,
+                                 GLUON_NEGATIVE_TESTS)  # noqa: E402
 from validation_evidence import (GRID_AXES, REFERENCE_INPUTS, EvidenceError, finish_run,
                                  new_run, result, validate_run, atomic_json, file_digest,
                                  write_results)  # noqa: E402
@@ -304,9 +306,114 @@ def check_process_evidence_integrity(run_dir: Path) -> dict:
             else:raise EvidenceError(mutation+' was accepted')
     return {'negative_cases':cases,'method':'tampered complete run copies rejected'}
 
+
+def execute_gluon(run_dir: Path, manifest: dict, results: list[dict]) -> None:
+    from gluon_stokes import exact_checks,numerical_checks
+    from gluon_responses import verify_rows
+    from gluon_octupole import verify_physical_rates,projection_checks
+    from gluon_angular import certificate,check as check_angular
+    from gluon_reconstruction import run_reconstruction
+    from born_direct import spinor_and_ward_checks
+    from born_validation import (precision_set,grid,dense_scan,broader_cases,
+                                 normalization_checks,domain_checks,verify_scan_payload)
+    import json
+    fixed={
+      'gluon.stokes.exact':exact_checks(),
+      'gluon.stokes.complex':numerical_checks(),
+      'gluon.angular.certificate':certificate(),
+      'gluon.oct.physical_rates':{'four_rates_per_term':True,'state_construction':'rho=I/4+eta beta3 X3'},
+      'gluon.oct.projections':projection_checks(),
+      'gluon.oct.reconstruction':run_reconstruction(),
+      'gluon.born.spinor_ward':spinor_and_ward_checks(),
+      'gluon.born.precision':precision_set(),
+      'gluon.born.grid':grid(),
+      'gluon.born.dense_scan':dense_scan(),
+      'gluon.born.broader':broader_cases(),
+      'gluon.born.normalization':normalization_checks(),
+      'gluon.born.domains':domain_checks(),
+    }
+    verify_scan_payload(fixed['gluon.born.dense_scan'])
+    if set(fixed)!=set(GLUON_FIXED_IDS):raise EvidenceError('gluon fixed ID mismatch')
+    angular_path=ROOT/'certificates'/'gluon_angular.json'
+    check_angular(angular_path)
+    atomic_json(run_dir/'gluon_certificate_attestation.json',{
+        'run_id':manifest['run_id'],
+        'scientific_source_digest':manifest['scientific_source_digest'],
+        'certificate_sha256':file_digest(angular_path),
+    })
+    for check_id in GLUON_FIXED_IDS:
+        results.append(result(check_id,'PASS',
+            'exact_identity' if check_id.startswith(('gluon.stokes.exact','gluon.angular')) else
+            'numerical_parameter_cases' if check_id.startswith('gluon.born.') else 'numerical_diagnostic',
+            ['Approved source convention; physical spinor helicity h=-source lambda for matrix comparison',
+             'Synthetic TMD coefficients are not lithium-7 predictions'],fixed[check_id],manifest,
+            claim_role='independent_comparison'))
+    rows=verify_rows()
+    row_by_id={f'gluon.response.{K}{m}.{ch}.{n}':rows[f'gluon.{ch}.{K}{m}[{n}]']
+               for K,m,ch,n,*_ in __import__('gluon_response_fixture').ROWS}
+    if set(row_by_id)!=set(GLUON_ROW_IDS):raise EvidenceError('gluon row ID mismatch')
+    for check_id in GLUON_ROW_IDS:
+        payload=dict(row_by_id[check_id],fixture_sha256=file_digest(ROOT/'src'/'gluon_response_fixture.py'))
+        results.append(result(check_id,'PASS','exact_fixture',
+            ['Cartesian hard trace and independent complex-helicity route'],payload,manifest,
+            claim_role='independent_comparison'))
+    oct_rows=verify_physical_rates()
+    if set('gluon.oct.'+name for name in oct_rows)!=set(GLUON_OCT_IDS):
+        raise EvidenceError('octupole ID mismatch')
+    for check_id in GLUON_OCT_IDS:
+        name=check_id.removeprefix('gluon.oct.')
+        results.append(result(check_id,'PASS','exact_fixture',
+            ['Physical density matrices and four target/beam rates'],oct_rows[name],manifest,
+            claim_role='independent_comparison'))
+    write_results(run_dir,manifest,results)
+    proc=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests',
+                         '-p','test_gluon_failures.py','-v'],cwd=ROOT,text=True,capture_output=True)
+    (run_dir/'gluon_negative.log').write_text(proc.stdout+proc.stderr,encoding='utf-8')
+    passed=set(re.findall(r'^(test_[a-z_]+) \(test_gluon_failures\.GluonFailureTests\.[a-z_]+\) \.\.\. ok$',
+                          proc.stdout+proc.stderr,flags=re.MULTILINE))
+    for name in GLUON_NEGATIVE_TESTS:
+        results.append(result('software.gluon_negative.'+name,
+            'PASS' if proc.returncode==0 and name in passed else 'FAIL','software_test',
+            ['Test-local scientific mutation'],{'test_id':name,'exit_code':proc.returncode},manifest,
+            claim_role='negative_control'))
+    if proc.returncode or passed!=set(GLUON_NEGATIVE_TESTS):
+        raise EvidenceError('gluon negative controls failed or omitted')
+
+
+def check_gluon_evidence_integrity(run_dir: Path) -> dict:
+    import copy,json,shutil,tempfile
+    validate_run(run_dir)
+    rejected=[]
+    with tempfile.TemporaryDirectory(prefix='li7-gluon-integrity-') as temp:
+        for mutation in ('missing-scan-case','duplicate-scan-case','wrong-helicity',
+                         'missing-row','wrong-fixture','mixed-certificate','stale-precision'):
+            folder=Path(temp)/mutation;shutil.copytree(run_dir,folder)
+            m=json.loads((folder/'manifest.json').read_text())
+            d=json.loads((folder/'results.json').read_text())
+            by={x['check_id']:x for x in d['results']}
+            scan=by['gluon.born.dense_scan']['result_payload']
+            if mutation=='missing-scan-case':scan['cases'].pop()
+            elif mutation=='duplicate-scan-case':scan['cases'][8]=copy.deepcopy(scan['cases'][7])
+            elif mutation=='wrong-helicity':scan['cases'][8]['inputs']['helicity']=0.
+            elif mutation=='missing-row':d['results'].remove(by[GLUON_ROW_IDS[0]])
+            elif mutation=='wrong-fixture':by[GLUON_ROW_IDS[0]]['result_payload']['fixture_sha256']='0'*64
+            elif mutation=='mixed-certificate':
+                att=json.loads((folder/'gluon_certificate_attestation.json').read_text())
+                att['run_id']='another-run';atomic_json(folder/'gluon_certificate_attestation.json',att)
+            else:by['gluon.born.precision']['result_payload']['cases'][0]['dps80']['stokes'][1]='0'
+            m['executed_check_ids']=[x['check_id'] for x in d['results']]
+            atomic_json(folder/'results.json',d)
+            m['results_digest']=file_digest(folder/'results.json')
+            atomic_json(folder/'manifest.json',m)
+            try:validate_run(folder)
+            except EvidenceError as exc:rejected.append({'mutation':mutation,'reason':str(exc)})
+            else:raise EvidenceError(f'{mutation} accepted')
+    return {'rejected':rejected}
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--profile', choices=('baseline', 'foundations', 'quark-processes', 'full'), default='baseline')
+    parser.add_argument('--profile', choices=('baseline', 'foundations', 'quark-processes',
+                                               'gluon-processes','full'), default='baseline')
     parser.add_argument('--output-root', type=Path, default=ROOT / 'validation_runs')
     parser.add_argument('--born-sqrt-s', type=float, default=REFERENCE_INPUTS['sqrt_s'],
                         help='Reference-point diagnostic override; a different point cannot certify baseline.')
@@ -318,7 +425,7 @@ def main() -> int:
     ranks: dict[str, int] = {}
     try:
         execute(run_dir, manifest, inputs, results, ranks)
-        if args.profile in ('foundations','quark-processes','full'):
+        if args.profile in ('foundations','quark-processes','gluon-processes','full'):
             execute_foundations(run_dir,manifest,results)
             results.append(result('software.foundation_evidence_integrity','PASS','software_test',
                                   ['Run-specific complete evidence'],{'stage':'pending independent mutation'},manifest,
@@ -336,23 +443,41 @@ def main() -> int:
             results[-1]=result('software.foundation_evidence_integrity','PASS','software_test',
                                ['Tampered copies of this completed run'],payload,manifest,
                                claim_role='negative_control')
-        if args.profile in ('quark-processes','full'):
+        if args.profile in ('quark-processes','gluon-processes','full'):
             execute_processes(run_dir,manifest,results)
             results.append(result('software.process_evidence_integrity','PASS','software_test',
                                   ['Run-specific complete process evidence'],
                                   {'stage':'pending independent mutation'},manifest,
                                   claim_role='negative_control'))
-            if args.profile=='full':
+            if args.profile in ('gluon-processes','full'):
                 manifest['profile']='quark-processes'
                 manifest['required_check_ids']=list(PROFILE_REQUIRED['quark-processes'])
             finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
             try:
                 payload=check_process_evidence_integrity(run_dir)
             finally:
+                if args.profile in ('gluon-processes','full'):
+                    manifest['profile']=args.profile
+                    manifest['required_check_ids']=list(PROFILE_REQUIRED[args.profile])
+            results[-1]=result('software.process_evidence_integrity','PASS','software_test',
+                               ['Tampered copies of this completed run'],payload,manifest,
+                               claim_role='negative_control')
+        if args.profile in ('gluon-processes','full'):
+            execute_gluon(run_dir,manifest,results)
+            results.append(result('software.gluon_evidence_integrity','PASS','software_test',
+                                  ['Run-specific complete gluon evidence'],
+                                  {'stage':'pending independent mutation'},manifest,
+                                  claim_role='negative_control'))
+            if args.profile=='full':
+                manifest['profile']='gluon-processes'
+                manifest['required_check_ids']=list(PROFILE_REQUIRED['gluon-processes'])
+            finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
+            try:payload=check_gluon_evidence_integrity(run_dir)
+            finally:
                 if args.profile=='full':
                     manifest['profile']='full'
                     manifest['required_check_ids']=list(PROFILE_REQUIRED['full'])
-            results[-1]=result('software.process_evidence_integrity','PASS','software_test',
+            results[-1]=result('software.gluon_evidence_integrity','PASS','software_test',
                                ['Tampered copies of this completed run'],payload,manifest,
                                claim_role='negative_control')
         if args.profile == 'full':

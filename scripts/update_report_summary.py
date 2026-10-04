@@ -14,7 +14,7 @@ from validation_manifest import BORN_CHECKS, LEGACY_IDS  # noqa: E402
 
 def render_summary(run_dir: Path) -> str:
     manifest, document = validate_run(run_dir)
-    if manifest['profile'] not in ('baseline', 'foundations', 'quark-processes'):
+    if manifest['profile'] not in ('baseline', 'foundations', 'quark-processes','gluon-processes'):
         raise EvidenceError('only complete implemented profiles can be summarized')
     by_id = {item['check_id']: item for item in document['results']}
     counts = {}
@@ -67,11 +67,11 @@ def render_summary(run_dir: Path) -> str:
               'The grid is a set of numerical cases, not additional independent scientific '
               'claims. These coupling-stripped hard responses are not lithium-7 cross-section '
               'predictions.', '']
-    if manifest['profile'] in ('foundations','quark-processes'):
+    if manifest['profile'] in ('foundations','quark-processes','gluon-processes'):
         lines += ['## Independent foundations', '',
                   'These exact checks cover spin and target-state algebra, transverse STF tensors, '
                   'the lower-spin gluon dictionary, quark/gluon covariants, and coefficient recovery. '
-                  'They do not cover the remaining process-response suites.', '',
+                  'Their scope is exact finite-dimensional algebra.', '',
                   '| Certificate | Verified value |', '|---|---:|']
         for species in ('quark', 'gluon'):
             payload = by_id[f'{species}.rank_certificate']['result_payload']
@@ -83,7 +83,7 @@ def render_summary(run_dir: Path) -> str:
         lines += ['', 'The seven-direction target-response determinant is '
                   f"`{by_id['spin.seven_direction_tomography']['result_payload']['determinant']}`. "
                   'This is target-response tomography, not fourteen-TMD separation.', '']
-    if manifest['profile']=='quark-processes':
+    if manifest['profile'] in ('quark-processes','gluon-processes'):
         from validation_manifest import PROCESS_ROW_IDS,PROCESS_INTEGRAL_IDS,REVERSAL_IDS
         sidis=[name for name in PROCESS_ROW_IDS if name.startswith('sidis.')]
         dy=[name for name in PROCESS_ROW_IDS if name.startswith('dy.')]
@@ -95,8 +95,7 @@ def render_summary(run_dir: Path) -> str:
                   f'{len(REVERSAL_IDS)} quark/gluon coefficient sign records check finite '
                   'PT algebra conditional on the stated field/link transformation. '
                   'They do not establish QCD factorization or an evolution kernel.', '',
-                  'The full profile still requires gluon response separation, an independent '
-                  'heavy-pair Born program, and positivity/collinear/Fourier suites.', '']
+                  'The full profile retains later scientific requirements.', '']
         for process,ids in (('SIDIS',sidis),('DY',dy)):
             lines += [f'### {process} reviewed response rows', '',
                       '| Row ID | Target `(K,m)` | Projection | Orbital rank | Weight | Phase `(recoil,target,lepton)` | Sign | Max integral residual |',
@@ -111,6 +110,40 @@ def render_summary(run_dir: Path) -> str:
                              f'`{row["weight"]}` | `{tuple(row["phase_coefficients"])}` | '
                              f'{row["signed_prefactor"]:+d} | {residual:.3g} |')
             lines.append('')
+    if manifest['profile']=='gluon-processes':
+        from validation_manifest import GLUON_ROW_IDS,GLUON_OCT_IDS
+        angular=by_id['gluon.angular.certificate']['result_payload']
+        reconstruction=by_id['gluon.oct.reconstruction']['result_payload']
+        grid=by_id['gluon.born.grid']['result_payload']
+        scan=by_id['gluon.born.dense_scan']['result_payload']
+        precision=by_id['gluon.born.precision']['result_payload']
+        lines += ['## Gluon responses and independent Born checks', '',
+                  f'{len(GLUON_ROW_IDS)} gluon rows were compared through Cartesian-trace and '
+                  f'complex-helicity routes. {len(GLUON_OCT_IDS)} octupole rows were obtained '
+                  'from four physical spin rates each.', '',
+                  f"The exact angular Gram determinant is `{angular['determinant']}`. "
+                  f"The independent-Born synthetic response has rank {reconstruction['rank']} "
+                  f"and maximum coefficient recovery error {reconstruction['max_recovery_error']:.3g}.", '',
+                  f"The 36-case grid compared {grid['independent_direct_count']} direct amplitudes; "
+                  f"the dense scan evaluated and independently compared {scan['case_count']} "
+                  f"cases. Worst matrix component residual: {scan['max_direct_residual_abs']:.3g} GeV².", '',
+                  f"{precision['case_count']} independently calculated cases used 50 and 80 "
+                  'decimal digits from string inputs. The physical spinor helicity is the '
+                  'negative of the source lambda label in the matrix comparison; this '
+                  'sign-label discrepancy awaits author review.', '',
+                  '| Gluon response ID | Target rank | Channel | Orbital rank |',
+                  '|---|---:|---|---:|']
+        for check_id in GLUON_ROW_IDS:
+            row=by_id[check_id]['result_payload']
+            lines.append(f'| `{check_id}` | {row["K"]} | `{row["channel"]}` | {row["n"]} |')
+        lines += ['', '| Octupole response | Signed cone factor | Orbital rank | Source factor |',
+                  '|---|---:|---:|---:|']
+        for check_id in GLUON_OCT_IDS:
+            row=by_id[check_id]['result_payload']
+            lines.append(f'| `{check_id}` | {row["signed_alpha"]} | {row["orbital_rank"]} | {row["source_factor"]} |')
+        lines += ['', 'The full profile remains incomplete because the separate '
+                  'collinear-selection, Fourier/Bessel, local-moment, and partonic-positivity '
+                  'requirements have not been executed.', '']
     return '\n'.join(lines)
 
 

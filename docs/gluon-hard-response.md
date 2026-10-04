@@ -1,5 +1,7 @@
 # Gluon Born hard response
 
+For the independent spinor comparison, complete gluon response catalogue, and dense scan, see [gluon process validation](gluon-processes.md). The source's lepton helicity label differs in sign from the physical helicity eigenspinor used in that independent comparison; the mapping and unresolved author-review item are documented there.
+
 The numerical program evaluates a specified Born analyzer for γ* g → Q Q̄, embedded in ℓ + g → ℓ′ + Q + Q̄. An incoming physical gluon has a 2 × 2 transverse polarization density matrix, so the hard process can resolve its trace, circular, and two linear-polarization components. This is a process-specific Born response, not a universal hard factor for every gluon-TMD observable.
 
 ## Two-diagram amplitude and conventions

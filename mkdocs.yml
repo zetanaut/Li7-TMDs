@@ -22,6 +22,7 @@ nav:
   - Quark process responses: quark-processes.md
   - SIDIS trace validation: sidis-validation.md
   - Gluon Born response: gluon-hard-response.md
+  - Gluon process validation: gluon-processes.md
   - Conventions: conventions.md
   - Reproducing results: reproducing-results.md
   - Generated result summary: generated-results.md

@@ -15,7 +15,8 @@ import uuid
 
 from validation_manifest import (BORN_CHECKS, LEGACY_IDS, PROFILE_REQUIRED,
                                  SOFTWARE_TESTS, PROCESS_ROW_IDS,
-                                 PROCESS_INTEGRAL_IDS, REVERSAL_IDS)
+                                 PROCESS_INTEGRAL_IDS, REVERSAL_IDS,
+                                 GLUON_ROW_IDS,GLUON_OCT_IDS,GLUON_NEGATIVE_TESTS)
 
 SCHEMA_VERSION = 2
 REFERENCE_SOURCE_SHA256 = '3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d'
@@ -80,7 +81,7 @@ def git_provenance() -> tuple[str, bool]:
 
 
 def dependency_versions() -> dict[str, str]:
-    packages = ('numpy', 'sympy', 'matplotlib', 'mkdocs', 'pymdown-extensions')
+    packages = ('numpy', 'sympy', 'matplotlib', 'mkdocs', 'pymdown-extensions','mpmath')
     return {'python': sys.version.split()[0],
             **{name: importlib.metadata.version(name) for name in packages}}
 
@@ -292,7 +293,7 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                 [sum(row['K'] == k for row in rows) for k in range(4)] or
                 catalogue.get('target_rank_counts') != [2, 6, 10, 14]):
             raise EvidenceError(f'{kind} catalogue payload mismatch')
-    if profile in ('foundations', 'quark-processes', 'full'):
+    if profile in ('foundations', 'quark-processes', 'gluon-processes', 'full'):
         from foundation_certificates import read_certificate, verify_certificate
         attestation = _read_json(run_dir / 'certificate_attestation.json')
         if attestation.get('run_id') != manifest['run_id']:
@@ -312,7 +313,7 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                 raise EvidenceError(f'{species} certificate result mismatch')
         if attestation.get('certificates') != expected_certificates:
             raise EvidenceError('certificate attestation digest mismatch')
-    if profile in ('quark-processes','full'):
+    if profile in ('quark-processes','gluon-processes','full'):
         from response_fixtures import SIDIS_ROWS,DY_ROWS,row_id
         fixture_digest=file_digest(ROOT/'src'/'response_fixtures.py')
         fixture_rows={row_id(process,row):row for process,rows in
@@ -345,6 +346,52 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
             row=by_id[check_id]
             if row['evidence_type']!='conditional_algebra':
                 raise EvidenceError('operator reversal classified incorrectly')
+    if profile in ('gluon-processes','full'):
+        from gluon_angular import certificate,check as check_angular
+        from gluon_response_fixture import ROWS
+        from born_validation import verify_scan_payload,precision_set,BASE
+        attestation=_read_json(run_dir/'gluon_certificate_attestation.json')
+        cert_path=ROOT/'certificates'/'gluon_angular.json'
+        try:check_angular(cert_path)
+        except (OSError,ValueError,AssertionError) as exc:
+            raise EvidenceError(f'angular certificate invalid: {exc}') from exc
+        if (attestation.get('run_id')!=manifest['run_id'] or
+                attestation.get('scientific_source_digest')!=manifest['scientific_source_digest'] or
+                attestation.get('certificate_sha256')!=file_digest(cert_path) or
+                by_id['gluon.angular.certificate']['result_payload']!=certificate()):
+            raise EvidenceError('angular certificate attestation mismatch')
+        fixture_sha=file_digest(ROOT/'src'/'gluon_response_fixture.py')
+        for row,check_id in zip(ROWS,GLUON_ROW_IDS):
+            K,m,ch,n,*_=row
+            payload=by_id[check_id]['result_payload']
+            if (check_id!=f'gluon.response.{K}{m}.{ch}.{n}' or
+                    payload.get('fixture_sha256')!=fixture_sha or
+                    (payload.get('K'),payload.get('m'),payload.get('channel'),payload.get('n'))!=(K,m,ch,n) or
+                    by_id[check_id]['evidence_type']!='exact_fixture'):
+                raise EvidenceError('gluon response fixture mismatch')
+        if [x.removeprefix('gluon.oct.') for x in GLUON_OCT_IDS]!=[x[0] for x in certificate()['modes']]:
+            raise EvidenceError('octupole angular row identity mismatch')
+        for check_id in GLUON_OCT_IDS:
+            if (by_id[check_id]['result_payload'].get('four_spin_rates')!=4 or
+                    by_id[check_id]['evidence_type']!='exact_fixture'):
+                raise EvidenceError('octupole physical-rate evidence missing')
+        try:verify_scan_payload(by_id['gluon.born.dense_scan']['result_payload'])
+        except (ValueError,TypeError,KeyError) as exc:
+            raise EvidenceError(f'dense scan evidence invalid: {exc}') from exc
+        grid=by_id['gluon.born.grid']['result_payload']
+        expected_grid=[dict(BASE,theta=theta,phi=phi,helicity=helicity)
+                       for theta in (.4,.8,1.7,2.7) for phi in (0.,.4,1.2)
+                       for helicity in (-1.,0.,1.)]
+        if (grid.get('case_count')!=36 or grid.get('independent_direct_count')!=36 or
+                [x.get('inputs') for x in grid.get('cases',[])]!=expected_grid or
+                any(x.get('direct_residual_abs',float('inf'))>1e-8 for x in grid['cases'])):
+            raise EvidenceError('independent Born grid incomplete')
+        if by_id['gluon.born.precision']['result_payload']!=precision_set():
+            raise EvidenceError('stale or mismatched high-precision reference')
+        for name in GLUON_NEGATIVE_TESTS:
+            payload=by_id['software.gluon_negative.'+name]['result_payload']
+            if payload.get('test_id')!=name or payload.get('exit_code')!=0:
+                raise EvidenceError('gluon negative-control evidence missing')
     for label, check_id in LEGACY_IDS.items():
         if by_id[check_id]['result_payload'].get('legacy_label') != label:
             raise EvidenceError('legacy ID-to-check mapping mismatch')

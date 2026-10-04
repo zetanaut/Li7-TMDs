@@ -176,3 +176,39 @@ LATER_PENDING_SUITES=('suite.gluon_response','suite.born_independent_scan',
                       'suite.positivity_collinear_fourier')
 PROFILE_REQUIRED['full']=PROCESS_REQUIRED+LATER_PENDING_SUITES
 FULL_PENDING_SUITES=LATER_PENDING_SUITES
+
+# Checkpoint 4: row identities are transcribed from the reviewed gluon
+# fixture, while the octupole names are frozen separately from its builder.
+from gluon_response_fixture import ROWS as GLUON_FIXTURE_ROWS
+GLUON_ROW_IDS=tuple(f'gluon.response.{K}{m}.{ch}.{n}' for K,m,ch,n,*_ in GLUON_FIXTURE_ROWS)
+GLUON_OCT_NAMES=('g.30','h.30.2',
+    'f.31','g.31','h.31.1','h.31.3',
+    'f.32','g.32','h.32.0','h.32.4',
+    'f.33','g.33','h.33.1','h.33.5')
+GLUON_OCT_IDS=tuple('gluon.oct.'+name for name in GLUON_OCT_NAMES)
+GLUON_FIXED_IDS=(
+    'gluon.stokes.exact','gluon.stokes.complex',
+    'gluon.angular.certificate','gluon.oct.physical_rates','gluon.oct.projections',
+    'gluon.oct.reconstruction','gluon.born.spinor_ward',
+    'gluon.born.precision','gluon.born.grid','gluon.born.dense_scan',
+    'gluon.born.broader','gluon.born.normalization','gluon.born.domains',
+)
+GLUON_NEGATIVE_TESTS=(
+    'test_transposed_gram_and_helicity_sign',
+    'test_low_high_coefficients_and_odd_dual',
+    'test_angular_row_and_beam_mutations',
+    'test_born_diagram_and_normalization_mutations',
+    'test_invalid_domain_and_scan_identity',
+    'test_moment_prep_and_rank_loss',
+)
+GLUON_SOFTWARE_IDS=tuple('software.gluon_negative.'+name for name in GLUON_NEGATIVE_TESTS)+(
+    'software.gluon_evidence_integrity',)
+GLUON_REQUIRED=(PROCESS_REQUIRED+GLUON_ROW_IDS+GLUON_OCT_IDS+
+                GLUON_FIXED_IDS+GLUON_SOFTWARE_IDS)
+PROFILE_REQUIRED['gluon-processes']=GLUON_REQUIRED
+LATER_PENDING_SUITES=(
+    'suite.collinear_selection','suite.fourier_bessel',
+    'suite.local_moments','suite.partonic_positivity',
+)
+PROFILE_REQUIRED['full']=GLUON_REQUIRED+LATER_PENDING_SUITES
+FULL_PENDING_SUITES=LATER_PENDING_SUITES
