@@ -6,31 +6,26 @@ azimuths. Reflection in the recoil axis projects radial convolutions.
 from __future__ import annotations
 import sympy as s
 from correlator_foundations import Label, cartesian_value, catalogue
+from process_dirac import pair_table
 from response_fixtures import SIDIS_ROWS,DY_ROWS,row_id
 
 a,b,c,d=s.symbols('a b c d',real=True)
 H,T,E=s.symbols('H T E',nonzero=True)
-M_A,M_B=s.symbols('M_A M_B',positive=True)
+M_A=s.symbols('M_A',positive=True)
 I=s.I
-
-
-def conjugate_phase(expr):
-    return s.conjugate(expr).subs({s.conjugate(H):1/H,
-                                    s.conjugate(T):1/T,s.conjugate(E):1/E})
-
 
 def even_reflection(expr):
     return s.expand((expr+expr.subs({b:-b,d:-d}))/2)
 
 
 def target_parts(m):
-    if m==0:return ((1,0),)
+    if m==0:return (1,0)
     z=(T/H)**m
-    return (((z+1/z)/2,(z-1/z)/(2*I)),)
+    return ((z+1/z)/2,(z-1/z)/(2*I))
 
 
 def cartesian_projection(label):
-    re,im=target_parts(label.m)[0]
+    re,im=target_parts(label.m)
     zero=cartesian_value(label,0,M_A*a,M_A*b,M_A)
     if label.m:
         one=cartesian_value(label,1,M_A*a,M_A*b,M_A)
@@ -43,18 +38,28 @@ def derived_expression(process,row, *, reflect=True):
     label=Label('quark',channel,K,m,n)
     f,g,tx,ty=cartesian_projection(label)
     project=even_reflection if reflect else s.expand
-    if channel=='f':return project(f)
-    if channel=='g':return project(g)*(1 if process=='SIDIS' else -1)
-    tplus=tx+I*ty
+    table=pair_table(process)
+    def contract(tensor,lepton):
+        return s.expand(sum(tensor[i,j]*lepton[i,j] for i in range(2) for j in range(2)))
+    scalar=s.eye(2)/2
+    if channel=='f':return project(f*contract(table['F','D' if process=='SIDIS' else 'F'],scalar))
+    if channel=='g':
+        lepton=(-I*s.Matrix([[0,1],[-1,0]])/2 if process=='SIDIS' else scalar)
+        physical_antiquark_sign=1 if process=='SIDIS' else -1
+        return project(physical_antiquark_sign*g*contract(
+            table['G','D' if process=='SIDIS' else 'G'],lepton))
+    analyzer=(-d,c)  # -epsilon_ij p^j/M_h or opposite-beam +i v_B
     if process=='SIDIS':
-        # Delta_T=-epsilon p H/M_h; contraction with normalized lepton tensor.
-        complex_term=H**2*tplus*(c+I*d)
-        expression=(complex_term-conjugate_phase(complex_term))/(2*I)
+        ch=(H+1/H)/2;sh=(H-1/H)/(2*I)
+        rotation=s.Matrix([[ch,-sh],[sh,ch]])
+        lepton=rotation.T*s.diag(1,-1)*rotation/2
     else:
-        # Minus-beam annihilation antiquark: bar T_+=+i v_B h_1^perp.
-        complex_term=E**-2*tplus*I*(c+I*d)
-        expression=(complex_term+conjugate_phase(complex_term))/2
-    return project(expression)
+        ce=(E+1/E)/2;se=(E-1/E)/(2*I)
+        e=s.Matrix([ce,se])
+        lepton=-e*e.T  # sin²(theta_l) factored outside the row
+    expression=sum((tx,ty)[i]*analyzer[j]*contract(table[f'T{i+1}',f'T{j+1}'],lepton)
+                   for i in range(2) for j in range(2))
+    return project(s.expand(expression))
 
 
 def reviewed_weight(name):

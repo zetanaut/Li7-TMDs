@@ -7,6 +7,7 @@ Metric (+---), epsilon^0123=+1, gamma5=i gamma0 gamma1 gamma2 gamma3.
 from __future__ import annotations
 
 import sympy as s
+from functools import lru_cache
 from sympy.physics.matrices import msigma
 
 I=s.I
@@ -62,6 +63,7 @@ def hard_trace(left, right, i, j, representation='dirac'):
                               reconstruction('B',right,representation)*g[j]))
 
 
+@lru_cache(maxsize=None)
 def pair_table(process, representation='dirac'):
     left=('F','G','T1','T2')
     right=('D','T1','T2') if process=='SIDIS' else left
