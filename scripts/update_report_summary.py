@@ -14,7 +14,8 @@ from validation_manifest import BORN_CHECKS, LEGACY_IDS  # noqa: E402
 
 def render_summary(run_dir: Path) -> str:
     manifest, document = validate_run(run_dir)
-    if manifest['profile'] not in ('baseline', 'foundations', 'quark-processes','gluon-processes'):
+    if manifest['profile'] not in ('baseline', 'foundations', 'quark-processes',
+                                  'gluon-processes','limits-positivity','full'):
         raise EvidenceError('only complete implemented profiles can be summarized')
     by_id = {item['check_id']: item for item in document['results']}
     counts = {}
@@ -28,8 +29,10 @@ def render_summary(run_dir: Path) -> str:
     point = by_id['born.on_shell_and_conservation']['result_payload']['report']
     lines = [
         '# Generated result summary', '',
-        f"This page describes the **{manifest['profile']} profile only**. The complete manuscript "
-        'validation profile has required suites that are still missing.', '',
+        (f"This page describes the **{manifest['profile']} profile**. "
+         + ('The declared executable program passed; analytical QCD inputs and excluded dynamic calculations remain separate.'
+            if manifest['profile'] in ('limits-positivity','full') else
+            'The full computational profile has additional required checks.')), '',
         'The summary was generated from a complete run whose required IDs, source and input '
         'digests, computed ranks, and result identities were checked together.', '',
         f"Source revision: `{manifest['source_revision']}`; dirty source: "
@@ -67,7 +70,7 @@ def render_summary(run_dir: Path) -> str:
               'The grid is a set of numerical cases, not additional independent scientific '
               'claims. These coupling-stripped hard responses are not lithium-7 cross-section '
               'predictions.', '']
-    if manifest['profile'] in ('foundations','quark-processes','gluon-processes'):
+    if manifest['profile'] in ('foundations','quark-processes','gluon-processes','limits-positivity','full'):
         lines += ['## Independent foundations', '',
                   'These exact checks cover spin and target-state algebra, transverse STF tensors, '
                   'the lower-spin gluon dictionary, quark/gluon covariants, and coefficient recovery. '
@@ -83,7 +86,7 @@ def render_summary(run_dir: Path) -> str:
         lines += ['', 'The seven-direction target-response determinant is '
                   f"`{by_id['spin.seven_direction_tomography']['result_payload']['determinant']}`. "
                   'This is target-response tomography, not fourteen-TMD separation.', '']
-    if manifest['profile'] in ('quark-processes','gluon-processes'):
+    if manifest['profile'] in ('quark-processes','gluon-processes','limits-positivity','full'):
         from validation_manifest import PROCESS_ROW_IDS,PROCESS_INTEGRAL_IDS,REVERSAL_IDS
         sidis=[name for name in PROCESS_ROW_IDS if name.startswith('sidis.')]
         dy=[name for name in PROCESS_ROW_IDS if name.startswith('dy.')]
@@ -94,8 +97,7 @@ def render_summary(run_dir: Path) -> str:
                   'Cartesian quadrature, harmonic quadrature, and exact Gaussian moments.', '',
                   f'{len(REVERSAL_IDS)} quark/gluon coefficient sign records check finite '
                   'PT algebra conditional on the stated field/link transformation. '
-                  'They do not establish QCD factorization or an evolution kernel.', '',
-                  'The full profile retains later scientific requirements.', '']
+                  'They do not establish QCD factorization or an evolution kernel.', '']
         for process,ids in (('SIDIS',sidis),('DY',dy)):
             lines += [f'### {process} reviewed response rows', '',
                       '| Row ID | Target `(K,m)` | Projection | Orbital rank | Weight | Phase `(recoil,target,lepton)` | Sign | Max integral residual |',
@@ -110,7 +112,7 @@ def render_summary(run_dir: Path) -> str:
                              f'`{row["weight"]}` | `{tuple(row["phase_coefficients"])}` | '
                              f'{row["signed_prefactor"]:+d} | {residual:.3g} |')
             lines.append('')
-    if manifest['profile']=='gluon-processes':
+    if manifest['profile'] in ('gluon-processes','limits-positivity','full'):
         from validation_manifest import GLUON_ROW_IDS,GLUON_OCT_IDS
         angular=by_id['gluon.angular.certificate']['result_payload']
         reconstruction=by_id['gluon.oct.reconstruction']['result_payload']
@@ -141,9 +143,37 @@ def render_summary(run_dir: Path) -> str:
         for check_id in GLUON_OCT_IDS:
             row=by_id[check_id]['result_payload']
             lines.append(f'| `{check_id}` | {row["signed_alpha"]} | {row["orbital_rank"]} | {row["source_factor"]} |')
-        lines += ['', 'The full profile remains incomplete because the separate '
-                  'collinear-selection, Fourier/Bessel, local-moment, and partonic-positivity '
-                  'requirements have not been executed.', '']
+        if manifest['profile']=='gluon-processes':
+            lines += ['', 'The full profile retains the limit, moment, and positivity checks.', '']
+    if manifest['profile'] in ('limits-positivity','full'):
+        from validation_manifest import (COLLINEAR_ROW_IDS,FOURIER_EXACT_IDS,
+            FOURIER_NUMERIC_IDS,LOCAL_RANK_IDS,LOCAL_PARITY_IDS)
+        q=by_id['limits.collinear.selection.quark']['result_payload']
+        g=by_id['limits.collinear.selection.gluon']['result_payload']
+        cases=[by_id[x]['result_payload'] for x in FOURIER_NUMERIC_IDS]
+        worst=max(cases,key=lambda x:x['absolute_error']/x['relative_scale'])
+        gram=by_id['limits.positivity.joint_gram']['result_payload']
+        blocks=by_id['limits.positivity.block_certificate']['result_payload']
+        witnesses=by_id['limits.positivity.collinear_witnesses']['result_payload']
+        lines += ['## Collinear, Fourier, local moments, and conditional positivity', '',
+                  f"The full Cartesian angular projection evaluated {len(COLLINEAR_ROW_IDS)} covariants. "
+                  f"Quarks: {len(q['candidates'])} angular candidates and {len(q['survivors'])} "
+                  f"straight-link survivors. Gluons: {len(g['candidates'])} and {len(g['survivors'])}.", '',
+                  f"The cutoff-tail fixture integrates to `{by_id['limits.collinear.operations_uv']['result_payload']['cutoff_integral']}`; "
+                  'its radial limit diverges logarithmically. Angular selection is not a renormalized PDF integral.', '',
+                  f"Exact Fourier differentiation covered {len(FOURIER_EXACT_IDS)} ranks and "
+                  f"{len(cases)} independently integrated Gaussian/quartic rank-branch cases. "
+                  f"The worst scaled Cartesian/Bessel error was {worst['absolute_error']/worst['relative_scale']:.3g} "
+                  f"for {worst['kind']} rank {worst['rank']} branch {worst['branch']:+d}.", '',
+                  f"Rotational coupling checked {len(LOCAL_RANK_IDS)} finite N/bilinear cases; "
+                  f"{len(LOCAL_PARITY_IDS)} charge-conjugation rows retain independent antiquark terms. "
+                  'No numerical nuclear moment or QCD sum-rule value is inferred.', '',
+                  f"The source-index spectral Gram has rank {gram['Gram_rank']} in its exact example. "
+                  f"The collinear block checker verified {blocks['quark_blocks']} quark and "
+                  f"{blocks['gluon_blocks']} gluon coupled blocks. "
+                  f"{witnesses['case_count']} exact collinear cases include interiors, boundaries, and violations.", '',
+                  'These positivity statements assume a positive spectral/input prescription. '
+                  'They do not impose pointwise positivity on arbitrary subtracted TMDs.', '']
     return '\n'.join(lines)
 
 

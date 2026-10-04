@@ -21,7 +21,7 @@ mkdocs build --strict
 python scripts/check_public_scope.py --site site
 ```
 
-The baseline manifest records 49 legacy exact outcomes, five numerical diagnostics at the reference Born point, completeness of the 36-case grid, and three software tests that execute the calculations. The grid cases are parameter evaluations, not 36 new independent scientific identities. `validate_run` requires a complete run, the full required ID set, one run identity, matching source and input digests, computed ranks, and finite results. It rejects a failed or interrupted attempt even if an older passing run remains on disk. The generated summary says explicitly that full manuscript coverage is incomplete.
+The baseline manifest records 49 legacy exact outcomes, five numerical diagnostics at the reference Born point, completeness of the 36-case grid, and three software tests that execute the calculations. The grid cases are parameter evaluations, not 36 new independent scientific identities. `validate_run` requires a complete run, the full required ID set, one run identity, matching source and input digests, computed ranks, and finite results. It rejects a failed or interrupted attempt even if an older passing run remains on disk.
 
 ```bash
 python scripts/run_validation.py --profile full
@@ -34,7 +34,7 @@ python scripts/run_validation.py --profile foundations --output-root validation_
 python scripts/check_foundation_certificates.py
 ```
 
-Pass the printed foundations run directory to `scripts/update_report_summary.py --run-dir RUN --output docs/generated-foundations.md`. The full profile executes the available foundations and exits nonzero with its later scientific suites. Neither a passing baseline nor a passing foundations profile is full manuscript validation.
+Pass the printed foundations run directory to `scripts/update_report_summary.py --run-dir RUN --output /tmp/li7-foundations-summary.md`. A passing foundations profile certifies only its listed finite checks.
 
 The cumulative quark-process profile adds 32 SIDIS and 14 octupole DY exact response rows, an independent Gaussian integral for every row, massless QED current checks, and finite link-reversal algebra conditional on the field rule:
 
@@ -50,7 +50,16 @@ python scripts/run_validation.py --profile gluon-processes --output-root /tmp/li
 python scripts/check_gluon_angular_certificate.py
 ```
 
-Use that run directory for `update_report_summary.py` and `make_plots.py`; the latter reads the validated dense-scan payload. `full` executes all available work and exits with the later limit/positivity suites marked missing.
+The limit/moment/positivity profile contains all earlier required checks and the new finite calculations. The full profile has the same required executable leaf IDs and must finish `COMPLETE/PASS` before a full-success summary is generated. Analytical assumptions remain listed separately.
+
+```sh
+python scripts/run_validation.py --profile limits-positivity --output-root /tmp/li7-runs
+python scripts/check_collinear_block_certificate.py
+python scripts/run_validation.py --profile full --output-root /tmp/li7-runs
+python scripts/update_report_summary.py --run-dir /tmp/li7-runs/PRINTED-FULL-RUN --output docs/generated-results.md
+```
+
+Use the printed run directory for `make_plots.py`; it reads the validated dense-scan payload. A deliberately incomplete or failed run is rejected by the summary generator. The external manuscript and network are not runtime inputs.
 
 ## Legacy commands
 

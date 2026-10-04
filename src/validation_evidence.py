@@ -16,7 +16,9 @@ import uuid
 from validation_manifest import (BORN_CHECKS, LEGACY_IDS, PROFILE_REQUIRED,
                                  SOFTWARE_TESTS, PROCESS_ROW_IDS,
                                  PROCESS_INTEGRAL_IDS, REVERSAL_IDS,
-                                 GLUON_ROW_IDS,GLUON_OCT_IDS,GLUON_NEGATIVE_TESTS)
+                                 GLUON_ROW_IDS,GLUON_OCT_IDS,GLUON_NEGATIVE_TESTS,
+                                 COLLINEAR_ROW_IDS,FOURIER_EXACT_IDS,FOURIER_NUMERIC_IDS,
+                                 LOCAL_RANK_IDS,LOCAL_PARITY_IDS,LIMITS_NEGATIVE_TESTS)
 
 SCHEMA_VERSION = 2
 REFERENCE_SOURCE_SHA256 = '3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d'
@@ -293,7 +295,7 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                 [sum(row['K'] == k for row in rows) for k in range(4)] or
                 catalogue.get('target_rank_counts') != [2, 6, 10, 14]):
             raise EvidenceError(f'{kind} catalogue payload mismatch')
-    if profile in ('foundations', 'quark-processes', 'gluon-processes', 'full'):
+    if profile in ('foundations', 'quark-processes', 'gluon-processes', 'limits-positivity','full'):
         from foundation_certificates import read_certificate, verify_certificate
         attestation = _read_json(run_dir / 'certificate_attestation.json')
         if attestation.get('run_id') != manifest['run_id']:
@@ -313,7 +315,7 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                 raise EvidenceError(f'{species} certificate result mismatch')
         if attestation.get('certificates') != expected_certificates:
             raise EvidenceError('certificate attestation digest mismatch')
-    if profile in ('quark-processes','gluon-processes','full'):
+    if profile in ('quark-processes','gluon-processes','limits-positivity','full'):
         from response_fixtures import SIDIS_ROWS,DY_ROWS,row_id
         fixture_digest=file_digest(ROOT/'src'/'response_fixtures.py')
         fixture_rows={row_id(process,row):row for process,rows in
@@ -346,7 +348,7 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
             row=by_id[check_id]
             if row['evidence_type']!='conditional_algebra':
                 raise EvidenceError('operator reversal classified incorrectly')
-    if profile in ('gluon-processes','full'):
+    if profile in ('gluon-processes','limits-positivity','full'):
         from gluon_angular import certificate,check as check_angular
         from gluon_response_fixture import ROWS
         from born_validation import verify_scan_payload,precision_set,BASE
@@ -392,6 +394,98 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
             payload=by_id['software.gluon_negative.'+name]['result_payload']
             if payload.get('test_id')!=name or payload.get('exit_code')!=0:
                 raise EvidenceError('gluon negative-control evidence missing')
+    if profile in ('limits-positivity','full'):
+        same=lambda left,right: canonical_bytes(left)==canonical_bytes(right)
+        from collinear_limits import selection,operator_projection,operations_and_tail,inclusive_born_bookkeeping
+        from fourier_limits import exact_gaussian,numeric_comparison
+        from local_moments import check_rank_and_charge,nuclear_bookkeeping
+        from conditional_positivity import (fixed_target_checks,joint_gram_checks,
+            matrix_algorithm_counterexamples,collinear_blocks,collinear_witnesses)
+        from collinear_block_certificate import check as check_blocks
+        from source_joint_positivity import source_mapping_check,spectral_recovery
+        selections={kind:selection(kind) for kind in ('quark','gluon')}
+        for key in COLLINEAR_ROW_IDS+FOURIER_EXACT_IDS+LOCAL_RANK_IDS:
+            if by_id[key]['evidence_type']!='exact_identity':
+                raise EvidenceError('exact limits claim downgraded')
+        for key in FOURIER_NUMERIC_IDS:
+            if by_id[key]['evidence_type']!='numerical_parameter_cases':
+                raise EvidenceError('Fourier independent comparison type mismatch')
+        for key in LOCAL_PARITY_IDS:
+            if by_id[key]['evidence_type']!='conditional_algebra':
+                raise EvidenceError('antiquark convention is conditional algebra')
+        angular={f'limits.angular.{row["id"]}':row
+                 for data in selections.values() for row in data['rows']}
+        if set(angular)!=set(COLLINEAR_ROW_IDS) or any(
+            not same(by_id[key]['result_payload'],row) for key,row in angular.items()):
+            raise EvidenceError('collinear angular row payload mismatch')
+        fixed={
+          'limits.collinear.selection.quark':selections['quark'],
+          'limits.collinear.selection.gluon':selections['gluon'],
+          'limits.collinear.operator_projection':operator_projection(),
+          'limits.collinear.operations_uv':operations_and_tail(),
+          'limits.collinear.inclusive_born':inclusive_born_bookkeeping(),
+        }
+        if any(not same(by_id[key]['result_payload'],value) for key,value in fixed.items()):
+            raise EvidenceError('collinear fixed payload mismatch')
+        exact=exact_gaussian()
+        for n,key in enumerate(FOURIER_EXACT_IDS):
+            if not same(by_id[key]['result_payload'],{'rank':n,'component_count':1 if n==0 else 2**n,
+                                               'source_labels':exact['source_labels']}):
+                raise EvidenceError('Fourier exact rank payload mismatch')
+        numeric=numeric_comparison()
+        numerical={f'limits.fourier.numeric.{case["kind"]}.rank_{case["rank"]}.branch_{"plus" if case["branch"]==1 else "minus"}':case
+                   for case in numeric['cases']}
+        if set(numerical)!=set(FOURIER_NUMERIC_IDS) or any(
+            not same(by_id[key]['result_payload'],value) for key,value in numerical.items()):
+            raise EvidenceError('independent Fourier route/domain payload mismatch')
+        if (not same(by_id['limits.fourier.inverse_normalization']['result_payload'],
+                     {'inverse_normalization':exact['inverse_normalization'],
+                      'scalar_transform':exact['scalar_transform'],
+                      'inverse_cases':numeric['inverse_cases']}) or
+            not same(by_id['limits.fourier.dimensions_conjugation']['result_payload'],
+                     {'dimensions':numeric['dimensions'],
+                      'max_absolute_error':numeric['max_absolute_error'],
+                      'max_scaled_error':numeric['max_scaled_error'],
+                      'conjugation':'F_real(b)* = F_real(-b); odd-rank phase retained'})):
+            raise EvidenceError('Fourier inverse/dimension payload mismatch')
+        local=check_rank_and_charge()
+        local_rows={f'limits.local.rotation.N{x["N"]}.{x["bilinear"]}':x
+                    for x in local['rotational_rows']}
+        local_rows.update({f'limits.local.antiquark.N{x["N"]}.{x["channel"]}':x
+                           for x in local['parity_rows']})
+        if set(local_rows)!=set(LOCAL_RANK_IDS+LOCAL_PARITY_IDS) or any(
+            not same(by_id[key]['result_payload'],value) for key,value in local_rows.items()):
+            raise EvidenceError('local rank or antiquark payload mismatch')
+        if not same(by_id['limits.local.nuclear_bookkeeping']['result_payload'],nuclear_bookkeeping()):
+            raise EvidenceError('nuclear bookkeeping payload mismatch')
+        if not same(by_id['limits.local.selection_and_moments']['result_payload'],
+                    {k:v for k,v in local.items() if k not in ('rotational_rows','parity_rows')}):
+            raise EvidenceError('local selection payload mismatch')
+        positivity={
+          'limits.positivity.fixed_target':fixed_target_checks(),
+          'limits.positivity.joint_gram':joint_gram_checks(),
+          'limits.positivity.counterexamples':matrix_algorithm_counterexamples(),
+          'limits.positivity.collinear_blocks.quark':collinear_blocks('quark'),
+          'limits.positivity.collinear_blocks.gluon':collinear_blocks('gluon'),
+          'limits.positivity.collinear_witnesses':collinear_witnesses(),
+          'limits.positivity.finite_k_gram.quark':spectral_recovery('quark'),
+          'limits.positivity.finite_k_gram.gluon':spectral_recovery('gluon'),
+          'limits.positivity.source_joint_convention':source_mapping_check(),
+        }
+        if any(not same(by_id[key]['result_payload'],value) for key,value in positivity.items()):
+            raise EvidenceError('positivity payload mismatch')
+        cert_path=ROOT/'certificates'/'collinear_blocks.json'
+        verdict=check_blocks(cert_path)
+        att=_read_json(run_dir/'limits_certificate_attestation.json')
+        if (by_id['limits.positivity.block_certificate']['result_payload']!=verdict or
+            att.get('run_id')!=manifest['run_id'] or
+            att.get('scientific_source_digest')!=manifest['scientific_source_digest'] or
+            att.get('certificate_sha256')!=verdict['certificate_sha256']):
+            raise EvidenceError('collinear block certificate attestation mismatch')
+        for name in LIMITS_NEGATIVE_TESTS:
+            row=by_id['software.limits_negative.'+name]
+            if row['result_payload']!={'test_id':name,'exit_code':0}:
+                raise EvidenceError('limits negative-control evidence mismatch')
     for label, check_id in LEGACY_IDS.items():
         if by_id[check_id]['result_payload'].get('legacy_label') != label:
             raise EvidenceError('legacy ID-to-check mapping mismatch')

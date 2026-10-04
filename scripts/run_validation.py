@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Execute a run-scoped baseline; full reports pending scientific suites."""
+"""Execute cumulative run-scoped validation profiles and required leaves."""
 from __future__ import annotations
 import argparse
 import math
@@ -21,7 +21,11 @@ from validation_manifest import (BORN_CHECKS, FULL_PENDING_SUITES, LEGACY_IDS,
                                  PROCESS_NEGATIVE_TESTS, PROCESS_ROW_IDS,
                                  PROCESS_INTEGRAL_IDS, REVERSAL_IDS,
                                  GLUON_ROW_IDS,GLUON_OCT_IDS,GLUON_FIXED_IDS,
-                                 GLUON_NEGATIVE_TESTS)  # noqa: E402
+                                 GLUON_NEGATIVE_TESTS,COLLINEAR_ROW_IDS,
+                                 COLLINEAR_FIXED_IDS,FOURIER_EXACT_IDS,
+                                 FOURIER_NUMERIC_IDS,FOURIER_FIXED_IDS,
+                                 LOCAL_RANK_IDS,LOCAL_PARITY_IDS,LOCAL_FIXED_IDS,
+                                 POSITIVITY_IDS,LIMITS_NEGATIVE_TESTS)  # noqa: E402
 from validation_evidence import (GRID_AXES, REFERENCE_INPUTS, EvidenceError, finish_run,
                                  new_run, result, validate_run, atomic_json, file_digest,
                                  write_results)  # noqa: E402
@@ -410,10 +414,158 @@ def check_gluon_evidence_integrity(run_dir: Path) -> dict:
             else:raise EvidenceError(f'{mutation} accepted')
     return {'rejected':rejected}
 
+
+def execute_limits(run_dir: Path, manifest: dict, results: list[dict]) -> None:
+    from collinear_limits import selection,operator_projection,operations_and_tail,inclusive_born_bookkeeping
+    from fourier_limits import exact_gaussian,numeric_comparison
+    from local_moments import check_rank_and_charge,nuclear_bookkeeping
+    from conditional_positivity import (fixed_target_checks,joint_gram_checks,
+        matrix_algorithm_counterexamples,collinear_blocks,collinear_witnesses,
+        convention_reproducer)
+    from collinear_block_certificate import check as check_blocks
+    from source_joint_positivity import source_mapping_check,spectral_recovery
+    by_species={name:selection(name) for name in ('quark','gluon')}
+    rows={f'limits.angular.{row["id"]}':row
+          for data in by_species.values() for row in data['rows']}
+    if set(rows)!=set(COLLINEAR_ROW_IDS):raise EvidenceError('angular row identity mismatch')
+    for check_id in COLLINEAR_ROW_IDS:
+        results.append(result(check_id,'PASS','exact_identity',
+            ['fixed-radius dphi/(2*pi); independent radial coefficient'],
+            rows[check_id],manifest,claim_role='component_case'))
+    fixed={
+      'limits.collinear.selection.quark':by_species['quark'],
+      'limits.collinear.selection.gluon':by_species['gluon'],
+      'limits.collinear.operator_projection':operator_projection(),
+      'limits.collinear.operations_uv':operations_and_tail(),
+      'limits.collinear.inclusive_born':inclusive_born_bookkeeping(),
+    }
+    if set(fixed)!=set(COLLINEAR_FIXED_IDS):raise EvidenceError('collinear fixed ID mismatch')
+    for check_id in COLLINEAR_FIXED_IDS:
+        results.append(result(check_id,'PASS','conditional_algebra',
+            ['Straight-link PT selection is an analytic operator input; no radial QCD matching'],
+            fixed[check_id],manifest))
+    exact=exact_gaussian()
+    for n,check_id in enumerate(FOURIER_EXACT_IDS):
+        results.append(result(check_id,'PASS','exact_identity',
+            ['Lambda,M_A positive; convergent Gaussian polynomial moments'],
+            {'rank':n,'component_count':1 if n==0 else 2**n,
+             'source_labels':exact['source_labels']},manifest,claim_role='component_case'))
+    numeric=numeric_comparison()
+    mapped={f'limits.fourier.numeric.{case["kind"]}.rank_{case["rank"]}.branch_{"plus" if case["branch"]==1 else "minus"}':case
+            for case in numeric['cases']}
+    if set(mapped)!=set(FOURIER_NUMERIC_IDS):raise EvidenceError('Fourier numeric case identity mismatch')
+    for check_id in FOURIER_NUMERIC_IDS:
+        results.append(result(check_id,'PASS','numerical_parameter_cases',
+            ['Convergent Gaussian or quartic radial fixture; declared finite quadrature domain'],
+            mapped[check_id],manifest,claim_role='independent_comparison'))
+    for check_id,payload in {
+      FOURIER_FIXED_IDS[0]:{'inverse_normalization':exact['inverse_normalization'],
+                             'scalar_transform':exact['scalar_transform'],
+                             'inverse_cases':numeric['inverse_cases']},
+      FOURIER_FIXED_IDS[1]:{'dimensions':numeric['dimensions'],
+                             'max_absolute_error':numeric['max_absolute_error'],
+                             'max_scaled_error':numeric['max_scaled_error'],
+                             'conjugation':'F_real(b)* = F_real(-b); odd-rank phase retained'},
+    }.items():
+        results.append(result(check_id,'PASS','exact_identity',
+            ['Convergent radial fixtures; no QCD matching claimed'],payload,manifest))
+    local=check_rank_and_charge()
+    rank_rows={f'limits.local.rotation.N{x["N"]}.{x["bilinear"]}':x
+               for x in local['rotational_rows']}
+    parity_rows={f'limits.local.antiquark.N{x["N"]}.{x["channel"]}':x
+                 for x in local['parity_rows']}
+    if set(rank_rows)!=set(LOCAL_RANK_IDS) or set(parity_rows)!=set(LOCAL_PARITY_IDS):
+        raise EvidenceError('local moment row identity mismatch')
+    for check_id in LOCAL_RANK_IDS:
+        results.append(result(check_id,'PASS','exact_identity',
+            ['Ambient SO(3) rotation content before Lorentz trace/mixed projection'],
+            rank_rows[check_id],manifest,claim_role='component_case'))
+    for check_id in LOCAL_PARITY_IDS:
+        results.append(result(check_id,'PASS','conditional_algebra',
+            ['Source positive-x antiquark and charge-conjugation convention'],
+            parity_rows[check_id],manifest,claim_role='component_case'))
+    for check_id,payload in {
+      LOCAL_FIXED_IDS[0]:nuclear_bookkeeping(),
+      LOCAL_FIXED_IDS[1]:{k:v for k,v in local.items() if k not in ('rotational_rows','parity_rows')},
+    }.items():
+        results.append(result(check_id,'PASS','conditional_algebra',
+            ['Renormalized local-operator moment identification and convergence are analytic inputs'],
+            payload,manifest))
+    certificate_path=ROOT/'certificates'/'collinear_blocks.json'
+    block_verdict=check_blocks(certificate_path)
+    positivity={
+      POSITIVITY_IDS[0]:fixed_target_checks(),
+      POSITIVITY_IDS[1]:joint_gram_checks(),
+      POSITIVITY_IDS[2]:matrix_algorithm_counterexamples(),
+      POSITIVITY_IDS[3]:collinear_blocks('quark'),
+      POSITIVITY_IDS[4]:collinear_blocks('gluon'),
+      POSITIVITY_IDS[5]:collinear_witnesses(),
+      POSITIVITY_IDS[6]:block_verdict,
+      POSITIVITY_IDS[7]:spectral_recovery('quark'),
+      POSITIVITY_IDS[8]:spectral_recovery('gluon'),
+      POSITIVITY_IDS[9]:source_mapping_check(),
+    }
+    for check_id,payload in positivity.items():
+        results.append(result(check_id,'PASS','exact_identity',
+            ['Positive spectral/input prescription; source-indexed operator definition'],
+            payload,manifest,claim_role='independent_comparison'))
+    atomic_json(run_dir/'limits_certificate_attestation.json',{
+        'run_id':manifest['run_id'],'scientific_source_digest':manifest['scientific_source_digest'],
+        'certificate_sha256':file_digest(certificate_path)})
+    discrepancy=convention_reproducer()
+    atomic_json(run_dir/'source_joint_convention_mapping.json',discrepancy)
+    write_results(run_dir,manifest,results)
+    proc=subprocess.run([sys.executable,'-m','unittest','discover','-s','tests',
+                         '-p','test_limits_failures.py','-v'],cwd=ROOT,text=True,capture_output=True)
+    (run_dir/'limits_negative.log').write_text(proc.stdout+proc.stderr,encoding='utf-8')
+    passed=set(re.findall(r'^(test_[a-z_]+) \(test_limits_failures\.LimitsFailureTests\.[a-z_]+\) \.\.\. ok$',
+                          proc.stdout+proc.stderr,flags=re.MULTILINE))
+    for name in LIMITS_NEGATIVE_TESTS:
+        results.append(result('software.limits_negative.'+name,
+            'PASS' if proc.returncode==0 and name in passed else 'FAIL','software_test',
+            ['Test-local scientific mutation'],{'test_id':name,'exit_code':proc.returncode},
+            manifest,claim_role='negative_control'))
+    if proc.returncode or passed!=set(LIMITS_NEGATIVE_TESTS):
+        raise EvidenceError('limits negative controls failed or omitted')
+
+
+def check_limits_evidence_integrity(run_dir: Path) -> dict:
+    import copy,json,shutil,tempfile
+    validate_run(run_dir)
+    rejected=[]
+    with tempfile.TemporaryDirectory(prefix='li7-limits-integrity-') as temp:
+        for mutation in ('missing-rank','wrong-fourier-domain','wrong-local-sign',
+                         'mixed-certificate','mixed-run','analytic-promotion'):
+            folder=Path(temp)/mutation;shutil.copytree(run_dir,folder)
+            m=json.loads((folder/'manifest.json').read_text())
+            d=json.loads((folder/'results.json').read_text())
+            by={x['check_id']:x for x in d['results']}
+            if mutation=='missing-rank':
+                d['results'].remove(by[FOURIER_EXACT_IDS[-1]])
+            elif mutation=='wrong-fourier-domain':
+                by[FOURIER_NUMERIC_IDS[-1]]['result_payload']['M_A']=1.0
+            elif mutation=='wrong-local-sign':
+                by[LOCAL_PARITY_IDS[0]]['result_payload']['antiquark_sign']*=-1
+            elif mutation=='mixed-certificate':
+                att=json.loads((folder/'limits_certificate_attestation.json').read_text())
+                att['run_id']='another-run';atomic_json(folder/'limits_certificate_attestation.json',att)
+            elif mutation=='mixed-run':
+                by[COLLINEAR_ROW_IDS[0]]['run_id']='another-run'
+            else:
+                by['limits.positivity.source_joint_convention']['evidence_type']='analytic_only'
+            m['executed_check_ids']=[x['check_id'] for x in d['results']]
+            atomic_json(folder/'results.json',d)
+            m['results_digest']=file_digest(folder/'results.json')
+            atomic_json(folder/'manifest.json',m)
+            try:validate_run(folder)
+            except EvidenceError as exc:rejected.append({'mutation':mutation,'reason':str(exc)})
+            else:raise EvidenceError(f'limits evidence mutation accepted: {mutation}')
+    return {'rejected':rejected,'scope':'tampered complete-run copies; source and certificate checks'}
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--profile', choices=('baseline', 'foundations', 'quark-processes',
-                                               'gluon-processes','full'), default='baseline')
+                                               'gluon-processes','limits-positivity','full'), default='baseline')
     parser.add_argument('--output-root', type=Path, default=ROOT / 'validation_runs')
     parser.add_argument('--born-sqrt-s', type=float, default=REFERENCE_INPUTS['sqrt_s'],
                         help='Reference-point diagnostic override; a different point cannot certify baseline.')
@@ -425,7 +577,7 @@ def main() -> int:
     ranks: dict[str, int] = {}
     try:
         execute(run_dir, manifest, inputs, results, ranks)
-        if args.profile in ('foundations','quark-processes','gluon-processes','full'):
+        if args.profile in ('foundations','quark-processes','gluon-processes','limits-positivity','full'):
             execute_foundations(run_dir,manifest,results)
             results.append(result('software.foundation_evidence_integrity','PASS','software_test',
                                   ['Run-specific complete evidence'],{'stage':'pending independent mutation'},manifest,
@@ -443,48 +595,58 @@ def main() -> int:
             results[-1]=result('software.foundation_evidence_integrity','PASS','software_test',
                                ['Tampered copies of this completed run'],payload,manifest,
                                claim_role='negative_control')
-        if args.profile in ('quark-processes','gluon-processes','full'):
+        if args.profile in ('quark-processes','gluon-processes','limits-positivity','full'):
             execute_processes(run_dir,manifest,results)
             results.append(result('software.process_evidence_integrity','PASS','software_test',
                                   ['Run-specific complete process evidence'],
                                   {'stage':'pending independent mutation'},manifest,
                                   claim_role='negative_control'))
-            if args.profile in ('gluon-processes','full'):
+            if args.profile in ('gluon-processes','limits-positivity','full'):
                 manifest['profile']='quark-processes'
                 manifest['required_check_ids']=list(PROFILE_REQUIRED['quark-processes'])
             finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
             try:
                 payload=check_process_evidence_integrity(run_dir)
             finally:
-                if args.profile in ('gluon-processes','full'):
+                if args.profile in ('gluon-processes','limits-positivity','full'):
                     manifest['profile']=args.profile
                     manifest['required_check_ids']=list(PROFILE_REQUIRED[args.profile])
             results[-1]=result('software.process_evidence_integrity','PASS','software_test',
                                ['Tampered copies of this completed run'],payload,manifest,
                                claim_role='negative_control')
-        if args.profile in ('gluon-processes','full'):
+        if args.profile in ('gluon-processes','limits-positivity','full'):
             execute_gluon(run_dir,manifest,results)
             results.append(result('software.gluon_evidence_integrity','PASS','software_test',
                                   ['Run-specific complete gluon evidence'],
                                   {'stage':'pending independent mutation'},manifest,
                                   claim_role='negative_control'))
-            if args.profile=='full':
+            if args.profile in ('limits-positivity','full'):
                 manifest['profile']='gluon-processes'
                 manifest['required_check_ids']=list(PROFILE_REQUIRED['gluon-processes'])
             finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
             try:payload=check_gluon_evidence_integrity(run_dir)
             finally:
-                if args.profile=='full':
-                    manifest['profile']='full'
-                    manifest['required_check_ids']=list(PROFILE_REQUIRED['full'])
+                if args.profile in ('limits-positivity','full'):
+                    manifest['profile']=args.profile
+                    manifest['required_check_ids']=list(PROFILE_REQUIRED[args.profile])
             results[-1]=result('software.gluon_evidence_integrity','PASS','software_test',
                                ['Tampered copies of this completed run'],payload,manifest,
                                claim_role='negative_control')
-        if args.profile == 'full':
-            finish_run(run_dir, manifest, results, 'INCOMPLETE', 'MISSING', ranks)
-            print('Full validation MISSING required suites: ' + ', '.join(FULL_PENDING_SUITES),
-                  file=sys.stderr)
-            return 2
+        if args.profile in ('limits-positivity','full'):
+            execute_limits(run_dir,manifest,results)
+            if FULL_PENDING_SUITES:
+                finish_run(run_dir, manifest, results, 'INCOMPLETE', 'MISSING', ranks)
+                print(args.profile+' MISSING required scientific ID: ' + ', '.join(FULL_PENDING_SUITES),
+                      file=sys.stderr)
+                return 2
+            results.append(result('software.limits_evidence_integrity','PASS','software_test',
+                ['Run-specific complete evidence'],{'stage':'pending independent mutation'},
+                manifest,claim_role='negative_control'))
+            finish_run(run_dir,manifest,results,'COMPLETE','PASS',ranks)
+            payload=check_limits_evidence_integrity(run_dir)
+            results[-1]=result('software.limits_evidence_integrity','PASS','software_test',
+                ['Tampered copies of this completed run'],payload,manifest,
+                claim_role='negative_control')
         finish_run(run_dir, manifest, results, 'COMPLETE', 'PASS', ranks)
         validate_run(run_dir)
     except BaseException as exc:
@@ -497,7 +659,7 @@ def main() -> int:
     print(f'{args.profile.capitalize()} PASS: {len(results)} required results; '
           f'{len(LEGACY_SYMBOLIC_LABELS)} legacy symbolic outcomes; '
           f"{next(item['result_payload']['number_of_cases'] for item in results if item['check_id'] == 'grid.complete')} "
-          'Born grid cases. Full manuscript coverage remains incomplete.')
+          'Born grid cases. Analytical QCD assumptions remain outside computational evidence.')
     return 0
 
 

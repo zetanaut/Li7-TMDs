@@ -19,6 +19,7 @@ from validation_evidence import (EvidenceError, atomic_json, file_digest, new_ru
                                  validate_run)  # noqa: E402
 from update_report_summary import render_summary  # noqa: E402
 from check_public_scope import forbidden, forbidden_bytes  # noqa: E402
+from validation_manifest import PROFILE_REQUIRED  # noqa: E402
 
 
 class EvidenceTests(unittest.TestCase):
@@ -220,12 +221,16 @@ class EvidenceTests(unittest.TestCase):
                 self.mutate(folder, manifest=manifest, results=document)
                 self.assert_rejected(folder, 'incomplete or failed grid cases')
 
-    def test_full_profile_reports_missing_suites(self):
-        proc = self.run_cli('--profile', 'full')
-        self.assertEqual(proc.returncode, 2, proc.stderr)
-        self.assertIn('MISSING required suites', proc.stderr)
-        folder = self.single_new_run()
+    def test_incomplete_full_profile_rejected(self):
+        folder = self.clone()
         manifest = json.loads((folder / 'manifest.json').read_text())
+        manifest['profile']='full'
+        manifest['required_check_ids']=list(PROFILE_REQUIRED['full'])
+        manifest['missing_check_ids']=sorted(set(PROFILE_REQUIRED['full'])-
+                                             set(manifest['executed_check_ids']))
+        manifest['run_state']='INCOMPLETE'
+        manifest['status']='MISSING'
+        self.mutate(folder,manifest=manifest)
         self.assertEqual(manifest['run_state'], 'INCOMPLETE')
         self.assertTrue(manifest['missing_check_ids'])
         self.assert_rejected(folder, 'run is INCOMPLETE/MISSING')

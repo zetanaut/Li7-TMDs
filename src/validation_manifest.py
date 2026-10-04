@@ -1,4 +1,4 @@
-"""Required evidence IDs for the implemented baseline and reserved full profile."""
+"""Required run-specific evidence IDs for cumulative computational profiles."""
 
 # This ordered registry freezes the historical check-to-ID correspondence.
 LEGACY_SYMBOLIC_LABELS = (
@@ -212,3 +212,56 @@ LATER_PENDING_SUITES=(
 )
 PROFILE_REQUIRED['full']=GLUON_REQUIRED+LATER_PENDING_SUITES
 FULL_PENDING_SUITES=LATER_PENDING_SUITES
+
+# Checkpoint 5: every finite item has a required leaf ID.  The source-index
+# convention reconciliation remains a required scientific ID and is not
+# silently converted to an analytic assumption or a green suite marker.
+from correlator_foundations import catalogue as _catalogue
+COLLINEAR_ROW_IDS=tuple('limits.angular.'+x.id() for species in ('quark','gluon')
+                        for x in _catalogue(species))
+COLLINEAR_FIXED_IDS=('limits.collinear.selection.quark',
+                     'limits.collinear.selection.gluon',
+                     'limits.collinear.operator_projection',
+                     'limits.collinear.operations_uv',
+                     'limits.collinear.inclusive_born')
+FOURIER_EXACT_IDS=tuple(f'limits.fourier.exact.rank_{n}' for n in range(6))
+FOURIER_NUMERIC_IDS=tuple(f'limits.fourier.numeric.{kind}.rank_{n}.branch_{branch}'
+    for kind,ranks in (('gaussian',range(6)),('quartic',(0,1,3,5)))
+    for n in ranks for branch in ('plus','minus'))
+FOURIER_FIXED_IDS=('limits.fourier.inverse_normalization',
+                   'limits.fourier.dimensions_conjugation')
+LOCAL_RANK_IDS=tuple(f'limits.local.rotation.N{n}.{kind}' for n in (1,2,3,4)
+                     for kind in ('vector','axial','tensor'))
+LOCAL_PARITY_IDS=tuple(f'limits.local.antiquark.N{n}.{kind}' for n in (1,2,3,4)
+                       for kind in ('vector','axial','transversity'))
+LOCAL_FIXED_IDS=('limits.local.nuclear_bookkeeping',
+                 'limits.local.selection_and_moments')
+POSITIVITY_IDS=('limits.positivity.fixed_target',
+                'limits.positivity.joint_gram',
+                'limits.positivity.counterexamples',
+                'limits.positivity.collinear_blocks.quark',
+                'limits.positivity.collinear_blocks.gluon',
+                'limits.positivity.collinear_witnesses',
+                'limits.positivity.block_certificate',
+                'limits.positivity.finite_k_gram.quark',
+                'limits.positivity.finite_k_gram.gluon',
+                'limits.positivity.source_joint_convention')
+LIMITS_NEGATIVE_TESTS=(
+    'test_angular_link_and_zero_momentum',
+    'test_fourier_phase_mass_and_measure',
+    'test_fourier_inverse_and_cutoff',
+    'test_local_rank_antiquark_and_nuclear',
+    'test_fixed_trace_and_principal_minors',
+    'test_joint_transpose_and_block_factor',
+    'test_source_index_conversion_and_partial_transpose',
+    'test_collinear_bound_factor_mutation',
+)
+LIMITS_SOFTWARE_IDS=(tuple('software.limits_negative.'+name for name in LIMITS_NEGATIVE_TESTS)+
+                     ('software.limits_evidence_integrity',))
+LIMITS_REQUIRED=(GLUON_REQUIRED+COLLINEAR_ROW_IDS+COLLINEAR_FIXED_IDS+
+                 FOURIER_EXACT_IDS+FOURIER_NUMERIC_IDS+FOURIER_FIXED_IDS+
+                 LOCAL_RANK_IDS+LOCAL_PARITY_IDS+LOCAL_FIXED_IDS+
+                 POSITIVITY_IDS+LIMITS_SOFTWARE_IDS)
+PROFILE_REQUIRED['limits-positivity']=LIMITS_REQUIRED
+PROFILE_REQUIRED['full']=LIMITS_REQUIRED
+FULL_PENDING_SUITES=()
