@@ -18,8 +18,8 @@ def main():
         print('Publication blocked: no same-revision full convention evidence.',file=sys.stderr)
         return 2
     manifest,document=validate_run(args.run_dir)
-    if manifest['profile']!='full':
-        print('Publication blocked: full profile required.',file=sys.stderr)
+    if manifest['profile']!='full' or manifest['dirty_state']:
+        print('Publication blocked: a clean same-revision full profile is required.',file=sys.stderr)
         return 2
     review=manifest.get('convention_review')
     current=next(x for x in document['results'] if x['check_id']=='convention.current_order')
