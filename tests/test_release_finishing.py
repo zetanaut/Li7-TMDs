@@ -77,6 +77,26 @@ class ReleaseFinishingTests(unittest.TestCase):
             with self.assertRaisesRegex(EvidenceError, 'dense scan evidence invalid'):
                 validate_run(target)
 
+    def test_complete_run_rejects_precision_convention_change(self):
+        location = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
+        if not location:
+            self.skipTest('set LI7_RELEASE_FULL_RUN_DIR to test a complete final-revision run')
+        original = Path(location)
+        validate_run(original)
+        with tempfile.TemporaryDirectory(prefix='li7-precision-evidence-') as temp:
+            target = Path(temp) / 'run'
+            shutil.copytree(original, target)
+            manifest = json.loads((target / 'manifest.json').read_text())
+            results = json.loads((target / 'results.json').read_text())
+            precision = next(row['result_payload'] for row in results['results']
+                             if row['check_id'] == 'gluon.born.precision')
+            precision['convention'] = 'born-current-v1-legacy-source-label'
+            atomic_json(target / 'results.json', results)
+            manifest['results_digest'] = file_digest(target / 'results.json')
+            atomic_json(target / 'manifest.json', manifest)
+            with self.assertRaisesRegex(EvidenceError, 'high-precision reference'):
+                validate_run(target)
+
     def test_gate_checks_live_dirty_tree(self):
         location = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
         if not location:

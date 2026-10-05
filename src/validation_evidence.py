@@ -433,7 +433,8 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
                     for x in grid['cases']) or
                 any(x.get('direct_residual_abs',float('inf'))>1e-8 for x in grid['cases'])):
             raise EvidenceError('independent Born grid incomplete')
-        if by_id['gluon.born.precision']['result_payload']!=precision_set():
+        precision=by_id['gluon.born.precision']['result_payload']
+        if precision.get('convention')!=CONVENTION_ID or precision!=precision_set():
             raise EvidenceError('stale or mismatched high-precision reference')
         for name in GLUON_NEGATIVE_TESTS:
             payload=by_id['software.gluon_negative.'+name]['result_payload']

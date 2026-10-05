@@ -338,7 +338,7 @@
     "species": "quark"
   },
   "schema_version": 1,
-  "source_digest": "b29de736188d825330b36b6206fcad3bbd8a07a9a4b75a5018bd07aa7efe18b3",
+  "source_digest": "877f01f1fd90276ae499d05952f42282b418d2e7a44535b41b7892c1b437b3da",
   "source_labels": [
     "eq:jointM",
     "eq:Oraise",
