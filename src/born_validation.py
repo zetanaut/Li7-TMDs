@@ -101,10 +101,12 @@ def verify_scan_payload(payload):
     if not isinstance(cases,list) or len(cases)!=483:raise ValueError('dense scan cases incomplete')
     for i,row in enumerate(cases):
         expected=dict(BASE,theta=angles[i//3],helicity=(-1.,0.,1.)[i%3])
-        if (row.get('inputs')!=expected or row.get('convention')!=payload['convention'] or
+        if row.get('inputs')!=expected:
+            raise ValueError(f'dense scan input tuple mismatch at {i}')
+        if (row.get('convention')!=payload['convention'] or
                 row.get('convention_digest')!=digest(payload['convention']) or
                 row.get('reference_source_sha256')!=REFERENCE_SOURCE_SHA256):
-            raise ValueError(f'dense scan input tuple or convention mismatch at {i}')
+            raise ValueError(f'dense scan convention mismatch at {i}')
         if row.get('direct_residual_abs',float('inf'))>1e-8 or \
                 row.get('direct_residual_relative',float('inf'))>1e-10 or \
                 not all(row.get('checks',{}).values()) or \
