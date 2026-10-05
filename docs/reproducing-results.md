@@ -50,7 +50,7 @@ python scripts/run_validation.py --profile gluon-processes --output-root /tmp/li
 python scripts/check_gluon_angular_certificate.py
 ```
 
-The limit/moment/positivity profile contains all earlier required checks and the new finite calculations. The full profile has the same required executable leaf IDs and must finish `COMPLETE/PASS` before a full-success summary is generated. Analytical assumptions remain listed separately.
+The limit/moment/positivity profile contains all earlier required checks and the new finite calculations. The full profile additionally requires the physical-helicity and matrix-index convention-closure checks and must finish `COMPLETE/PASS` before a full-success summary is generated. Analytical assumptions remain listed separately.
 
 ```sh
 python scripts/run_validation.py --profile limits-positivity --output-root /tmp/li7-runs

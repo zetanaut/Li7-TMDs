@@ -7,7 +7,7 @@ import sys
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
-from validation_evidence import CONVENTION_REVIEW,validate_run,assert_convention_review  # noqa: E402
+from validation_evidence import CONVENTION_REVIEW,validate_run,assert_convention_review,git_provenance  # noqa: E402
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -16,6 +16,10 @@ def main():
     args=parser.parse_args()
     if args.run_dir is None:
         print('Publication blocked: no same-revision full convention evidence.',file=sys.stderr)
+        return 2
+    _revision,current_dirty=git_provenance()
+    if current_dirty:
+        print('Publication blocked: the current working tree is not clean.',file=sys.stderr)
         return 2
     manifest,document=validate_run(args.run_dir)
     if manifest['profile']!='full' or manifest['dirty_state']:

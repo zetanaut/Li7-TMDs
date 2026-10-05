@@ -64,7 +64,7 @@ def exact_gaussian():
             'scalar_transform':'exp(-Lambda**2*b_T**2/4)',
             'inverse_normalization':str(norm),
             'b_zero':'scalar=1; tensor ranks 1..5 vanish without dividing by b',
-            'mass_rescaling':'c(M_A)=(M_0/M_A)^n c(M_0)',
+            'mass_rescaling':'c(M_0)=(M_0/M_A)^n c(M_A)',
             'quartic_integral':str(quartic),
             'domain':'Lambda,M_A>0; all polynomial-weighted Gaussian integrals finite',
             'source_labels':['eq:Kn','eq:Kcomplex','eq:Fourierderivative','eq:Besseltransform']}

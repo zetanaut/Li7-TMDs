@@ -91,6 +91,7 @@ def dense_scan():
 
 def verify_scan_payload(payload):
     from validation_evidence import REFERENCE_SOURCE_SHA256,digest
+    from validation_manifest import BORN_CHECKS
     angles=np.linspace(.05,np.pi-.05,161).tolist()
     if payload.get('convention')!='born-current-v2-physical-h' or \
             payload.get('angle_array')!=angles or payload.get('phi')!=.4 or \
@@ -107,9 +108,12 @@ def verify_scan_payload(payload):
                 row.get('convention_digest')!=digest(payload['convention']) or
                 row.get('reference_source_sha256')!=REFERENCE_SOURCE_SHA256):
             raise ValueError(f'dense scan convention mismatch at {i}')
+        checks=row.get('checks')
+        if (not isinstance(checks,dict) or set(checks)!=set(BORN_CHECKS) or
+                any(checks[name] is not True for name in BORN_CHECKS)):
+            raise ValueError(f'dense scan required diagnostics missing or failed at {i}')
         if row.get('direct_residual_abs',float('inf'))>1e-8 or \
                 row.get('direct_residual_relative',float('inf'))>1e-10 or \
-                not all(row.get('checks',{}).values()) or \
                 len(row.get('B_real',[]))!=2 or len(row.get('B_imag',[]))!=2:
             raise ValueError(f'dense scan diagnostic failed at {i}')
     if abs(payload['max_direct_residual_abs']-max(x['direct_residual_abs'] for x in cases))>1e-20:
@@ -141,7 +145,7 @@ def precision_set():
                     'double_max_abs':error,'precision_difference':stable_text})
     return {'convention':'born-current-v2-physical-h',
             'cases':out,'case_count':len(out),'precision_digits':[50,80],
-            'convention':'physical electron helicity h=+1 in spinor and trace'}
+            'convention_description':'physical electron helicity h=+1 in spinor and trace'}
 
 
 def broader_cases():

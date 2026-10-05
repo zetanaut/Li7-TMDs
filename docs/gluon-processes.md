@@ -39,7 +39,7 @@ python scripts/update_report_summary.py --run-dir /tmp/li7-runs/PRINTED-RUN --ou
 python scripts/make_plots.py --run-dir /tmp/li7-runs/PRINTED-RUN
 ```
 
-The run-specific validator rejects incomplete scan tuples, wrong helicities, stale high-precision values, fixture mismatches, mixed certificate attestations, failed diagnostics, and missing or duplicated check IDs. A profile PASS is a computational result within these Born and synthetic assumptions. Wilson-line process selection, soft factors, factorization, QCD matching, evolution, and complete partonic positivity remain analytic or later work.
+The run-specific validator rejects incomplete scan tuples, wrong helicities, stale high-precision values, fixture mismatches, mixed certificate attestations, failed diagnostics, and missing or duplicated check IDs. A profile PASS is a computational result within these Born and synthetic assumptions. Wilson-line process selection, soft factors, factorization, and QCD matching/evolution calculations remain analytical inputs or outside this validation scope. The implemented conditional partonic-positivity checks belong to the cumulative limits-positivity and full profiles, not the gluon-processes profile alone.
 
 ![Dense Born analyzing ratios](figures/dense_analyzing.png)
 
