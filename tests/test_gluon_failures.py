@@ -32,9 +32,13 @@ class GluonFailureTests(unittest.TestCase):
         gram=A@A.conj().T
         self.assertGreater(abs(np.trace(gram@np.outer(e.conj(),e))-
                                np.trace(gram@np.outer(e,e.conj()))),.1)
-        with self.assertRaisesRegex(AssertionError,'direct/trace mismatch'):
-            compare()
+        self.assertLess(compare()['max_abs'],1e-9)
         self.assertLess(compare_source_label()['max_abs'],1e-9)
+        from gluon_born_response import evaluate_legacy_source_label
+        physical=direct(helicity=1)
+        old=evaluate_legacy_source_label(helicity=1)
+        old_matrix=np.array(old['B_real'])+1j*np.array(old['B_imag'])
+        self.assertGreater(np.max(np.abs(physical-old_matrix)),200.)
 
     def test_low_high_coefficients_and_odd_dual(self):
         rows=list(gluon_responses.ROWS)

@@ -71,4 +71,4 @@ python src/gluon_born_response.py --output results/gluon_born_report.json
 python examples/reproduce_gluon_grid.py --output results/gluon_born_grid_report.json
 ```
 
-These commands reproduce the historical JSON format. They do not create a run manifest, so a saved JSON file by itself is not current validation evidence. The example wrappers and plotter also retain their original paths and default arguments. Numerical last digits can vary by platform; compare physical values with tolerances rather than matching the last digit of Ward residuals.
+These commands retain the historical JSON structure with corrected physical-helicity semantics. Use `--legacy-source-label` on the Born CLI only to reproduce the pre-correction indexing. They do not create a run manifest, so a saved JSON file by itself is not current validation evidence. The example wrappers and plotter retain their paths and default arguments; old unlabeled data are rejected for physical-helicity plots. Numerical last digits can vary by platform; compare physical values with tolerances rather than matching the last digit of Ward residuals.

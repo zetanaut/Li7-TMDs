@@ -350,7 +350,7 @@ def execute_gluon(run_dir: Path, manifest: dict, results: list[dict]) -> None:
         results.append(result(check_id,'PASS',
             'exact_identity' if check_id.startswith(('gluon.stokes.exact','gluon.angular')) else
             'numerical_parameter_cases' if check_id.startswith('gluon.born.') else 'numerical_diagnostic',
-            ['Historical source-label adapter in the comparison; literal physical-helicity mismatch remains',
+            ['Corrected physical electron helicity in production and independent amplitude',
              'Synthetic TMD coefficients are not lithium-7 predictions'],fixed[check_id],manifest,
             claim_role='independent_comparison'))
     rows=verify_rows()
@@ -576,7 +576,7 @@ def execute_conventions(run_dir: Path,manifest: dict,results: list[dict]) -> Non
     for check_id,payload in entries.items():
         results.append(result(check_id,'PASS','numerical_diagnostic' if check_id==CONVENTION_IDS[0]
                               else 'exact_identity',
-                              ['Diagnostic execution only; physical/source Born disagreement is review-required'],
+                              ['Physical spinor and corrected trace agree; historical wrong-order mismatch retained'],
                               payload,manifest,claim_role='independent_comparison'))
     manifest['convention_review']=dict(CONVENTION_REVIEW)
     write_results(run_dir,manifest,results)

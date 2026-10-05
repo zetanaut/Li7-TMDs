@@ -2,7 +2,7 @@
 from __future__ import annotations
 import numpy as np
 import mpmath as mp
-from born_direct import compare_source_label,direct,fourvectors,direct_vectors,product4
+from born_direct import compare,direct,fourvectors,direct_vectors,product4
 from born_precision import evaluate_strings
 from gluon_born_response import evaluate
 
@@ -23,7 +23,7 @@ def raw_matrix_diagnostic(B,scale):
 
 
 def case(inputs):
-    mapped=compare_source_label(**inputs)
+    mapped=compare(**inputs)
     production=evaluate(**inputs)
     B=_matrix(production)
     ps=fourvectors(**{k:v for k,v in inputs.items() if k!='helicity'})
@@ -38,7 +38,7 @@ def case(inputs):
     energy_scale=max(np.linalg.norm(v) for v in ps.values())
     if momentum>1e-10*energy_scale or max(shells.values())>1e-10*energy_scale**2:
         raise AssertionError('independent four-vector kinematics failed')
-    direct_B=np.array(mapped['B_real'])+1j*np.array(mapped['B_imag'])
+    direct_B=direct(**inputs)
     polarizations=(np.array([1,1j])/np.sqrt(2),np.array([1,-1j])/np.sqrt(2),
                    np.array([2,1+2j])/3)
     complex_rates=[float(np.real(e@B@e.conj())) for e in polarizations]
@@ -46,7 +46,10 @@ def case(inputs):
     if max(abs(x-y) for x,y in zip(complex_rates,direct_rates))>1e-9:
         raise AssertionError('complex-polarization Born rates disagree')
     raw_herm,_=raw_matrix_diagnostic(B,float(np.max(np.abs(B))))
-    return {'inputs':inputs,'B_real':production['B_real'],'B_imag':production['B_imag'],
+    return {'convention':production['convention'],
+            'convention_digest':production['convention_digest'],
+            'reference_source_sha256':production['reference_source_sha256'],
+            'inputs':inputs,'B_real':production['B_real'],'B_imag':production['B_imag'],
             'stokes':production['Stokes'],'eigenvalues':production['B_eigenvalues'],
             'direct_residual_abs':mapped['max_abs'],
             'direct_residual_relative':mapped['max_relative'],
@@ -66,7 +69,8 @@ def grid():
               for z in (-1.,0.,1.)}
     actual={(row['inputs']['theta'],row['inputs']['phi'],row['inputs']['helicity']) for row in cases}
     if len(cases)!=36 or actual!=expected:raise AssertionError('incomplete Born grid')
-    return {'cases':cases,'case_count':len(cases),'independent_direct_count':len(cases),
+    return {'convention':'born-current-v2-physical-h',
+            'cases':cases,'case_count':len(cases),'independent_direct_count':len(cases),
             'max_direct_residual_abs':max(x['direct_residual_abs'] for x in cases)}
 
 
@@ -78,15 +82,18 @@ def dense_scan():
     actual={(i//3,row['inputs']['helicity']) for i,row in enumerate(cases)
             if row['inputs']['theta']==float(angles[i//3])}
     if len(cases)!=483 or actual!=expected:raise AssertionError('incomplete dense scan')
-    return {'angle_array':angles.tolist(),'phi':.4,'helicities':[-1.,0.,1.],
+    return {'convention':'born-current-v2-physical-h',
+            'angle_array':angles.tolist(),'phi':.4,'helicities':[-1.,0.,1.],
             'cases':cases,'case_count':483,'independent_direct_count':483,
             'max_direct_residual_abs':max(x['direct_residual_abs'] for x in cases),
             'max_direct_residual_relative':max(x['direct_residual_relative'] for x in cases)}
 
 
 def verify_scan_payload(payload):
+    from validation_evidence import REFERENCE_SOURCE_SHA256,digest
     angles=np.linspace(.05,np.pi-.05,161).tolist()
-    if payload.get('angle_array')!=angles or payload.get('phi')!=.4 or \
+    if payload.get('convention')!='born-current-v2-physical-h' or \
+            payload.get('angle_array')!=angles or payload.get('phi')!=.4 or \
             payload.get('helicities')!=[-1.,0.,1.] or payload.get('case_count')!=483 or \
             payload.get('independent_direct_count')!=483:
         raise ValueError('dense scan specification mismatch')
@@ -94,7 +101,10 @@ def verify_scan_payload(payload):
     if not isinstance(cases,list) or len(cases)!=483:raise ValueError('dense scan cases incomplete')
     for i,row in enumerate(cases):
         expected=dict(BASE,theta=angles[i//3],helicity=(-1.,0.,1.)[i%3])
-        if row.get('inputs')!=expected:raise ValueError(f'dense scan input tuple mismatch at {i}')
+        if (row.get('inputs')!=expected or row.get('convention')!=payload['convention'] or
+                row.get('convention_digest')!=digest(payload['convention']) or
+                row.get('reference_source_sha256')!=REFERENCE_SOURCE_SHA256):
+            raise ValueError(f'dense scan input tuple or convention mismatch at {i}')
         if row.get('direct_residual_abs',float('inf'))>1e-8 or \
                 row.get('direct_residual_relative',float('inf'))>1e-10 or \
                 not all(row.get('checks',{}).values()) or \
@@ -115,8 +125,8 @@ def precision_set():
     )
     out=[]
     for case_inputs in inputs:
-        a=evaluate_strings(**case_inputs,dps=50)
-        b=evaluate_strings(**case_inputs,dps=80)
+        a=evaluate_strings(**case_inputs,spinor_helicity=1,dps=50)
+        b=evaluate_strings(**case_inputs,spinor_helicity=1,dps=80)
         p=evaluate(**{k:float(v) for k,v in case_inputs.items()},helicity=1.)
         st=[float(v) for v in b['stokes']]
         error=max(abs(st[i]-p['Stokes'][k]) for i,k in enumerate(('b_U','b_G','b_C','b_S')))
@@ -127,8 +137,9 @@ def precision_set():
         if error>1e-8:raise AssertionError(f'precision comparison: {case_inputs}')
         out.append({'inputs':case_inputs,'dps50':a,'dps80':b,
                     'double_max_abs':error,'precision_difference':stable_text})
-    return {'cases':out,'case_count':len(out),'precision_digits':[50,80],
-            'spinor_to_source_lambda':'source +1 maps to physical spinor -1'}
+    return {'convention':'born-current-v2-physical-h',
+            'cases':out,'case_count':len(out),'precision_digits':[50,80],
+            'convention':'physical electron helicity h=+1 in spinor and trace'}
 
 
 def broader_cases():

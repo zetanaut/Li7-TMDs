@@ -148,6 +148,20 @@ class EvidenceTests(unittest.TestCase):
         manifest['reference_sha256'] = '0' * 64
         self.mutate(folder, manifest=manifest)
         self.assert_rejected(folder, 'reference version mismatch')
+        for value in (None,'0'*64):
+            folder = self.clone()
+            manifest = json.loads((folder / 'manifest.json').read_text())
+            document = json.loads((folder / 'results.json').read_text())
+            for item in document['results']:
+                if item['check_id'].startswith('born.'):
+                    item['result_payload']['report']['convention_digest'] = value
+            self.mutate(folder, manifest=manifest, results=document)
+            self.assert_rejected(folder, 'Born reference input mismatch')
+        folder = self.clone()
+        manifest = json.loads((folder / 'manifest.json').read_text())
+        manifest['input_spec']['convention_id'] = 'born-current-v1-legacy-source-label'
+        self.mutate(folder, manifest=manifest)
+        self.assert_rejected(folder, 'input digest or baseline input mismatch')
         folder = self.clone()
         manifest = json.loads((folder / 'manifest.json').read_text())
         manifest['run_id'] = 'different'
@@ -209,7 +223,7 @@ class EvidenceTests(unittest.TestCase):
         self.assert_rejected(folder, 'results run_id mismatch')
 
     def test_grid_missing_duplicate_and_failed_point_rejected(self):
-        for mutation in ('missing', 'duplicate', 'failed'):
+        for mutation in ('missing', 'duplicate', 'failed', 'legacy-convention'):
             with self.subTest(mutation=mutation):
                 folder = self.clone()
                 manifest = json.loads((folder / 'manifest.json').read_text())
@@ -222,7 +236,10 @@ class EvidenceTests(unittest.TestCase):
                 elif mutation == 'duplicate':
                     cases[-1] = copy.deepcopy(cases[0])
                 else:
-                    cases[-1]['checks']['photon_Ward'] = False
+                    if mutation == 'failed':
+                        cases[-1]['checks']['photon_Ward'] = False
+                    else:
+                        cases[-1]['convention'] = 'born-current-v1-legacy-source-label'
                 self.mutate(folder, manifest=manifest, results=document)
                 self.assert_rejected(folder, 'incomplete or failed grid cases')
 

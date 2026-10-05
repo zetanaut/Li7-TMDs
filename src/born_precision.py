@@ -63,7 +63,7 @@ def _lepton(p,h):
 
 
 def evaluate_strings(*,sqrt_s='5',Q2='4',mass='1.5',theta='0.8',phi='0.4',
-                     lepton_energy='10',spinor_helicity=-1,dps=50):
+                     lepton_energy='10',spinor_helicity=1,dps=50):
     if spinor_helicity not in (-1,1):raise ValueError('definite spinor helicity required')
     with mp.workdps(dps):
         values=[mp.mpf(v) for v in (sqrt_s,Q2,mass,theta,phi,lepton_energy)]

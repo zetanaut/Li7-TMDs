@@ -53,12 +53,7 @@ def epsilon_lower(mu: int,nu: int,rho: int,sigma: int) -> int:
     return -(-1)**inversions
 
 def leptonic(l: RVector,lp: RVector,helicity: float) -> CMatrix:
-    """Historical source L_mu,nu, with conjugate-current-first ordering.
-
-    ``helicity`` retains the published source label.  For the physical
-    incoming electron helicity h in an amplitude-first Born trace, the
-    required current tensor is this matrix transposed at lambda=h.
-    """
+    """Source L_mu,nu=sum j_mu* j_nu, for physical electron helicity h."""
     lo,lpo=METRIC @ l,METRIC @ lp
     result=2*(np.outer(lo,lpo)+np.outer(lpo,lo)-METRIC*dot(l,lp)).astype(complex)
     for mu,nu in itertools.product(range(4),repeat=2):
@@ -68,11 +63,7 @@ def leptonic(l: RVector,lp: RVector,helicity: float) -> CMatrix:
     return result
 
 def physical_amplitude_first_leptonic(l: RVector,lp: RVector,h: float) -> CMatrix:
-    """Candidate J_mu,nu=sum j_mu j_nu*, derived by index interchange.
-
-    This is diagnostic only; ``evaluate`` continues to implement the
-    approved source formula and historical reference values.
-    """
+    """J_mu,nu=sum j_mu j_nu*=L_source[nu,mu] for physical h."""
     return leptonic(l,lp,h).T
 
 def kinematics(sqrt_s: float,Q2: float,mass: float,theta: float,
@@ -98,9 +89,14 @@ def kinematics(sqrt_s: float,Q2: float,mass: float,theta: float,
 
 def evaluate(*,sqrt_s: float=5.,Q2: float=4.,mass: float=1.5,
              theta: float=.8,phi: float=.4,lepton_energy: float=10.,
-             helicity: float=1.) -> dict[str,object]:
+             helicity: float=1.,legacy_source_label: bool=False) -> dict[str,object]:
+    """Physical-helicity Born matrix; opt-in legacy mode reproduces old indexing."""
     if not np.isfinite(helicity) or abs(helicity)>1:
         raise ValueError('The lepton polarization/helicity must lie in [-1,1].')
+    from validation_evidence import (REFERENCE_SOURCE_SHA256,LEGACY_SOURCE_SHA256,
+                                     CONVENTION_ID,LEGACY_CONVENTION_ID,digest)
+    convention=(LEGACY_CONVENTION_ID if legacy_source_label else CONVENTION_ID)
+    source_sha=(LEGACY_SOURCE_SHA256 if legacy_source_label else REFERENCE_SOURCE_SHA256)
     ps=kinematics(sqrt_s,Q2,mass,theta,phi,lepton_energy)
     l,lp,q,k,p1,p2=(ps[key] for key in ('l','lp','q','k','p1','p2'))
     d1=dot(p1-q,p1-q)-mass**2
@@ -113,7 +109,8 @@ def evaluate(*,sqrt_s: float=5.,Q2: float=4.,mass: float=1.5,
                      +GAMMA[alpha] @ (slash(p1-k)+mass*I4) @ GAMMA[mu]/d2)
     u=slash(p1)+mass*I4
     w=slash(p2)-mass*I4
-    lepton=leptonic(l,lp,helicity)
+    lepton=(leptonic(l,lp,helicity) if legacy_source_label else
+            physical_amplitude_first_leptonic(l,lp,helicity))
     b=np.zeros((2,2),complex)
     for i,j in itertools.product(range(2),repeat=2):
         b[i,j]=sum(lepton[mu,nu]*np.trace(u @ v[mu,i+1] @ w @ bar(v[nu,j+1]))
@@ -148,6 +145,8 @@ def evaluate(*,sqrt_s: float=5.,Q2: float=4.,mass: float=1.5,
         raise ArithmeticError(f'Physical hard-response check failed: {checks}')
     return {
         'description':'Coupling-stripped Born hard matrix; multiply by e^4 e_Q^2 g_s^2 T_F / Q^4.',
+        'convention':convention,'convention_digest':digest(convention),
+        'reference_source_sha256':source_sha,
         'inputs':dict(sqrt_s=sqrt_s,Q2=Q2,mass=mass,theta=theta,phi=phi,
                       lepton_energy=lepton_energy,helicity=helicity),
         'momenta_GeV':{name:p.tolist() for name,p in ps.items()},
@@ -163,6 +162,14 @@ def evaluate(*,sqrt_s: float=5.,Q2: float=4.,mass: float=1.5,
         'kinematic_residuals':lorentz_errors,
         'checks':checks}
 
+def evaluate_legacy_source_label(**inputs) -> dict[str,object]:
+    """Reproduce pre-correction BornB: L_source[mu,nu] H[mu,nu].
+
+    The old numeric label lambda_old corresponds to physical h=-lambda_old
+    for this Born process only.  This path is not a physical answer at h=lambda_old.
+    """
+    return evaluate(**inputs,legacy_source_label=True)
+
 def main() -> None:
     parser=argparse.ArgumentParser(description=__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--sqrt-s',type=float,default=5.)
@@ -172,11 +179,14 @@ def main() -> None:
     parser.add_argument('--phi',type=float,default=.4,help='Heavy-quark azimuth in radians.')
     parser.add_argument('--lepton-energy',type=float,default=10.)
     parser.add_argument('--helicity',type=float,default=1.)
+    parser.add_argument('--legacy-source-label',action='store_true',
+                        help='Reproduce pre-correction Born current indexing; the label is not physical helicity.')
     parser.add_argument('--output',type=Path,default=Path('results/gluon_born_report.json'))
     args=parser.parse_args()
     try:
         report=evaluate(sqrt_s=args.sqrt_s,Q2=args.Q2,mass=args.mass,theta=args.theta,
-                        phi=args.phi,lepton_energy=args.lepton_energy,helicity=args.helicity)
+                        phi=args.phi,lepton_energy=args.lepton_energy,helicity=args.helicity,
+                        legacy_source_label=args.legacy_source_label)
         args.output.parent.mkdir(parents=True,exist_ok=True)
         args.output.write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     except (ValueError,ArithmeticError,OSError) as exc:

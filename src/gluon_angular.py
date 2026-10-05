@@ -68,7 +68,7 @@ def certificate():
             'gram':[[str(A[i,j]) for j in range(14)] for i in range(14)],
             'determinant':str(A.det()),'independent_routes':['Fourier convolution','trigonometric product integral'],
             'no_alias_grid':[11,8],
-            'convention':'conjugate-amplitude-first; source lambda; 11x8 finite Fourier grid',
+            'convention':'conjugate-amplitude-first; physical electron h; 11x8 finite Fourier grid',
             'scientific_source_digest':scientific_source_digest(),
             'mode_fixture_sha256':hashlib.sha256((Path(__file__).parent/'gluon_response_fixture.py').read_bytes()).hexdigest()}
 

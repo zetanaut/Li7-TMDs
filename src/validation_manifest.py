@@ -267,14 +267,13 @@ PROFILE_REQUIRED['full']=LIMITS_REQUIRED
 FULL_PENDING_SUITES=()
 
 # Checkpoint 6 keeps all 579 checkpoint-5 leaves intact.  These extra leaves
-# verify the bounded convention diagnosis; a diagnostic PASS is not literal
-# physical-helicity/source agreement or publication eligibility.
+# Require the corrected physical comparison and preserve the legacy mismatch.
 CONVENTION_IDS=('convention.current_order','convention.sidis_order',
                 'convention.source_spectral','convention.auxiliary_map')
 CONVENTION_NEGATIVE_TESTS=(
     'test_spinor_eigenvalue_not_adapter',
     'test_current_order_and_epsilon_lowering',
-    'test_literal_mismatch_candidate_is_separate',
+    'test_legacy_mismatch_corrected_is_physical',
     'test_sidis_order_is_distinct',
     'test_source_auxiliary_mapping_and_rank',
     'test_partial_transpose_not_psd',

@@ -30,7 +30,7 @@ def render_summary(run_dir: Path) -> str:
     lines = [
         '# Generated result summary', '',
         (f"This page describes the **{manifest['profile']} profile**. "
-         + ('The declared executable program ran; physical Born current-index agreement remains under author review and publication is blocked.'
+         + ('The declared executable program passed with corrected physical Born current-index agreement; remote publication remains unauthorized.'
             if manifest['profile']=='full' else
             'The declared executable program passed; analytical QCD inputs and excluded dynamic calculations remain separate.'
             if manifest['profile'] in ('limits-positivity','full') else
@@ -40,6 +40,9 @@ def render_summary(run_dir: Path) -> str:
         f"Source revision: `{manifest['source_revision']}`; dirty source: "
         f"`{str(manifest['dirty_state']).lower()}`; scientific source digest: "
         f"`{manifest['scientific_source_digest']}`.", '',
+        f"Reference source SHA-256: `{manifest['reference_sha256']}`; "
+        f"convention: `{manifest['input_spec']['convention_id']}`; "
+        f"input digest: `{manifest['input_digest']}`.", '',
         '| Executed evidence | Count |', '|---|---:|',
     ]
     for kind, count in sorted(counts.items()):
@@ -132,9 +135,8 @@ def render_summary(run_dir: Path) -> str:
                   f"the dense scan evaluated and independently compared {scan['case_count']} "
                   f"cases. Worst matrix component residual: {scan['max_direct_residual_abs']:.3g} GeV².", '',
                   f"{precision['case_count']} independently calculated cases used 50 and 80 "
-                  'decimal digits from string inputs. The historical direct-amplitude comparison '
-                  'used the explicit opposite-label adapter. It does not establish literal physical '
-                  'electron-helicity agreement with the source Born equation.', '',
+                  'decimal digits from string inputs. Production and independent direct amplitudes '
+                  'use the same physical electron helicity, with no sign-label adapter.', '',
                   '| Gluon response ID | Target rank | Channel | Orbital rank |',
                   '|---|---:|---|---:|']
         for check_id in GLUON_ROW_IDS:
@@ -185,27 +187,27 @@ def render_summary(run_dir: Path) -> str:
         review=manifest['convention_review']
         current=by_id['convention.current_order']['result_payload']
         born=current['born_cases'][1]
-        lines += ['', '## Convention closure and publication hold', '',
+        lines += ['', '## Corrected current ordering', '',
                   f"Diagnostic execution: `{review['computational_execution_status']}`. "
-                  f"Literal physical/source Born agreement: `{review['source_formula_agreement_status']}`. "
+                  f"Corrected physical/source Born agreement: `{review['source_formula_agreement_status']}`. "
                   f"Publication eligibility: `{review['publication_eligibility']}`.", '',
                   'The spinor is an eigenstate of helicity along its own momentum. Its '
                   'amplitude-first current is the transpose of the source lepton tensor at '
-                  'the same helicity. The source Born trace is amplitude-first, whereas the '
+                  'the same helicity. The corrected Born trace contracts L_source[nu,mu], whereas the '
                   'SIDIS trace has the opposite hard-current order. No global helicity flip is applied.', '',
                   f"At the exact current test point, J_xy has imaginary part "
                   f"{current['exact_event']['J_xy_imag']:.9g} and the literal source L_xy has "
                   f"{current['exact_event']['source_L_xy_imag']:.9g}. "
-                  f"At the first positive-helicity generic Born point, the literal matrix "
-                  f"residual is {born['literal_max_abs']:.9g} GeV² and the separately identified "
-                  f"index-interchanged candidate residual is {born['candidate_max_abs']:.3g} GeV².", '',
+                  f"At the first positive-helicity generic Born point, the historical wrong-order matrix "
+                  f"residual is {born['literal_max_abs']:.9g} GeV² and the corrected "
+                  f"physical comparison residual is {born['corrected_max_abs']:.3g} GeV².", '',
                   'The source-index joint matrix is a positive spectral Gram under its stated '
                   'input prescription. The older auxiliary coefficient map is related by parton '
                   'partial transpose and a factor of two; that map preserves coefficient rank '
                   'but cannot certify physical PSD. Exact Bell and finite-kT controls reject '
                   'positivity transfer by partial transpose.', '',
-                  'The approved manuscript, Born reference fixtures, and public API interpretation '
-                  'were not changed. Author review is required before publication.', '']
+                  'The corrected manuscript copy is external to this repository. The historical '
+                  'wrong-order comparison remains a negative regression. Publication is not authorized.', '']
     return '\n'.join(lines)
 
 

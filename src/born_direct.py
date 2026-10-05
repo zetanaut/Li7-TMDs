@@ -107,7 +107,7 @@ def direct_vectors(ps,m,helicity):
 
 
 def compare(**inputs):
-    """Literal physical helicity versus source lambda; mismatch is visible."""
+    """Independent physical spinor amplitudes versus corrected trace at h."""
     from gluon_born_response import evaluate
     left=direct(**inputs)
     result=evaluate(**inputs)
@@ -121,12 +121,12 @@ def compare(**inputs):
 
 
 def compare_source_label(**inputs):
-    """Explicit convention conversion: source lambda = -spinor helicity."""
-    from gluon_born_response import evaluate
+    """Historical v1 reproduction: old lambda label = -physical spinor h."""
+    from gluon_born_response import evaluate_legacy_source_label
     source_lambda=inputs.get('helicity',1.)
     if source_lambda not in (-1.,0.,1.):raise ValueError('supported polarization is -1, 0, +1')
     left=direct(**dict(inputs,helicity=-source_lambda))
-    report=evaluate(**inputs)
+    report=evaluate_legacy_source_label(**inputs)
     right=np.array(report['B_real'])+1j*np.array(report['B_imag'])
     residual=float(np.max(np.abs(left-right)))
     scale=float(np.max(np.abs(right)))

@@ -9,7 +9,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 from born_direct import G,SIGMA,massless,direct
 from current_index_conventions import (G5,exact_current_identity,spinor_anchor,annihilation_spinor_anchor,ordered_currents,
                                        sidis_ordering,born_case)
-from gluon_born_response import leptonic,epsilon_lower
+from gluon_born_response import leptonic,epsilon_lower,evaluate,evaluate_legacy_source_label
 from source_joint_positivity import (source_mapping_check,partial_parton_transpose,
                                      spectral_index_check,spectral_recovery)
 from validation_evidence import CONVENTION_REVIEW,assert_convention_review,EvidenceError
@@ -45,16 +45,30 @@ class ConventionClosureTests(unittest.TestCase):
         self.assertEqual(epsilon_lower(1,0,2,3),1)
         self.assertAlmostEqual(np.trace(G[0]@G[1]@G[2]@G[3]@G5).imag,-4.)
 
-    def test_literal_mismatch_candidate_is_separate(self):
+    def test_legacy_mismatch_corrected_is_physical(self):
         case=born_case(dict(sqrt_s=5.,Q2=4.,mass=1.5,theta=.8,
                             phi=.4,lepton_energy=10.,helicity=1))
         self.assertGreater(case['literal_max_abs'],200.)
-        self.assertLess(case['candidate_max_abs'],1e-8)
+        self.assertLess(case['corrected_max_abs'],1e-8)
+        self.assertLess(case['migration_max_abs'],1e-8)
+        self.assertGreater(case['corrected_b_G'],0.)
+        self.assertLess(case['literal_b_G'],0.)
         self.assertGreater(abs(case['circular_rate_physical']-
                                case['circular_rate_literal']),100.)
         self.assertGreater(abs(case['elliptic_rate_physical']-
                                case['elliptic_rate_literal']),1.)
         self.assertLess(case['unchanged_UCS_max_abs'],1e-8)
+        inputs=dict(sqrt_s=5.,Q2=4.,mass=1.5,theta=.8,phi=.4,
+                    lepton_energy=10.,helicity=1)
+        physical=evaluate(**inputs)
+        double_change=evaluate(**dict(inputs,helicity=-1))
+        old=evaluate_legacy_source_label(**inputs)
+        self.assertEqual(physical['convention'],'born-current-v2-physical-h')
+        self.assertEqual(old['convention'],'born-current-v1-legacy-source-label')
+        self.assertGreater(physical['Stokes']['b_G'],0)
+        self.assertLess(double_change['Stokes']['b_G'],0)
+        self.assertLess(old['Stokes']['b_G'],0)
+        self.assertGreater(abs(physical['Stokes']['b_G']-double_change['Stokes']['b_G']),200)
 
     def test_sidis_order_is_distinct(self):
         x=sidis_ordering()
@@ -89,21 +103,24 @@ class ConventionClosureTests(unittest.TestCase):
         self.assertEqual(CONVENTION_REVIEW['physical_helicity_anchor_status'],
                          'VERIFIED_EIGENVALUE')
         self.assertEqual(CONVENTION_REVIEW['source_formula_agreement_status'],
-                         'LITERAL_PHYSICAL_HELICITY_MISMATCH')
+                         'CORRECTED_PHYSICAL_HELICITY_AGREES')
         self.assertEqual(CONVENTION_REVIEW['publication_eligibility'],
-                         'BLOCKED_AUTHOR_REVIEW')
-        self.assertTrue(CONVENTION_REVIEW['unresolved_scientific_issues'])
+                         'READY_FOR_PUBLICATION_REVIEW')
+        self.assertFalse(CONVENTION_REVIEW['publication_authorized'])
+        self.assertFalse(CONVENTION_REVIEW['unresolved_scientific_issues'])
         manifest={'convention_review':dict(CONVENTION_REVIEW)}
         payload={'status':{'diagnostic_execution':'PASS',
-                           'literal_physical_source_agreement':'MISMATCH',
-                           'candidate_index_interchange':'AGREES',
-                           'publication_eligibility':'BLOCKED_AUTHOR_REVIEW'}}
+                           'legacy_literal_physical_agreement':'EXPECTED_MISMATCH',
+                           'corrected_physical_source_agreement':'AGREES',
+                           'publication_eligibility':'READY_FOR_PUBLICATION_REVIEW'},
+                 'born_cases':[born_case(dict(sqrt_s=5.,Q2=4.,mass=1.5,theta=.8,
+                                              phi=.4,lepton_energy=10.,helicity=1))]}
         assert_convention_review(manifest,payload)
         bad={'convention_review':dict(CONVENTION_REVIEW,
-                                      publication_eligibility='ELIGIBLE')}
+                                      publication_authorized=True)}
         with self.assertRaises(EvidenceError):assert_convention_review(bad,payload)
         bad_payload={'status':dict(payload['status'],
-                                   literal_physical_source_agreement='AGREES')}
+                                   corrected_physical_source_agreement='MISMATCH')}
         with self.assertRaises(EvidenceError):assert_convention_review(manifest,bad_payload)
 
 

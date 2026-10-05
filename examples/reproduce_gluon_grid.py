@@ -17,10 +17,12 @@ def evaluate_grid() -> dict[str, object]:
             [0.4, 0.8, 1.7, 2.7], [0.0, 0.4, 1.2], [-1.0, 0.0, 1.0]):
         report = evaluate(theta=theta, phi=phi, helicity=helicity)
         rows.append({key: report[key] for key in (
+            'convention','convention_digest','reference_source_sha256',
             'inputs', 'Stokes', 'B_eigenvalues', 'relative_Ward_residuals',
             'relative_Hermiticity_residual', 'checks')})
     all_pass = len(rows) == 36 and all(all(row['checks'].values()) for row in rows)
-    return {'points': len(rows), 'all_pass': all_pass, 'results': rows}
+    return {'convention':'born-current-v2-physical-h',
+            'points': len(rows), 'all_pass': all_pass, 'results': rows}
 
 
 def main() -> int:

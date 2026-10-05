@@ -22,15 +22,23 @@ from validation_manifest import (BORN_CHECKS, LEGACY_IDS, PROFILE_REQUIRED,
                                  CONVENTION_IDS,CONVENTION_NEGATIVE_TESTS)
 
 SCHEMA_VERSION = 2
-REFERENCE_SOURCE_SHA256 = '3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d'
+LEGACY_SOURCE_SHA256 = '3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d'
+REFERENCE_SOURCE_SHA256 = '7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee'
+CONVENTION_ID = 'born-current-v2-physical-h'
+LEGACY_CONVENTION_ID = 'born-current-v1-legacy-source-label'
 CONVENTION_REVIEW = {
-    'computational_execution_status':'COMPLETE_WITH_CONVENTION_DIAGNOSTICS',
-    'source_formula_agreement_status':'LITERAL_PHYSICAL_HELICITY_MISMATCH',
+    'computational_execution_status':'COMPLETE_CORRECTED_COMPARISONS',
+    'source_formula_agreement_status':'CORRECTED_PHYSICAL_HELICITY_AGREES',
     'physical_helicity_anchor_status':'VERIFIED_EIGENVALUE',
-    'current_index_contract_status':'AUTHOR_CORRECTION_REQUIRED',
+    'current_index_contract_status':'APPROVED_CORRECTION_EXECUTED',
     'source_gram_index_status':'VERIFIED_CONDITIONAL_SPECTRAL_ORDER',
-    'unresolved_scientific_issues':['eq:BornB lepton index order versus physical electron helicity'],
-    'publication_eligibility':'BLOCKED_AUTHOR_REVIEW',
+    'unresolved_scientific_issues':[],
+    'publication_eligibility':'READY_FOR_PUBLICATION_REVIEW',
+    'publication_authorized':False,
+    'correction_id':'born-current-index-c7-author-approved',
+    'legacy_source_sha256':LEGACY_SOURCE_SHA256,
+    'corrected_source_sha256':REFERENCE_SOURCE_SHA256,
+    'convention_id':CONVENTION_ID,
 }
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ROOTS = ('src', 'examples', 'scripts', 'tests')
@@ -56,21 +64,22 @@ class EvidenceError(ValueError):
 
 
 def assert_convention_review(manifest: dict, current_payload: dict | None = None) -> None:
-    """Require the unresolved physical assertion to remain visible.
-
-    A diagnostic PASS describes successful mismatch detection.  Neither
-    an authorization flag nor a mapped comparison can make a literal
-    physical/source assertion true.
-    """
+    """Require executed corrected agreement and explicit legacy mismatch."""
     if manifest.get('convention_review') != CONVENTION_REVIEW:
-        raise EvidenceError('unresolved convention review suppressed or altered')
+        raise EvidenceError('convention review altered')
     if current_payload is not None and current_payload.get('status') != {
         'diagnostic_execution':'PASS',
-        'literal_physical_source_agreement':'MISMATCH',
-        'candidate_index_interchange':'AGREES',
-        'publication_eligibility':'BLOCKED_AUTHOR_REVIEW',
+        'legacy_literal_physical_agreement':'EXPECTED_MISMATCH',
+        'corrected_physical_source_agreement':'AGREES',
+        'publication_eligibility':'READY_FOR_PUBLICATION_REVIEW',
     }:
-        raise EvidenceError('mapped comparison promoted to literal agreement')
+        raise EvidenceError('corrected physical comparison absent')
+    if current_payload is not None and (not current_payload.get('born_cases') or any(
+            case.get('corrected_max_abs',float('inf'))>1e-8 or
+            case.get('migration_max_abs',float('inf'))>1e-8 or
+            case.get('literal_max_abs',0)<1
+            for case in current_payload['born_cases'])):
+        raise EvidenceError('corrected physical comparison failed')
 
 
 def canonical_bytes(value: object) -> bytes:
@@ -96,6 +105,8 @@ def scientific_source_digest() -> str:
 
 def input_spec(reference_inputs: dict | None = None) -> dict:
     return {'reference': reference_inputs or REFERENCE_INPUTS, 'grid_axes': GRID_AXES,
+            'convention_id':CONVENTION_ID,'legacy_convention_id':LEGACY_CONVENTION_ID,
+            'legacy_source_sha256':LEGACY_SOURCE_SHA256,
             'symbolic': 'exact finite algebra; no runtime TeX input'}
 
 
@@ -413,8 +424,13 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
         expected_grid=[dict(BASE,theta=theta,phi=phi,helicity=helicity)
                        for theta in (.4,.8,1.7,2.7) for phi in (0.,.4,1.2)
                        for helicity in (-1.,0.,1.)]
-        if (grid.get('case_count')!=36 or grid.get('independent_direct_count')!=36 or
+        if (grid.get('convention')!=CONVENTION_ID or
+                grid.get('case_count')!=36 or grid.get('independent_direct_count')!=36 or
                 [x.get('inputs') for x in grid.get('cases',[])]!=expected_grid or
+                any(x.get('convention')!=CONVENTION_ID or
+                    x.get('convention_digest')!=digest(CONVENTION_ID) or
+                    x.get('reference_source_sha256')!=REFERENCE_SOURCE_SHA256
+                    for x in grid['cases']) or
                 any(x.get('direct_residual_abs',float('inf'))>1e-8 for x in grid['cases'])):
             raise EvidenceError('independent Born grid incomplete')
         if by_id['gluon.born.precision']['result_payload']!=precision_set():
@@ -540,7 +556,10 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
         if payload.get('test_id') != name or payload.get('exit_code') != 0:
             raise EvidenceError('software test payload mismatch')
     born = by_id['born.on_shell_and_conservation']['result_payload']
-    if born.get('inputs') != REFERENCE_INPUTS:
+    if (born.get('inputs') != REFERENCE_INPUTS or
+            born['report'].get('convention') != CONVENTION_ID or
+            born['report'].get('convention_digest') != digest(CONVENTION_ID) or
+            born['report'].get('reference_source_sha256') != REFERENCE_SOURCE_SHA256):
         raise EvidenceError('Born reference input mismatch')
     reference_report = born.get('report')
     if (not isinstance(reference_report, dict) or
@@ -561,6 +580,9 @@ def validate_run(run_dir: Path, *, require_current: bool = True) -> tuple[dict, 
             grid.get('number_of_cases') != expected_cases or
             len(cases) != expected_cases or
             not all(isinstance(case, dict) and
+                    case.get('convention') == CONVENTION_ID and
+                    case.get('convention_digest') == digest(CONVENTION_ID) and
+                    case.get('reference_source_sha256') == REFERENCE_SOURCE_SHA256 and
                     case.get('checks') == {name: True for name in BORN_CHECKS} and
                     case.get('inputs') == dict(REFERENCE_INPUTS, theta=theta, phi=phi,
                                                helicity=helicity)

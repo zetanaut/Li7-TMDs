@@ -5,12 +5,12 @@ import sympy as s
 from correlator_foundations import catalogue,cartesian_value
 from gluon_angular import MODES
 from gluon_octupole import state_moments
-from born_direct import compare_source_label
+from born_direct import compare,direct
 
 
 def analyzer():
-    result=compare_source_label()
-    B=np.array(result['B_real'])+1j*np.array(result['B_imag'])
+    compare(helicity=1.)
+    B=direct(helicity=1.)
     bu=(B[0,0].real+B[1,1].real)/2
     bg=B[0,1].imag
     bc=(B[0,0].real-B[1,1].real)/2

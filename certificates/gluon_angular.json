@@ -1,5 +1,5 @@
 {
-  "convention": "conjugate-amplitude-first; source lambda; 11x8 finite Fourier grid",
+  "convention": "conjugate-amplitude-first; physical electron h; 11x8 finite Fourier grid",
   "determinant": "1/8192",
   "gram": [
     [
@@ -350,6 +350,6 @@
     11,
     8
   ],
-  "scientific_source_digest": "d899b636edf64f22e50ca1c9126a1f73f82162915cf37eec63de31f161f25f03",
+  "scientific_source_digest": "6c376b00961956f0a12e592298849ebc4f779d8f66a64299496ba6c3edba750a",
   "source_label": "tab:oct_fourier"
 }

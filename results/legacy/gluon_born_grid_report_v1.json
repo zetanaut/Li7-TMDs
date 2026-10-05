@@ -1,12 +1,8 @@
 {
-  "convention": "born-current-v2-physical-h",
   "points": 36,
   "all_pass": true,
   "results": [
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -18,7 +14,7 @@
       },
       "Stokes": {
         "b_U": 2662.365232385133,
-        "b_G": -490.17922751265905,
+        "b_G": 490.1792275126593,
         "b_C": -43.07618032518917,
         "b_S": 0.0
       },
@@ -28,7 +24,7 @@
       ],
       "relative_Ward_residuals": {
         "photon": 8.674229585049362e-17,
-        "gluon": 9.68549837083682e-17
+        "gluon": 9.685498370836821e-17
       },
       "relative_Hermiticity_residual": 2.0995137725647292e-17,
       "checks": {
@@ -40,9 +36,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -64,7 +57,7 @@
       ],
       "relative_Ward_residuals": {
         "photon": 8.674229585049362e-17,
-        "gluon": 9.68549837083682e-17
+        "gluon": 9.685498370836821e-17
       },
       "relative_Hermiticity_residual": 3.4258177559907714e-17,
       "checks": {
@@ -76,9 +69,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -90,7 +80,7 @@
       },
       "Stokes": {
         "b_U": 2662.365232385133,
-        "b_G": 490.1792275126593,
+        "b_G": -490.17922751265905,
         "b_C": -43.07618032518917,
         "b_S": 0.0
       },
@@ -100,7 +90,7 @@
       ],
       "relative_Ward_residuals": {
         "photon": 8.674229585049362e-17,
-        "gluon": 9.68549837083682e-17
+        "gluon": 9.685498370836821e-17
       },
       "relative_Hermiticity_residual": 2.0995137725647292e-17,
       "checks": {
@@ -112,9 +102,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -126,19 +113,19 @@
       },
       "Stokes": {
         "b_U": 2587.6681887014183,
-        "b_G": -484.84992562062945,
+        "b_G": 484.84992562062934,
         "b_C": -33.84152428662742,
-        "b_S": 119.65179396413284
+        "b_S": 119.65179396413289
       },
       "B_eigenvalues": [
-        2087.127230398097,
-        3088.2091470047403
+        2087.1272303980973,
+        3088.2091470047408
       ],
       "relative_Ward_residuals": {
-        "photon": 1.116760988895941e-16,
-        "gluon": 9.915287701594596e-17
+        "photon": 9.288383441988667e-17,
+        "gluon": 1.1053091369253815e-16
       },
-      "relative_Hermiticity_residual": 1.024268536575033e-16,
+      "relative_Hermiticity_residual": 7.584722442113062e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -148,9 +135,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -162,19 +146,19 @@
       },
       "Stokes": {
         "b_U": 2587.6681887014183,
-        "b_G": -3.0478988338341976e-15,
+        "b_G": -2.8214953108347325e-13,
         "b_C": -33.84152428662742,
-        "b_S": 119.65179396413284
+        "b_S": 119.65179396413289
       },
       "B_eigenvalues": [
         2463.3226999819735,
         2712.0136774208636
       ],
       "relative_Ward_residuals": {
-        "photon": 1.116760988895941e-16,
-        "gluon": 9.915287701594596e-17
+        "photon": 9.288383441988667e-17,
+        "gluon": 1.1053091369253815e-16
       },
-      "relative_Hermiticity_residual": 8.2247971908775e-17,
+      "relative_Hermiticity_residual": 6.792273720729191e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -184,9 +168,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -198,19 +179,19 @@
       },
       "Stokes": {
         "b_U": 2587.6681887014183,
-        "b_G": 484.84992562062945,
-        "b_C": -33.84152428662742,
-        "b_S": 119.65179396413284
+        "b_G": -484.8499256206298,
+        "b_C": -33.84152428662719,
+        "b_S": 119.65179396413289
       },
       "B_eigenvalues": [
-        2087.1272303980973,
-        3088.20914700474
+        2087.1272303980963,
+        3088.2091470047403
       ],
       "relative_Ward_residuals": {
-        "photon": 1.116760988895941e-16,
-        "gluon": 9.915287701594596e-17
+        "photon": 9.288383441988667e-17,
+        "gluon": 1.1053091369253815e-16
       },
-      "relative_Hermiticity_residual": 9.338778886955843e-17,
+      "relative_Hermiticity_residual": 7.696295765841771e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -220,9 +201,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -234,19 +212,19 @@
       },
       "Stokes": {
         "b_U": 2185.4838091493657,
-        "b_G": -447.1309526758861,
-        "b_C": -286.37254910589763,
-        "b_S": 444.36712075856923
+        "b_G": 447.1309526758861,
+        "b_C": -286.3725491058974,
+        "b_S": 444.3671207585691
       },
       "B_eigenvalues": [
         1493.0984657649783,
-        2877.869152533753
+        2877.8691525337526
       ],
       "relative_Ward_residuals": {
-        "photon": 6.708186299159759e-17,
-        "gluon": 3.813761163434969e-17
+        "photon": 6.536300539457997e-17,
+        "gluon": 4.1460680917961943e-17
       },
-      "relative_Hermiticity_residual": 1.2488622806764287e-16,
+      "relative_Hermiticity_residual": 1.24212217208029e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -256,9 +234,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -270,19 +245,19 @@
       },
       "Stokes": {
         "b_U": 2185.4838091493657,
-        "b_G": -1.8076434650645392e-13,
-        "b_C": -286.37254910589763,
-        "b_S": 444.36712075856923
+        "b_G": 1.752093899189777e-13,
+        "b_C": -286.3725491058974,
+        "b_S": 444.36712075856906
       },
       "B_eigenvalues": [
-        1656.833286693679,
+        1656.8332866936787,
         2714.1343316050525
       ],
       "relative_Ward_residuals": {
-        "photon": 6.708186299159759e-17,
-        "gluon": 3.813761163434969e-17
+        "photon": 6.536300539457997e-17,
+        "gluon": 4.1460680917961943e-17
       },
-      "relative_Hermiticity_residual": 1.4020125181831207e-16,
+      "relative_Hermiticity_residual": 1.5864657504883463e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -292,9 +267,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -306,19 +278,19 @@
       },
       "Stokes": {
         "b_U": 2185.4838091493657,
-        "b_G": 447.1309526758857,
-        "b_C": -286.37254910589763,
-        "b_S": 444.36712075856923
+        "b_G": -447.13095267588574,
+        "b_C": -286.3725491058974,
+        "b_S": 444.367120758569
       },
       "B_eigenvalues": [
-        1493.0984657649785,
+        1493.0984657649783,
         2877.8691525337526
       ],
       "relative_Ward_residuals": {
-        "photon": 6.708186299159759e-17,
-        "gluon": 3.813761163434969e-17
+        "photon": 6.536300539457997e-17,
+        "gluon": 4.1460680917961943e-17
       },
-      "relative_Hermiticity_residual": 1.7367794428324223e-16,
+      "relative_Hermiticity_residual": 1.814249457917672e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -328,9 +300,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -342,7 +311,7 @@
       },
       "Stokes": {
         "b_U": 1776.5855423360122,
-        "b_G": -128.56820585722292,
+        "b_G": 128.56820585722275,
         "b_C": -6.413097693642044,
         "b_S": 0.0
       },
@@ -351,10 +320,10 @@
         1905.3135943657599
       ],
       "relative_Ward_residuals": {
-        "photon": 7.42941361926881e-17,
-        "gluon": 6.465216285659347e-17
+        "photon": 7.429413619268811e-17,
+        "gluon": 6.465216285659348e-17
       },
-      "relative_Hermiticity_residual": 3.1912217816852366e-17,
+      "relative_Hermiticity_residual": 1.5956108908426183e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -364,9 +333,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -387,8 +353,8 @@
         1782.9986400296543
       ],
       "relative_Ward_residuals": {
-        "photon": 7.42941361926881e-17,
-        "gluon": 6.465216285659347e-17
+        "photon": 7.429413619268811e-17,
+        "gluon": 6.465216285659348e-17
       },
       "relative_Hermiticity_residual": 1.160340179381925e-17,
       "checks": {
@@ -400,9 +366,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -414,7 +377,7 @@
       },
       "Stokes": {
         "b_U": 1776.5855423360122,
-        "b_G": 128.56820585722275,
+        "b_G": -128.56820585722292,
         "b_C": -6.413097693642044,
         "b_S": 0.0
       },
@@ -423,10 +386,10 @@
         1905.3135943657599
       ],
       "relative_Ward_residuals": {
-        "photon": 7.42941361926881e-17,
-        "gluon": 6.465216285659347e-17
+        "photon": 7.429413619268811e-17,
+        "gluon": 6.465216285659348e-17
       },
-      "relative_Hermiticity_residual": 1.5956108908426183e-17,
+      "relative_Hermiticity_residual": 3.1912217816852366e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -436,9 +399,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -450,19 +410,19 @@
       },
       "Stokes": {
         "b_U": 1684.0111882553479,
-        "b_G": -123.6446169784086,
+        "b_G": 123.64461697840821,
         "b_C": 110.16617657593906,
-        "b_S": 5.976925668584769
+        "b_S": 5.976925668584798
       },
       "B_eigenvalues": [
-        1518.2996877203936,
-        1849.722688790302
+        1518.2996877203939,
+        1849.7226887903018
       ],
       "relative_Ward_residuals": {
-        "photon": 1.1127361660216466e-16,
-        "gluon": 9.050781574103259e-17
+        "photon": 1.0995968861416103e-16,
+        "gluon": 9.844944684313323e-17
       },
-      "relative_Hermiticity_residual": 6.785168458412115e-17,
+      "relative_Hermiticity_residual": 2.2685904830484557e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -472,9 +432,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -486,7 +443,7 @@
       },
       "Stokes": {
         "b_U": 1684.0111882553479,
-        "b_G": -8.444557355359673e-14,
+        "b_G": -3.0460047605873136e-13,
         "b_C": 110.16617657593906,
         "b_S": 5.976925668584769
       },
@@ -495,10 +452,10 @@
         1794.3393809433855
       ],
       "relative_Ward_residuals": {
-        "photon": 1.1127361660216466e-16,
-        "gluon": 9.050781574103259e-17
+        "photon": 1.0995968861416103e-16,
+        "gluon": 9.844944684313323e-17
       },
-      "relative_Hermiticity_residual": 6.089537885495894e-17,
+      "relative_Hermiticity_residual": 2.3361941060976827e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -508,9 +465,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -522,7 +476,7 @@
       },
       "Stokes": {
         "b_U": 1684.0111882553479,
-        "b_G": 123.64461697840841,
+        "b_G": -123.64461697840883,
         "b_C": 110.16617657593906,
         "b_S": 5.976925668584769
       },
@@ -531,10 +485,10 @@
         1849.722688790302
       ],
       "relative_Ward_residuals": {
-        "photon": 1.1127361660216466e-16,
-        "gluon": 9.050781574103259e-17
+        "photon": 1.0995968861416103e-16,
+        "gluon": 9.844944684313323e-17
       },
-      "relative_Hermiticity_residual": 5.406326836143361e-17,
+      "relative_Hermiticity_residual": 2.517235490355539e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -544,9 +498,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -557,20 +508,20 @@
         "helicity": -1.0
       },
       "Stokes": {
-        "b_U": 1233.6955075845574,
-        "b_G": -88.79714174177661,
-        "b_C": -160.77312096871628,
-        "b_S": 538.0372154751541
+        "b_U": 1233.6955075845576,
+        "b_G": 88.7971417417765,
+        "b_C": -160.7731209687164,
+        "b_S": 538.0372154751539
       },
       "B_eigenvalues": [
-        665.1737630190676,
-        1802.2172521500472
+        665.1737630190675,
+        1802.2172521500468
       ],
       "relative_Ward_residuals": {
-        "photon": 8.589160606599929e-17,
-        "gluon": 7.807459443824619e-17
+        "photon": 7.800961960621663e-17,
+        "gluon": 8.134298055362664e-17
       },
-      "relative_Hermiticity_residual": 1.8961507794384412e-16,
+      "relative_Hermiticity_residual": 2.0898584939901586e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -580,9 +531,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -593,20 +541,20 @@
         "helicity": 0.0
       },
       "Stokes": {
-        "b_U": 1233.6955075845574,
-        "b_G": -8.363153348538076e-14,
-        "b_C": -160.77312096871628,
-        "b_S": 538.0372154751541
+        "b_U": 1233.6955075845576,
+        "b_G": -8.522890316763876e-15,
+        "b_C": -160.7731209687164,
+        "b_S": 538.0372154751539
       },
       "B_eigenvalues": [
-        672.151171256357,
+        672.1511712563573,
         1795.2398439127578
       ],
       "relative_Ward_residuals": {
-        "photon": 8.589160606599929e-17,
-        "gluon": 7.807459443824619e-17
+        "photon": 7.800961960621663e-17,
+        "gluon": 8.134298055362664e-17
       },
-      "relative_Hermiticity_residual": 1.681183498391669e-16,
+      "relative_Hermiticity_residual": 2.0643912829425062e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -616,9 +564,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -629,20 +574,20 @@
         "helicity": 1.0
       },
       "Stokes": {
-        "b_U": 1233.6955075845574,
-        "b_G": 88.79714174177644,
-        "b_C": -160.77312096871628,
-        "b_S": 538.0372154751541
+        "b_U": 1233.6955075845576,
+        "b_G": -88.79714174177653,
+        "b_C": -160.7731209687164,
+        "b_S": 538.0372154751539
       },
       "B_eigenvalues": [
-        665.1737630190676,
-        1802.2172521500472
+        665.1737630190675,
+        1802.2172521500468
       ],
       "relative_Ward_residuals": {
-        "photon": 8.589160606599929e-17,
-        "gluon": 7.807459443824619e-17
+        "photon": 7.800961960621663e-17,
+        "gluon": 8.134298055362664e-17
       },
-      "relative_Hermiticity_residual": 1.548167427767256e-16,
+      "relative_Hermiticity_residual": 2.1822952392215044e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -652,9 +597,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -666,19 +608,19 @@
       },
       "Stokes": {
         "b_U": 1237.8064121725613,
-        "b_G": 30.636776381984898,
+        "b_G": -30.63677638198506,
         "b_C": 5.212489867626346,
         "b_S": 0.0
       },
       "B_eigenvalues": [
-        1206.729376958438,
-        1268.8834473866846
+        1206.7293769584378,
+        1268.8834473866848
       ],
       "relative_Ward_residuals": {
         "photon": 1.152017901903084e-16,
         "gluon": 1.2896198096647002e-16
       },
-      "relative_Hermiticity_residual": 2.008485436026423e-17,
+      "relative_Hermiticity_residual": 4.877750344635599e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -688,9 +630,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -724,9 +663,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -738,19 +674,19 @@
       },
       "Stokes": {
         "b_U": 1237.8064121725613,
-        "b_G": -30.63677638198506,
+        "b_G": 30.636776381984898,
         "b_C": 5.212489867626346,
         "b_S": 0.0
       },
       "B_eigenvalues": [
-        1206.7293769584378,
-        1268.8834473866848
+        1206.729376958438,
+        1268.8834473866846
       ],
       "relative_Ward_residuals": {
         "photon": 1.152017901903084e-16,
         "gluon": 1.2896198096647002e-16
       },
-      "relative_Hermiticity_residual": 4.877750344635599e-17,
+      "relative_Hermiticity_residual": 2.008485436026423e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -760,9 +696,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -774,19 +707,19 @@
       },
       "Stokes": {
         "b_U": 1148.111384961565,
-        "b_G": 29.759770405294933,
-        "b_C": 76.97388714554324,
-        "b_S": 58.4337259286894
+        "b_G": -29.75977040529489,
+        "b_C": 76.97388714554336,
+        "b_S": 58.43372592868957
       },
       "B_eigenvalues": [
-        1046.9920319040025,
+        1046.9920319040023,
         1249.230738019127
       ],
       "relative_Ward_residuals": {
-        "photon": 1.66685848019286e-16,
-        "gluon": 1.4817914548841406e-16
+        "photon": 1.6741774750943212e-16,
+        "gluon": 1.506224350903954e-16
       },
-      "relative_Hermiticity_residual": 2.1178091287638488e-16,
+      "relative_Hermiticity_residual": 1.6312450622333197e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -796,9 +729,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -810,19 +740,19 @@
       },
       "Stokes": {
         "b_U": 1148.111384961565,
-        "b_G": -6.9640647948539705e-15,
-        "b_C": 76.97388714554324,
-        "b_S": 58.4337259286894
+        "b_G": 5.6838123493680897e-14,
+        "b_C": 76.97388714554336,
+        "b_S": 58.43372592868957
       },
       "B_eigenvalues": [
-        1051.4704017908414,
+        1051.4704017908416,
         1244.7523681322882
       ],
       "relative_Ward_residuals": {
-        "photon": 1.66685848019286e-16,
-        "gluon": 1.4817914548841406e-16
+        "photon": 1.6741774750943212e-16,
+        "gluon": 1.506224350903954e-16
       },
-      "relative_Hermiticity_residual": 2.000513850047985e-16,
+      "relative_Hermiticity_residual": 1.771508916459534e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -832,9 +762,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -846,19 +773,19 @@
       },
       "Stokes": {
         "b_U": 1148.111384961565,
-        "b_G": -29.759770405294955,
-        "b_C": 76.97388714554324,
-        "b_S": 58.4337259286894
+        "b_G": 29.75977040529501,
+        "b_C": 76.97388714554336,
+        "b_S": 58.43372592868957
       },
       "B_eigenvalues": [
-        1046.9920319040025,
+        1046.9920319040027,
         1249.230738019127
       ],
       "relative_Ward_residuals": {
-        "photon": 1.66685848019286e-16,
-        "gluon": 1.4817914548841406e-16
+        "photon": 1.6741774750943212e-16,
+        "gluon": 1.506224350903954e-16
       },
-      "relative_Hermiticity_residual": 1.9844852570541098e-16,
+      "relative_Hermiticity_residual": 2.0121012228585222e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -868,9 +795,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -881,20 +805,20 @@
         "helicity": -1.0
       },
       "Stokes": {
-        "b_U": 722.764141963544,
-        "b_G": 23.552622569173018,
-        "b_C": -401.47566196811135,
-        "b_S": 333.7045546905355
+        "b_U": 722.7641419635443,
+        "b_G": -23.552622569173035,
+        "b_C": -401.4756619681115,
+        "b_S": 333.7045546905356
       },
       "B_eigenvalues": [
-        200.1781078946764,
-        1245.3501760324116
+        200.1781078946765,
+        1245.350176032412
       ],
       "relative_Ward_residuals": {
-        "photon": 7.577074414527771e-17,
-        "gluon": 6.829681523884199e-17
+        "photon": 7.594387467740641e-17,
+        "gluon": 6.22341469699928e-17
       },
-      "relative_Hermiticity_residual": 1.9533791735510781e-16,
+      "relative_Hermiticity_residual": 1.7935840433193116e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -904,9 +828,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -917,20 +838,20 @@
         "helicity": 0.0
       },
       "Stokes": {
-        "b_U": 722.764141963544,
-        "b_G": -1.6693892451395407e-14,
-        "b_C": -401.47566196811135,
-        "b_S": 333.7045546905355
+        "b_U": 722.7641419635443,
+        "b_G": 9.744489040402317e-15,
+        "b_C": -401.4756619681115,
+        "b_S": 333.7045546905356
       },
       "B_eigenvalues": [
-        200.70912860389654,
-        1244.8191553231916
+        200.70912860389657,
+        1244.819155323192
       ],
       "relative_Ward_residuals": {
-        "photon": 7.577074414527771e-17,
-        "gluon": 6.829681523884199e-17
+        "photon": 7.594387467740641e-17,
+        "gluon": 6.22341469699928e-17
       },
-      "relative_Hermiticity_residual": 1.9616414527389086e-16,
+      "relative_Hermiticity_residual": 1.9095843527222906e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -940,9 +861,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -953,20 +871,20 @@
         "helicity": 1.0
       },
       "Stokes": {
-        "b_U": 722.764141963544,
-        "b_G": -23.552622569173053,
-        "b_C": -401.47566196811135,
-        "b_S": 333.7045546905355
+        "b_U": 722.7641419635443,
+        "b_G": 23.55262256917305,
+        "b_C": -401.4756619681115,
+        "b_S": 333.7045546905356
       },
       "B_eigenvalues": [
-        200.1781078946764,
-        1245.3501760324116
+        200.1781078946765,
+        1245.350176032412
       ],
       "relative_Ward_residuals": {
-        "photon": 7.577074414527771e-17,
-        "gluon": 6.829681523884199e-17
+        "photon": 7.594387467740641e-17,
+        "gluon": 6.22341469699928e-17
       },
-      "relative_Hermiticity_residual": 1.9936019635738817e-16,
+      "relative_Hermiticity_residual": 2.001460746002133e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -976,9 +894,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -990,19 +905,19 @@
       },
       "Stokes": {
         "b_U": 2072.1940178345467,
-        "b_G": -294.5224895125917,
+        "b_G": 294.5224895125916,
         "b_C": -519.3385012107492,
         "b_S": 0.0
       },
       "B_eigenvalues": [
-        1475.1546760248784,
+        1475.1546760248782,
         2669.233359644215
       ],
       "relative_Ward_residuals": {
         "photon": 5.60993411951064e-17,
-        "gluon": 5.0465150052656744e-17
+        "gluon": 5.046515005265675e-17
       },
-      "relative_Hermiticity_residual": 5.2718491633131435e-17,
+      "relative_Hermiticity_residual": 7.907773744969715e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -1012,9 +927,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1036,7 +948,7 @@
       ],
       "relative_Ward_residuals": {
         "photon": 5.60993411951064e-17,
-        "gluon": 5.0465150052656744e-17
+        "gluon": 5.046515005265675e-17
       },
       "relative_Hermiticity_residual": 5.903339880669127e-17,
       "checks": {
@@ -1048,9 +960,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1062,19 +971,19 @@
       },
       "Stokes": {
         "b_U": 2072.1940178345467,
-        "b_G": 294.5224895125916,
+        "b_G": -294.5224895125917,
         "b_C": -519.3385012107492,
         "b_S": 0.0
       },
       "B_eigenvalues": [
-        1475.1546760248782,
+        1475.1546760248784,
         2669.233359644215
       ],
       "relative_Ward_residuals": {
         "photon": 5.60993411951064e-17,
-        "gluon": 5.0465150052656744e-17
+        "gluon": 5.046515005265675e-17
       },
-      "relative_Hermiticity_residual": 7.907773744969715e-17,
+      "relative_Hermiticity_residual": 5.2718491633131435e-17,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -1084,9 +993,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1098,19 +1004,19 @@
       },
       "Stokes": {
         "b_U": 2031.7953621628847,
-        "b_G": -300.0245366524525,
+        "b_G": 300.02453665245224,
         "b_C": -561.0900796615563,
-        "b_S": 15.622110802708562
+        "b_S": 15.62211080270852
       },
       "B_eigenvalues": [
         1395.3357401647077,
         2668.2549841610607
       ],
       "relative_Ward_residuals": {
-        "photon": 5.49400983890898e-17,
-        "gluon": 6.135607985971204e-17
+        "photon": 6.634964530742919e-17,
+        "gluon": 5.016510994134394e-17
       },
-      "relative_Hermiticity_residual": 5.798765008835272e-17,
+      "relative_Hermiticity_residual": 2.4130742204693326e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -1120,9 +1026,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1134,19 +1037,19 @@
       },
       "Stokes": {
         "b_U": 2031.7953621628847,
-        "b_G": -4.168426795431235e-14,
+        "b_G": -2.742569749478194e-13,
         "b_C": -561.0900796615563,
-        "b_S": 15.622110802708562
+        "b_S": 15.62211080270852
       },
       "B_eigenvalues": [
         1470.4878458756507,
         2593.1028784501186
       ],
       "relative_Ward_residuals": {
-        "photon": 5.49400983890898e-17,
-        "gluon": 6.135607985971204e-17
+        "photon": 6.634964530742919e-17,
+        "gluon": 5.016510994134394e-17
       },
-      "relative_Hermiticity_residual": 7.083614781114996e-17,
+      "relative_Hermiticity_residual": 2.475962281576485e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -1156,9 +1059,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1170,19 +1070,19 @@
       },
       "Stokes": {
         "b_U": 2031.7953621628847,
-        "b_G": 300.02453665245247,
+        "b_G": -300.0245366524528,
         "b_C": -561.0900796615563,
-        "b_S": 15.622110802708562
+        "b_S": 15.62211080270852
       },
       "B_eigenvalues": [
         1395.3357401647077,
         2668.2549841610607
       ],
       "relative_Ward_residuals": {
-        "photon": 5.49400983890898e-17,
-        "gluon": 6.135607985971204e-17
+        "photon": 6.634964530742919e-17,
+        "gluon": 5.016510994134394e-17
       },
-      "relative_Hermiticity_residual": 6.901227185894083e-17,
+      "relative_Hermiticity_residual": 2.6816827260868885e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -1192,9 +1092,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1205,20 +1102,20 @@
         "helicity": -1.0
       },
       "Stokes": {
-        "b_U": 1886.8374191317441,
-        "b_G": -338.966141277909,
-        "b_C": -668.0340706762538,
-        "b_S": -245.78493674086025
+        "b_U": 1886.837419131744,
+        "b_G": 338.96614127790923,
+        "b_C": -668.0340706762536,
+        "b_S": -245.78493674086002
       },
       "B_eigenvalues": [
         1098.4353645645137,
-        2675.2394736989745
+        2675.239473698974
       ],
       "relative_Ward_residuals": {
-        "photon": 5.717174049186383e-17,
-        "gluon": 4.734512251847619e-17
+        "photon": 5.93300613573021e-17,
+        "gluon": 6.111475288988927e-17
       },
-      "relative_Hermiticity_residual": 5.4223730121965985e-17,
+      "relative_Hermiticity_residual": 2.593326616912229e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -1228,9 +1125,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1241,20 +1135,20 @@
         "helicity": 0.0
       },
       "Stokes": {
-        "b_U": 1886.8374191317441,
-        "b_G": 7.940251850178207e-14,
-        "b_C": -668.0340706762538,
-        "b_S": -245.7849367408602
+        "b_U": 1886.837419131744,
+        "b_G": 6.996960173790124e-14,
+        "b_C": -668.0340706762536,
+        "b_S": -245.78493674086008
       },
       "B_eigenvalues": [
         1175.0230088301582,
-        2598.65182943333
+        2598.6518294333296
       ],
       "relative_Ward_residuals": {
-        "photon": 5.717174049186383e-17,
-        "gluon": 4.734512251847619e-17
+        "photon": 5.93300613573021e-17,
+        "gluon": 6.111475288988927e-17
       },
-      "relative_Hermiticity_residual": 1.0055474028768924e-16,
+      "relative_Hermiticity_residual": 2.4867551556646667e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,
@@ -1264,9 +1158,6 @@
       }
     },
     {
-      "convention": "born-current-v2-physical-h",
-      "convention_digest": "81c5ccd25d236ceabc18b32d91b7dd918f70b2c8081bff0865a1ec4f5a343729",
-      "reference_source_sha256": "7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee",
       "inputs": {
         "sqrt_s": 5.0,
         "Q2": 4.0,
@@ -1277,20 +1168,20 @@
         "helicity": 1.0
       },
       "Stokes": {
-        "b_U": 1886.8374191317441,
-        "b_G": 338.96614127790923,
-        "b_C": -668.0340706762538,
+        "b_U": 1886.837419131744,
+        "b_G": -338.9661412779091,
+        "b_C": -668.0340706762536,
         "b_S": -245.78493674086013
       },
       "B_eigenvalues": [
         1098.4353645645137,
-        2675.2394736989754
+        2675.239473698975
       ],
       "relative_Ward_residuals": {
-        "photon": 5.717174049186383e-17,
-        "gluon": 4.734512251847619e-17
+        "photon": 5.93300613573021e-17,
+        "gluon": 6.111475288988927e-17
       },
-      "relative_Hermiticity_residual": 1.3578423018634195e-16,
+      "relative_Hermiticity_residual": 2.4201187282718304e-16,
       "checks": {
         "on_shell_and_conservation": true,
         "photon_Ward": true,

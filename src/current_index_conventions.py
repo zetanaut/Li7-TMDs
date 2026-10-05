@@ -1,9 +1,4 @@
-"""Read-only diagnostics for ordered lepton currents and the Born trace.
-
-No function in this module changes the historical Born implementation.
-The candidate contraction is evaluated separately from its source-labelled
-reference.  All spinors are anchored before a tensor label is compared.
-"""
+"""Ordered-current checks for corrected physical and historical Born traces."""
 from __future__ import annotations
 
 import numpy as np
@@ -139,19 +134,20 @@ def _matrix(report):
 
 
 def born_case(inputs):
+    from gluon_born_response import evaluate_legacy_source_label
     h=inputs['helicity']
     physical=direct(**inputs)
-    literal=_matrix(evaluate(**inputs))
-    # Algebraic identity L_source(h)^T = L_source(-h); the latter call is
-    # only a separate candidate trace evaluation, never a literal match.
-    candidate=_matrix(evaluate(**dict(inputs,helicity=-h)))
+    literal=_matrix(evaluate_legacy_source_label(**inputs))
+    corrected=_matrix(evaluate(**inputs))
+    migration=_matrix(evaluate_legacy_source_label(**dict(inputs,helicity=-h)))
     e=np.array([2,1+2j],complex);e=e/np.linalg.norm(e)
     circular=np.array([1,1j],complex)/np.sqrt(2)
     rate=lambda B,z:float(np.real(z@B@z.conj()))
     return {'inputs':inputs,'literal_max_abs':float(np.max(np.abs(physical-literal))),
-            'candidate_max_abs':float(np.max(np.abs(physical-candidate))),
+            'corrected_max_abs':float(np.max(np.abs(physical-corrected))),
+            'migration_max_abs':float(np.max(np.abs(corrected-migration))),
             'literal_b_G':float(literal[0,1].imag),
-            'candidate_b_G':float(candidate[0,1].imag),
+            'corrected_b_G':float(corrected[0,1].imag),
             'physical_b_G':float(physical[0,1].imag),
             'unchanged_UCS_max_abs':float(max(abs(physical[0,0].real-literal[0,0].real),
                                          abs(physical[1,1].real-literal[1,1].real),
@@ -193,8 +189,9 @@ def run():
         for h in (-1,1):
             case=born_case(dict(sqrt_s=5.,Q2=4.,mass=1.5,theta=theta,
                                 phi=phi,lepton_energy=10.,helicity=h))
-            if not (case['literal_max_abs']>1 and case['candidate_max_abs']<1e-8):
-                raise AssertionError('literal mismatch and candidate agreement required')
+            if not (case['literal_max_abs']>1 and case['corrected_max_abs']<1e-8
+                    and case['migration_max_abs']<1e-8):
+                raise AssertionError('legacy mismatch and corrected physical agreement required')
             cases.append(case)
     sidis=sidis_ordering()
     if sidis['trace_to_reverse_hard']>1e-12 or sidis['complex_offdiagonal']<1e-5:
@@ -211,6 +208,6 @@ def run():
             'anchors':anchors,'annihilation_spinors':annihilation_spinor_anchor(),
             'born_cases':cases,'sidis':sidis,
             'status':{'diagnostic_execution':'PASS',
-                      'literal_physical_source_agreement':'MISMATCH',
-                      'candidate_index_interchange':'AGREES',
-                      'publication_eligibility':'BLOCKED_AUTHOR_REVIEW'}}
+                      'legacy_literal_physical_agreement':'EXPECTED_MISMATCH',
+                      'corrected_physical_source_agreement':'AGREES',
+                      'publication_eligibility':'READY_FOR_PUBLICATION_REVIEW'}}

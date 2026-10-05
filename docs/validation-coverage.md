@@ -1,6 +1,6 @@
 # Validation coverage
 
-The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds independent finite-dimensional claims. `quark-processes` adds SIDIS, DY, convolution, and conditional link-reversal evidence. `gluon-processes` adds the full gluon response and independent Born calculations. `limits-positivity` adds the finite limit, moment, and conditional-positivity calculations; `full` adds the bounded [convention closure checks](convention-closure.md). A computational PASS does not establish literal physical-helicity/source Born agreement or publication eligibility.
+The `baseline` profile reruns the 49 historical symbolic outcomes, five Born reference-point diagnostics, all 36 grid cases, and software checks. The cumulative `foundations` profile adds independent finite-dimensional claims. `quark-processes` adds SIDIS, DY, convolution, and conditional link-reversal evidence. `gluon-processes` adds the full gluon response and independent Born calculations. `limits-positivity` adds the finite limit, moment, and conditional-positivity calculations; `full` adds the bounded [convention closure checks](convention-closure.md). The full profile separately requires corrected physical-helicity Born agreement and the old-order negative regression. Publication authorization remains separate.
 
 | Claim | Source definition | Current evidence | Scope and remaining work |
 |---|---|---|---|
