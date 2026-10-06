@@ -30,7 +30,7 @@ def render_summary(run_dir: Path) -> str:
     lines = [
         '# Generated result summary', '',
         (f"This page describes the **{manifest['profile']} profile**. "
-         + ('The declared executable program passed with corrected physical Born current-index agreement; remote publication remains unauthorized.'
+         + ('The declared executable program passed with corrected physical Born current-index agreement; this scientific record grants no deployment permission. Any publication approval is a separate commit-scoped workflow invocation.'
             if manifest['profile']=='full' else
             'The declared executable program passed; analytical QCD inputs and excluded dynamic calculations remain separate.'
             if manifest['profile'] in ('limits-positivity','full') else

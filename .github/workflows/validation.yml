@@ -10,8 +10,8 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
-      - run: pip install -r requirements.txt
-      - run: python -m unittest discover -s tests -v
+      - run: python -m pip install -r requirements-repro-py311.txt
+      - run: python -m pip check
       - name: Execute complete same-revision validation
         shell: bash
         run: |
@@ -19,6 +19,7 @@ jobs:
           python scripts/run_validation.py --profile full --output-root validation_runs | tee /tmp/li7-full.log
           run_dir=$(sed -n 's/^Run directory: //p' /tmp/li7-full.log)
           test -n "$run_dir"
+          LI7_RELEASE_FULL_RUN_DIR="$run_dir" python -m unittest discover -s tests -v
           python scripts/check_foundation_certificates.py
           python scripts/check_gluon_angular_certificate.py
           python scripts/check_collinear_block_certificate.py

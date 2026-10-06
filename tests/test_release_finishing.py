@@ -14,13 +14,71 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
+sys.path.insert(0, str(ROOT / 'scripts'))
 from born_validation import dense_scan, precision_set, verify_scan_payload  # noqa: E402
 from fourier_limits import exact_gaussian  # noqa: E402
 from validation_evidence import EvidenceError, atomic_json, file_digest, validate_run  # noqa: E402
 from validation_manifest import BORN_CHECKS  # noqa: E402
+from check_publication_eligibility import require_commit_authorization  # noqa: E402
 
 
 class ReleaseFinishingTests(unittest.TestCase):
+    def test_commit_scoped_approval_rejects_absent_and_wrong_sha(self):
+        sha = 'a' * 40
+        with self.assertRaisesRegex(ValueError, 'approval is absent'):
+            require_commit_authorization('false', sha, sha, sha)
+        with self.assertRaisesRegex(ValueError, 'full approved commit SHA'):
+            require_commit_authorization('true', 'main', sha, sha)
+        with self.assertRaisesRegex(ValueError, 'revisions disagree'):
+            require_commit_authorization('true', 'b' * 40, sha, sha)
+        with self.assertRaisesRegex(ValueError, 'revisions disagree'):
+            require_commit_authorization('true', sha, sha, 'b' * 40)
+        require_commit_authorization('true', sha, sha, sha)
+
+    def test_authorized_gate_rejects_bad_evidence_and_dirty_tree(self):
+        location = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
+        if not location:
+            self.skipTest('set LI7_RELEASE_FULL_RUN_DIR to test a complete final-revision run')
+        with tempfile.TemporaryDirectory(prefix='li7-authorized-gate-') as temp:
+            clone = Path(temp) / 'checkout'
+            subprocess.run(['git', 'clone', '--quiet', '--shared', str(ROOT), str(clone)],
+                           check=True)
+            revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'],
+                                               cwd=clone, text=True).strip()
+            base = [sys.executable, str(clone / 'scripts/check_publication_eligibility.py'),
+                    '--run-dir', location, '--require-publication-authorization']
+            def invoke(*options):
+                return subprocess.run(base + list(options), cwd=clone,
+                                      text=True, capture_output=True)
+            absent = invoke('--approved-revision', revision)
+            self.assertEqual(absent.returncode, 2)
+            self.assertIn('approval is absent', absent.stderr)
+            wrong = invoke('--publication-approval', 'true', '--approved-revision', 'b'*40)
+            self.assertEqual(wrong.returncode, 2)
+            self.assertIn('revisions disagree', wrong.stderr)
+            approved = ['--publication-approval', 'true', '--approved-revision', revision]
+            valid = invoke(*approved)
+            self.assertEqual(valid.returncode, 0, valid.stderr)
+            original = Path(location)
+            for name, field, value, diagnostic in (
+                ('failed', 'run_state', 'FAILED', 'run is FAILED'),
+                ('stale', 'source_revision', '0'*40, 'source revision mismatch'),
+            ):
+                with self.subTest(name=name):
+                    target = Path(temp) / name
+                    shutil.copytree(original, target)
+                    manifest = json.loads((target / 'manifest.json').read_text())
+                    manifest[field] = value
+                    atomic_json(target / 'manifest.json', manifest)
+                    bad = invoke('--run-dir', str(target), *approved)
+                    self.assertEqual(bad.returncode, 2)
+                    self.assertIn(diagnostic, bad.stderr)
+            with (clone / 'README.md').open('a') as stream:
+                stream.write('\n<!-- disposable post-evidence edit -->\n')
+            dirty = invoke(*approved)
+            self.assertEqual(dirty.returncode, 2)
+            self.assertIn('current working tree is not clean', dirty.stderr)
+
     def test_scan_requires_each_named_boolean_diagnostic(self):
         payload = dense_scan()
         verify_scan_payload(payload)

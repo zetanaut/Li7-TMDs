@@ -61,6 +61,13 @@ python scripts/update_report_summary.py --run-dir /tmp/li7-runs/PRINTED-FULL-RUN
 
 Use the printed run directory for `make_plots.py`; it reads the validated dense-scan payload. A deliberately incomplete or failed run is rejected by the summary generator. The external manuscript and network are not runtime inputs.
 
+Public Pages deployment is a separate, manual `Pages` workflow dispatch from `main`.
+It requires explicit publication approval and the full SHA of that same default-branch
+commit. The workflow repeats complete validation, software regressions,
+certificates, summary and plot generation, strict site build, and scope scan before
+deploying its own artifact. Normal pushes and pull requests validate without
+granting deployment permission; the scientific run manifest remains default-deny.
+
 ## Legacy commands
 
 The original entry points and output options remain available:
