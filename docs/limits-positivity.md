@@ -1,6 +1,6 @@
 # Collinear limits, Fourier tensors, local moments, and positivity
 
-The `limits-positivity` and `full` profiles execute the finite calculations described here. The source is the approved Le–Keller manuscript identified by SHA-256 `3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d`. Validation runs use the compact source definitions encoded in this repository; they do not read the external manuscript.
+The `limits-positivity` and `full` profiles execute the finite calculations described here. The current corrected Le–Keller manuscript is identified by SHA-256 `7436c7b7dab536999f7caf42af54c5820fa474ca81ab4ff8e4cf15259c9a24ee`. The pre-correction version (`3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d`) was used for the historical limit checks; the author-approved correction changed only the Born current-index contraction, leaving the limit and positivity formulas unchanged. Validation runs use the compact source definitions encoded in this repository; they do not read either external manuscript.
 
 ## Angular projection and the straight link
 
@@ -32,7 +32,7 @@ For a fixed target state, the quark and gluon $2\times2$ characteristic polynomi
 
 The joint source-index matrices are built from the defining spin operators with the manuscript's upper off-diagonal `+i` convention. Exact rational-complex spectral amplitudes give a positive Gram matrix; parity averaging preserves positivity, and the source-index 32-column map recovers its coefficients at an admissible nonzero $k_T$. The earlier foundation auxiliary map uses the opposite Pauli-$\sigma_2$ orientation. Its relation to the source matrix is an explicitly checked parton-index transpose and factor of two. A Bell-state counterexample demonstrates that partial transpose itself is **not** positivity preserving; the spectral example is constructed directly in source indices.
 
-The exact collinear block certificate retains the common $1/2$ matrix factor. In the source conventions, the quark outer and middle conditions are $3(h+2h_O/5)^2\le(U_{3/2}+G_{3/2})(U_{1/2}-G_{1/2})$ and $|2h-6h_O/5|\le U_{1/2}+G_{1/2}$. The gluon two-unit flip gives $12h_{1TT}^{g,2}\le(U_{3/2}+G_{3/2})(U_{1/2}+G_{1/2})$, together with the diagonal bounds $U_\Lambda\ge|G_\Lambda|$. A separate checker reconstructs every block entry and determinant from the curated source amplitudes. Exact interior, saturated, zero-diagonal, and violating matrices are evaluated.
+The exact collinear block certificate retains the common $1/2$ matrix factor. In the source conventions, the quark outer and middle conditions are $3(h+2h_O/5)^2\le(U_{3/2}+G_{3/2})(U_{1/2}-G_{1/2})$ and $|2h-6h_O/5|\le U_{1/2}+G_{1/2}$. The gluon two-unit flip gives $12(h_{1TT}^g)^2\le(U_{3/2}+G_{3/2})(U_{1/2}+G_{1/2})$, together with the diagonal bounds $U_\Lambda\ge|G_\Lambda|$. A separate checker reconstructs every block entry and determinant from the curated source amplitudes. Exact interior, saturated, zero-diagonal, and violating matrices are evaluated.
 
 Pairwise minors are insufficient: the exact matrix with diagonal 1 and off-diagonal $-3/4$ has all pairwise principal minors $7/16$ but spectrum $(-1/2,7/4,7/4)$. A singular example with all leading principal minors zero has a negative nonleading minor. A singular positive matrix is accepted as a boundary.
 

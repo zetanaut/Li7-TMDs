@@ -31,7 +31,7 @@ The auxiliary map is consumed by the foundation parity, rotation, coefficient-ra
 | `foundation_certificates`, analytical projectors and independent inversion | 64-by-32 coefficient map and selected minor | Rank and recovery only; selected determinant depends on row normalization. |
 | `source_joint_positivity.source_mapping_check`, `conditional_positivity.convention_reproducer` | Exact source/auxiliary comparison | No PSD transfer. |
 | `source_joint_positivity.spectral_recovery`, `conditional_positivity` source matrices and block checker | Direct source-index operator and spectral Gram | Conditional PSD, fixed-state spectra, collinear bounds. |
-| `gluon_reconstruction`, `gluon_stokes`, response fixtures and event rates | Gluon 2-by-2 source correlator and Born analyzer | No call to the auxiliary 8-by-8 map; Born beam-label review remains separate. |
+| `gluon_reconstruction`, `gluon_stokes`, response fixtures and event rates | Gluon 2-by-2 source correlator and Born analyzer | No call to the auxiliary 8-by-8 map; the corrected physical-helicity Born analyzer is checked independently. |
 
 ## Evidence status
 
