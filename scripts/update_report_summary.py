@@ -207,7 +207,7 @@ def render_summary(run_dir: Path) -> str:
                   'but cannot certify physical PSD. Exact Bell and finite-kT controls reject '
                   'positivity transfer by partial transpose.', '',
                   'The corrected manuscript copy is external to this repository. The historical '
-                  'wrong-order comparison remains a negative regression. Publication is not authorized.', '']
+                  'wrong-order comparison remains a negative regression. This scientific record alone grants no deployment permission.', '']
     return '\n'.join(lines)
 
 

@@ -35,4 +35,4 @@ The auxiliary map is consumed by the foundation parity, rotation, coefficient-ra
 
 ## Evidence status
 
-The `full` profile requires current and trace agreement, the legacy mismatch negative control, and the source/auxiliary partial-transpose checks. A complete current run can establish `READY_FOR_PUBLICATION_REVIEW`; publication authorization remains false. Validation is offline and does not read the external manuscript.
+The `full` profile requires current and trace agreement, the legacy mismatch negative control, and the source/auxiliary partial-transpose checks. A complete current run can establish `READY_FOR_PUBLICATION_REVIEW`; its scientific record grants no standing deployment permission. Publication requires a separate exact-commit workflow approval. Validation is offline and does not read the external manuscript.

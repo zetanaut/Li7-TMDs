@@ -701,7 +701,7 @@ def main() -> int:
           f'{len(LEGACY_SYMBOLIC_LABELS)} legacy symbolic outcomes; '
           f"{next(item['result_payload']['number_of_cases'] for item in results if item['check_id'] == 'grid.complete')} "
           'Born grid cases. Analytical QCD assumptions remain outside computational evidence. '
-          + ('Corrected physical current agreement verified; publication remains unauthorized.'
+          + ('Corrected physical current agreement verified; deployment requires separate exact-commit approval.'
              if args.profile=='full' else ''))
     return 0
 
