@@ -2,6 +2,8 @@
 
 This site explains the executable checks of spin-3/2 target-polarization algebra, leading-twist quark and gluon tensor bases, a selected electromagnetic SIDIS trace, and a Born-level gluon hard response. The motivating target is polarized lithium-7. The algebraic target-spin basis is general to spin 3/2.
 
+The run-scoped `baseline` profile verifies the historical calculations. The cumulative profiles add independent finite-dimensional, process, and limit checks. The `full` profile executes the declared finite computational program and the [convention closure review](convention-closure.md). The author-approved Born index correction is included. Deployment requires separate exact-commit approval after full validation.
+
 The independent coefficient count is **32 quark and 32 gluon coefficients** per specified flavor and gauge-link/color class. In either sector the ranks K = 0, 1, 2, 3 contribute 2, 6, 10, and 14 coefficients. The new spin-3/2 sector is the rank-3 octupole.
 
 ## Recommended reading/running order

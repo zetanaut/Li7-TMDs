@@ -17,11 +17,11 @@ A spin-3/2 density matrix has rank-0 unpolarized, rank-1 vector, rank-2 quadrupo
 
 ## What the symbolic script checks
 
-`src/validate_spin32_tmd.py` checks spin multipoles, density-matrix completeness and inversion, STF identities, elimination of spurious gluon structures, 32-column basis independence, quark Dirac projection identities, and selected electromagnetic SIDIS gamma-matrix trace identities. **All 49 exact symbolic checks pass** in the generated [validation report](results/validation_report.json).
+`src/validate_spin32_tmd.py` checks spin multipoles, density-matrix completeness and inversion, STF identities, elimination of spurious gluon structures, 32-column basis independence, quark Dirac projection identities, and selected electromagnetic SIDIS gamma-matrix trace identities. The committed [validation report](results/validation_report.json) preserves the 49 historical outcomes. The run-scoped baseline executes them again and checks their identity and provenance.
 
 ## What the Born script checks
 
-`src/gluon_born_response.py` calculates a specified, coupling-stripped Born response for γ* g → Q Q̄. It checks physical kinematics, photon and gluon Ward identities, hard-matrix Hermiticity, positivity, and its four Stokes coefficients. The [reference point](results/gluon_born_report.json) and [36-point grid](results/gluon_born_grid_report.json) pass their required checks.
+`src/gluon_born_response.py` calculates a specified, coupling-stripped Born response for γ* g → Q Q̄. It checks physical kinematics, photon and gluon Ward identities, hard-matrix Hermiticity, positivity, and its four Stokes coefficients. The [reference point](results/gluon_born_report.json) and [36-point grid](results/gluon_born_grid_report.json) use the corrected physical-electron-helicity convention; a fresh baseline run evaluates them again. The pre-correction contraction is available only through the explicitly labeled legacy interface. See the [ordered-current convention](docs/convention-closure.md).
 
 ## What the repository does not do
 
@@ -37,18 +37,21 @@ source .venv/bin/activate
 pip install -r requirements.txt
 python src/validate_spin32_tmd.py
 python src/gluon_born_response.py
+python scripts/run_validation.py --profile baseline
 ```
 
-Full reproduction:
+Legacy commands and the run-scoped baseline:
 
 ```bash
 python examples/reproduce_symbolic_validation.py
 python examples/reproduce_gluon_point.py
 python examples/reproduce_gluon_grid.py
 python scripts/make_plots.py
-python scripts/update_report_summary.py
+python scripts/run_validation.py --profile baseline
 python -m unittest discover -s tests -v
 ```
+
+The `baseline` profile records fresh results in a unique directory under `validation_runs/`. Pass that printed directory to `scripts/update_report_summary.py --run-dir ...` or `scripts/make_plots.py --run-dir ...`; both reject incomplete or mismatched evidence. `python scripts/run_validation.py --profile foundations` adds independent spin, STF, convention, covariant, certificate, and projector checks. `python scripts/run_validation.py --profile quark-processes` adds all 32 SIDIS and 14 octupole DY response rows, independent Gaussian integrations, a massless QED current check, and conditional link-reversal algebra. `python scripts/run_validation.py --profile gluon-processes` adds all 32 gluon response rows, fourteen octupole modes, and independent Born comparisons including the 483-case scan. `python scripts/check_foundation_certificates.py` and `python scripts/check_gluon_angular_certificate.py` verify the exact witnesses separately. `python scripts/run_validation.py --profile limits-positivity` adds collinear selection, Fourier/Bessel behavior, local-moment bookkeeping, and conditional partonic positivity. `python scripts/run_validation.py --profile full` adds the physical-helicity and matrix-index closure checks and requires every executable leaf in the declared program. The named development profiles cover subsets; a full computational PASS is not a proof of the analytical QCD assumptions or authorization to publish. See [reproduction instructions](docs/reproducing-results.md), [gluon process evidence](docs/gluon-processes.md), and the [convention map](docs/conventions.md).
 
 See the [documentation site](https://zetanaut.github.io/Li7-TMDs/) for conventions, derivations, checks, and a recommended learning path.
 

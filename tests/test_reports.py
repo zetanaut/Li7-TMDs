@@ -1,36 +1,44 @@
-"""Lightweight checks of the generated scientific artifacts."""
-import json
+"""Execute the legacy scientific calculations rather than trusting stored JSON."""
 from pathlib import Path
+import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'src'))
+sys.path.insert(0, str(ROOT / 'examples'))
+from spin32_symbolic import run_checks  # noqa: E402
+from validation_manifest import LEGACY_SYMBOLIC_LABELS  # noqa: E402
+from gluon_born_response import evaluate  # noqa: E402
+from reproduce_gluon_grid import evaluate_grid  # noqa: E402
 
 
 class ReportTests(unittest.TestCase):
     def test_symbolic_report(self):
-        d = json.loads((ROOT/'results/validation_report.json').read_text())
-        self.assertEqual(sum(v == 'PASS' for v in d.values()), 49)
+        report, ranks = run_checks()
+        self.assertEqual([key for key, value in report.items() if value == 'PASS'],
+                         list(LEGACY_SYMBOLIC_LABELS))
+        self.assertEqual(ranks, {'quark': 32, 'gluon': 32})
         for sector in ('quark', 'gluon'):
-            cat = d[f'{sector}_catalogue']
-            self.assertEqual(len(cat), 32)
-            self.assertEqual([sum(row['K'] == k for row in cat) for k in range(4)], [2, 6, 10, 14])
-            self.assertEqual(d[f'{sector} 64-by-32 tensor map has rank 32'], 'PASS')
+            catalogue = report[f'{sector}_catalogue']
+            self.assertEqual(len(catalogue), 32)
+            self.assertEqual([sum(row['K'] == k for row in catalogue) for k in range(4)],
+                             [2, 6, 10, 14])
 
     def test_born_report(self):
-        d = json.loads((ROOT/'results/gluon_born_report.json').read_text())
-        self.assertTrue(all(d['checks'].values()))
-        self.assertTrue(all(v < 1e-11 for v in d['relative_Ward_residuals'].values()))
-        self.assertTrue(all(v >= -1e-11 for v in d['B_eigenvalues']))
-        br, bi = d['B_real'], d['B_imag']
-        self.assertAlmostEqual(br[0][1], br[1][0], places=9)
-        self.assertAlmostEqual(bi[0][1], -bi[1][0], places=9)
+        report = evaluate()
+        self.assertTrue(all(report['checks'].values()))
+        self.assertTrue(all(value < 1e-11 for value in report['relative_Ward_residuals'].values()))
+        self.assertTrue(all(value >= -1e-11 for value in report['B_eigenvalues']))
+        real, imag = report['B_real'], report['B_imag']
+        self.assertAlmostEqual(real[0][1], real[1][0], places=9)
+        self.assertAlmostEqual(imag[0][1], -imag[1][0], places=9)
 
     def test_grid(self):
-        d = json.loads((ROOT/'results/gluon_born_grid_report.json').read_text())
-        self.assertEqual(d['points'], 36)
-        self.assertEqual(len(d['results']), 36)
-        self.assertTrue(d['all_pass'])
-        self.assertTrue(all(all(row['checks'].values()) for row in d['results']))
+        report = evaluate_grid()
+        self.assertEqual(report['points'], 36)
+        self.assertEqual(len(report['results']), 36)
+        self.assertTrue(report['all_pass'])
+        self.assertTrue(all(all(row['checks'].values()) for row in report['results']))
 
 
 if __name__ == '__main__':

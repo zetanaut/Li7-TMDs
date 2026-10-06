@@ -1,0 +1,9 @@
+{
+  "convention_id": "born-current-v1-legacy-source-label",
+  "files_sha256": {
+    "gluon_born_grid_report_v1.json": "ea09ceef6949819d96b83836cadb9ee0d18dcd756f7cd82b610e040cd6905b97",
+    "gluon_born_report_v1.json": "1669c198dc2289e1bce4a6556a014e5eca4c93c2481e388e9e4bcd34eb776d75"
+  },
+  "manuscript_sha256": "3b5aaff51a77932ad561c1137a6d1bb5f0e4c60353add1d6f9034f2d7e2b892d",
+  "notice": "Raw original JSON lacked convention metadata; these are archived pre-correction reports and cannot certify physical same-label helicity."
+}
