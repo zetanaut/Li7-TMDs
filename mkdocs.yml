@@ -2,6 +2,7 @@ site_name: Li7-TMDs
 site_url: https://zetanaut.github.io/Li7-TMDs/
 repo_url: https://github.com/zetanaut/Li7-TMDs
 repo_name: zetanaut/Li7-TMDs
+edit_uri: edit/main/docs/
 theme: readthedocs
 markdown_extensions:
   - tables
