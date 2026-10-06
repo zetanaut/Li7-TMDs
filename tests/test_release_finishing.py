@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
@@ -22,7 +23,18 @@ from validation_manifest import BORN_CHECKS  # noqa: E402
 from check_publication_eligibility import require_commit_authorization  # noqa: E402
 
 
+def complete_run_location():
+    """Resolve runner output before a subprocess changes to a disposable clone."""
+    raw = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
+    return str((ROOT / raw).resolve()) if raw else None
+
+
 class ReleaseFinishingTests(unittest.TestCase):
+    def test_relative_run_location_is_rooted_before_clone(self):
+        with patch.dict(os.environ, {'LI7_RELEASE_FULL_RUN_DIR':'validation_runs/example'}):
+            self.assertEqual(complete_run_location(),
+                             str(ROOT / 'validation_runs/example'))
+
     def test_commit_scoped_approval_rejects_absent_and_wrong_sha(self):
         sha = 'a' * 40
         with self.assertRaisesRegex(ValueError, 'approval is absent'):
@@ -36,7 +48,7 @@ class ReleaseFinishingTests(unittest.TestCase):
         require_commit_authorization('true', sha, sha, sha)
 
     def test_authorized_gate_rejects_bad_evidence_and_dirty_tree(self):
-        location = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
+        location = complete_run_location()
         if not location:
             self.skipTest('set LI7_RELEASE_FULL_RUN_DIR to test a complete final-revision run')
         with tempfile.TemporaryDirectory(prefix='li7-authorized-gate-') as temp:
@@ -116,7 +128,7 @@ class ReleaseFinishingTests(unittest.TestCase):
                          'c(M_0)=(M_0/M_A)^n c(M_A)')
 
     def test_complete_run_rejects_missing_scan_diagnostics(self):
-        location = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
+        location = complete_run_location()
         if not location:
             self.skipTest('set LI7_RELEASE_FULL_RUN_DIR to test a complete final-revision run')
         original = Path(location)
@@ -136,7 +148,7 @@ class ReleaseFinishingTests(unittest.TestCase):
                 validate_run(target)
 
     def test_complete_run_rejects_precision_convention_change(self):
-        location = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
+        location = complete_run_location()
         if not location:
             self.skipTest('set LI7_RELEASE_FULL_RUN_DIR to test a complete final-revision run')
         original = Path(location)
@@ -156,7 +168,7 @@ class ReleaseFinishingTests(unittest.TestCase):
                 validate_run(target)
 
     def test_gate_checks_live_dirty_tree(self):
-        location = os.environ.get('LI7_RELEASE_FULL_RUN_DIR')
+        location = complete_run_location()
         if not location:
             self.skipTest('set LI7_RELEASE_FULL_RUN_DIR to test a complete final-revision run')
         with tempfile.TemporaryDirectory(prefix='li7-dirty-gate-') as temp:
